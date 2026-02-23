@@ -1,0 +1,80 @@
+---
+title: "Overview"
+description: "Copy"
+---
+
+1. [SOFTWARE](/main/software)
+
+How to create Agent Apps for Innate Robots using the SDK - or ROS2 straight
+
+## Core concepts
+
+<Frame caption="A system diagram of the software running on Innate robots">
+  <img src="/images/system-diagram.png" alt="Innate software system diagram" />
+</Frame>
+
+#### An agentic OS
+
+Innate robots run an agentic OS built on top of ROS2. It is powered by our cloud agent called BASIC.
+
+This abstraction layer allows to create powerful agentic applications quickly without having to care about the usual suspects of classic robotics (unless you want to).
+
+#### Agents
+
+The central concept of the Innate OS is the `agent` , which is our name for a **physical app for robots.** They are defined by a **system prompt** and a set of **skills** they can use.
+
+**Agents** are like **physical apps** for Innate robots.
+
+The most simple agent is:
+
+Copy
+
+```
+from brain_client.agent_types import Agent
+from typing import List
+
+class HelloWorld(Agent):
+    @property
+    def id(self) -> str:
+        return "hello_world"
+
+    @property
+    def display_name(self) -> str:
+        return "Hello World"
+
+    def get_skills(self) -> List[str]:
+        return [""]
+
+    def get_prompt(self) -> str:
+        return """You are just a robot saying hello_world once you start."""
+```
+
+This will start the robot and make it say hello world on the speakers once.
+
+See more in [Agents](/main/software/agents)
+
+#### Skills
+
+**Skills** are the second core concept of the Innate OS.
+
+A skill can be defined with code, a model checkpoint (such as a **VLA**) or other specific interfaces we define for you. Adding a skill to an agent is like giving additional capabilities to your robot.
+
+Similarly to agentic frameworks, **skills** can be thought as **tool calls**, with extra sauce.
+
+Skills can be interrupted by the robot during execution if required, and send feedback in the context of to the running agent.
+
+See how to create skills in [Skills](/main/software/skills)
+
+#### BASIC
+
+BASIC is the embodied AI agent that controls Mars. BASIC can run agents and skills, and gives Mars the ability to reason, memorize, plan and make decisions as it runs.
+
+Understand more how BASIC runs in [BASIC](/main/software/basic)
+
+#### ROS2 core
+
+Our OS runs at the core on **ROS2** and can be augmented at that level by roboticists that understand it.
+
+See [ROS2 Core](/main/software/ros2-core) for more information on nodes, topics, and services available.
+
+[PreviousConnecting to a robot](/main/robots/innate-controller-app/connecting-to-a-robot)[NextDevelopment Setup](/main/software/development-setup)

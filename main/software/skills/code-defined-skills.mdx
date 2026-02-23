@@ -1,0 +1,173 @@
+---
+title: "Overview"
+description: "Copy"
+---
+
+1. [SOFTWARE](/main/software)
+2. [Skills](/main/software/skills)
+
+Code-defined skills are Python classes that implement robot behaviors with explicit logic. The AI agent reads your code's function signature and docstrings to understand what the skill does and how to call it.
+
+## Design Principles
+
+The skill SDK is designed to be **pythonic**—you should be able to read a skill and immediately understand what it does.
+
+### 1. The Agent Reads Your Code
+
+The AI agent understands your skill through its Python signature:
+
+Copy
+
+```
+def execute(self, target: str, speed: float = 0.5):
+    """Move toward the target object.
+
+    Args:
+        target: Object to approach (e.g., "cup", "person")
+        speed: Movement speed in m/s
+    """
+```
+
+The agent sees `execute(target: str, speed: float = 0.5)` and knows exactly how to call your skill. Type hints matter—they're your API contract with the AI.
+
+### 2. One-Line Declarations
+
+Dependencies are declared as class attributes, not boilerplate in `__init__`:
+
+Copy
+
+```
+class MySkill(Skill):
+    # Hardware access - one line
+    mobility = Interface(InterfaceType.MOBILITY)
+
+    # Sensor data - one line
+    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+```
+
+The system automatically injects what you declare. No manual wiring.
+
+### 3. Direct Access
+
+Once declared, use your dependencies as normal Python attributes:
+
+Copy
+
+```
+def execute(self):
+    if self.image:                    # Latest camera frame, updated at 50Hz
+        self.mobility.rotate(0.5)     # Rotate 0.5 radians
+```
+
+No callbacks, no message passing, no ROS complexity. Just Python.
+
+## The Skill Class
+
+Every code-defined skill extends `Skill` and implements these methods:
+
+Copy
+
+```
+from brain_client.skill_types import Skill, SkillResult
+
+class MySkill(Skill):
+    @property
+    def name(self):
+        return "my_skill"  # Unique identifier
+
+    def guidelines(self):
+        """Tell the agent when to use this skill."""
+        return "Use when you need to [do something specific]"
+
+    def execute(self, param1: str, param2: float = 1.0):
+        """Do the thing. Agent calls this with parsed arguments."""
+        # Your logic here
+        return "Result message", SkillResult.SUCCESS
+
+    def cancel(self):
+        """Stop gracefully when interrupted."""
+        return "Cancelled"
+```
+
+Method
+
+Purpose
+
+`name`
+
+Unique identifier the agent uses to call this skill
+
+`guidelines()`
+
+Natural language instructions for when/how to use the skill
+
+`execute()`
+
+The actual behavior—signature defines the skill's parameters
+
+`cancel()`
+
+Clean shutdown when the user or agent interrupts
+
+## Skill Results
+
+Return a tuple of `(message, status)` from `execute()`:
+
+Copy
+
+```
+from brain_client.skill_types import SkillResult
+
+def execute(self):
+    if success:
+        return "Task completed", SkillResult.SUCCESS
+    elif self._cancelled:
+        return "Interrupted by user", SkillResult.CANCELLED
+    else:
+        return "Something went wrong", SkillResult.FAILURE
+```
+
+Status
+
+Meaning
+
+`SUCCESS`
+
+Skill completed its task
+
+`FAILURE`
+
+Something went wrong
+
+`CANCELLED`
+
+Skill was interrupted via `cancel()`
+
+## Feedback
+
+Send progress updates during long-running skills. The agent reads feedback in real-time and can act on it—for example, canceling the skill or triggering another one immediately:
+
+Copy
+
+```
+def execute(self):
+    for i in range(10):
+        self._send_feedback(f"Step {i+1}/10")
+        # ... do work ...
+    return "Done", SkillResult.SUCCESS
+```
+
+## Next Steps
+
+* [**Navigation Interfaces**](/main/software/skills/code-defined-skills/navigation-interfaces) — Mobility control, rotation, velocity commands
+
+* [**Body Control Interfaces**](/main/software/skills/code-defined-skills/body-control-interfaces) — Arm manipulation, head movement, IK
+
+* [**Robot State**](/main/software/skills/code-defined-skills/robot-state) — Camera, odometry, map, sensor data
+
+* [**Physical Skill Examples**](/main/software/skills/code-defined-skills/physical-skill-examples) — Full-body behaviors combining navigation + manipulation
+
+* [**Digital Skills**](/main/software/skills/code-defined-skills/digital-skills) — APIs, email, web services
+
+[PreviousSkills](/main/software/skills)[NextNavigation Interfaces](/main/software/skills/code-defined-skills/navigation-interfaces)
+

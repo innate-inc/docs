@@ -1,0 +1,160 @@
+---
+title: "Updating MARS"
+description: "Copy"
+---
+
+1. [Robots](/main/robots)
+2. [MARS](/main/robots/mars)
+
+This page explains how to update the software running on your MARS robot using the `innate-update` command-line tool.
+
+Updating MARS will:
+
+* **Fetch the latest Innate OS version** for your robot.
+
+* **Apply code and configuration changes** needed for that version.
+
+* **Restart the robot software stack** so it runs the new version.
+
+All of this is handled for you by `innate-update`.
+
+A new robot OS version may require you to update the [Innate Controller App](/main/robots/innate-controller-app) for full compatibility.
+
+If your update includes stereo-depth changes, run [Stereo Depth Calibration](/main/robots/mars/stereo-depth-calibration) before normal navigation.
+
+***
+
+## Prerequisites
+
+* You can **SSH into your robot**. If WiFi isn't available, you can also [connect via the Jetson USB-C port](/main/robots/mars/connecting-via-ssh#via-usb-c-jetson).
+
+* The `innate-update` command is available on the robot.
+
+* The robot has **internet access**.
+
+If you are missing any of these, contact your admin or refer to the internal setup documentation.
+
+***
+
+The MARS app will automatically indicate when an OS update is available, so you don't need to manually check for updates regularly.
+
+***
+
+## Basic workflow
+
+On the robot, you use three subcommands:
+
+* `innate-update status` – see what version you're on.
+
+* `innate-update check` – see if updates are available and what will change.
+
+* `innate-update apply` – actually install the update.
+
+In normal use you'll run:
+
+1. `innate-update check`
+
+2. If updates are available, `innate-update apply`
+
+***
+
+## Check current version
+
+Run:
+
+Copy
+
+```
+innate-update status
+```
+
+You should see something like:
+
+* A short **current version identifier** (for example, a short commit hash or version string).
+
+* A message indicating that this is your current system version.
+
+Use this when you want to confirm what version your robot is currently running.
+
+***
+
+## Check for updates
+
+Run:
+
+Copy
+
+```
+innate-update check
+```
+
+Typical outcomes:
+
+* **System is up to date**
+
+  * You'll see a message indicating that no updates are available.
+
+  * You'll see the current version identifier.
+
+* **Updates available**
+
+  * You'll see a message that there are **new commits/changes available**.
+
+  * You'll see both your current version and the latest version.
+
+  * You'll see a short summary of recent changes that would be applied.
+
+  * The command will tell you to run `innate-update apply` if you want to install them.
+
+Use this before doing any serious work on the robot to ensure you're on the latest version.
+
+***
+
+## Apply updates
+
+When `innate-update check` shows that updates are available, run:
+
+Copy
+
+```
+innate-update apply
+```
+
+You can expect:
+
+1. A header or banner indicating that the **update process** has started.
+
+2. A summary of the changes that will be applied.
+
+3. A confirmation prompt asking whether you want to continue.
+
+4. Progress messages as the update is applied.
+
+5. A final message indicating that the update **completed successfully**.
+
+During the update:
+
+* Some services and processes on the robot will be **temporarily stopped and restarted**.
+
+* The robot may not be responsive to commands for a short period until the update finishes.
+
+Once the command reports that the update is complete, MARS is running the new software version.
+
+***
+
+## What to do if something looks wrong
+
+If `innate-update check` or `innate-update apply` fails or shows an error:
+
+* Run the command again and read the error message carefully.
+
+* If you cannot resolve it, share:
+
+  * Which command you ran.
+
+  * The error message shown in the terminal.
+
+with your support channel or internal tooling, so they can help debug.
+
+[PreviousNavigation](/main/robots/mars/navigation)[NextConnecting via SSH](/main/robots/mars/connecting-via-ssh)
+

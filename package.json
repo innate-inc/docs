@@ -1,0 +1,12 @@
+{
+  "name": "innate-docs",
+  "private": true,
+  "scripts": {
+    "docs:dev": "npx -y node@22 ./node_modules/mint/index.js dev",
+    "docs:broken-links": "npx -y node@22 ./node_modules/mint/index.js broken-links",
+    "docs:update": "npx -y node@22 ./node_modules/mint/index.js update"
+  },
+  "devDependencies": {
+    "mint": "^4.2.375"
+  }
+}

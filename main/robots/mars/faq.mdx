@@ -1,0 +1,44 @@
+---
+title: "FAQ"
+description: "Copy"
+---
+
+1. [Robots](/main/robots)
+2. [MARS](/main/robots/mars)
+
+<Accordion title="chevron-rightHow do I find my MARS ID?">
+  Your MARS ID is a unique number assigned to your robot. There are two ways to find it:
+
+  **Via Bluetooth**
+
+  When you turn on your robot and look for it in the Innate app's Bluetooth connections screen, the robot will appear with a name like **"MARS the 1st"**, **"MARS the 2nd"**, etc. The number in the name is your MARS ID.
+
+  For example:
+
+  * "MARS the 1st" → MARS ID **1**
+
+  * "MARS the 5th" → MARS ID **5**
+
+  * "MARS the 12th" → MARS ID **12**
+
+  **Via robot\_info.json**
+
+  If you can SSH into your robot, you can also find the ID in the robot info file:
+
+  Copy
+
+  ```
+  cat ~/innate-os-data/robot_info.json
+  ```
+
+  Look for the `robot_id` field in the JSON output.
+</Accordion>
+
+***
+
+## More questions?
+
+If you have other questions not covered here, reach out on [Discord](https://discord.com/invite/KtkyT97kc7) or email [axel@innate.bot](mailto:axel@innate.bot).
+
+[PreviousCharging the Battery](/main/robots/mars/charging-battery)[NextChanging the Voice](/main/robots/mars/changing-voice)
+

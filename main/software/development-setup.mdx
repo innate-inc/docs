@@ -1,0 +1,95 @@
+---
+title: "Development Setup"
+description: "Copy"
+---
+
+1. [SOFTWARE](/main/software)
+
+Different ways to develop software for MARS robots
+
+There are several ways to develop for MARS. This page covers the different approaches and their trade-offs.
+
+## Recommended: VSCode-based IDE with SSH
+
+The recommended approach is to use a **VSCode-based IDE** with remote SSH capabilities. This allows you to:
+
+* Edit code directly on the robot with full IDE features
+
+* Use AI-assisted coding tools
+
+* Access the robot's file system seamlessly
+
+* Run and debug code in the robot's environment
+
+### Compatible IDEs
+
+Several VSCode forks work well for MARS development:
+
+* **Cursor** - AI-first code editor with powerful autocomplete
+
+* **Windsurf** - AI-powered IDE by Codeium
+
+* **Antigravity** - Another AI-enhanced VSCode fork
+
+* **VSCode** - The original, with the Remote SSH extension
+
+All of these support the **Remote - SSH** extension (or have it built-in), which lets you connect to MARS and develop as if the files were local.
+
+### Connecting via SSH
+
+1. **Install the Remote - SSH extension** (if using vanilla VSCode)
+
+2. **Open the Command Palette** (`Cmd+Shift+P` on macOS, `Ctrl+Shift+P` on Windows/Linux)
+
+3. **Select** `Remote-SSH: Connect to Host...`
+
+4. **Enter the SSH connection string** using the credentials and IP from the [Connecting via SSH](/main/robots/mars/connecting-via-ssh) page
+
+5. **Open the workspace folder** once connected (e.g., `/home/jetson1/innate-ws/`)
+
+For default credentials, IP addresses, and connection methods (WiFi vs USB-C), see [Connecting via SSH](/main/robots/mars/connecting-via-ssh).
+
+### Tips for SSH Development
+
+* **Set up SSH keys** to avoid entering the password repeatedly
+
+* **Keep the connection alive** by configuring `ServerAliveInterval` in your `~/.ssh/config`
+
+* **Use the integrated terminal** to run ROS2 commands and test agents directly
+
+***
+
+## Alternative: Local Development with Deployment
+
+You can also develop locally on your machine and deploy to MARS:
+
+1. Write and test code locally
+
+2. Copy files to the robot via `scp` or `rsync`
+
+3. SSH into the robot to run and test
+
+This approach is useful when:
+
+* You have limited or unreliable network connectivity
+
+* You prefer your local development environment
+
+* You're working on code that doesn't require robot hardware for initial testing
+
+***
+
+## Direct SSH Terminal
+
+For quick edits or debugging, you can SSH directly into MARS using terminal-based editors like `nano` or `vim`. See [Connecting via SSH](/main/robots/mars/connecting-via-ssh) for connection details.
+
+This is best for:
+
+* Quick configuration changes
+
+* Viewing logs
+
+* Running diagnostic commands
+
+[PreviousOverview](/main/software/overview)[NextSkills](/main/software/skills)
+

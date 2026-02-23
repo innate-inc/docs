@@ -1,0 +1,146 @@
+---
+title: "Navigation Interfaces"
+description: "Copy"
+---
+
+1. [SOFTWARE](/main/software)
+2. [Skills](/main/software/skills)
+3. [Code-Defined Skills](/main/software/skills/code-defined-skills)
+
+The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
+
+## Core Navigation (Built-in)
+
+The robot comes with built-in navigation that the agent calls *innately*. You don't need to implement this—it works out of the box.
+
+**Do not modify** the core `navigate_to_position` skill. It's a system-level skill that the agent uses automatically. Modifying it could break navigation behavior.
+
+When you tell the robot "go to the kitchen," the agent automatically:
+
+1. Translates "kitchen" to map coordinates (if the location is saved)
+
+2. Calls the built-in navigation skill
+
+3. Monitors progress and handles obstacles
+
+## MobilityInterface
+
+Declare the interface at class level:
+
+Copy
+
+```
+from brain_client.skill_types import Skill, Interface, InterfaceType
+
+class MySkill(Skill):
+    mobility = Interface(InterfaceType.MOBILITY)
+```
+
+### Methods
+
+Method
+
+Parameters
+
+Description
+
+`rotate()`
+
+`angle_radians: float`
+
+Rotate in place (blocking, uses Nav2)
+
+`send_cmd_vel()`
+
+`linear_x, angular_z, duration`
+
+Publish velocity (non-blocking)
+
+`rotate_in_place()`
+
+`angular_speed, duration`
+
+Rotate at speed for duration
+
+### Examples
+
+Copy
+
+```
+import math
+
+# Rotate 90 degrees (blocking)
+self.mobility.rotate(math.pi / 2)
+
+# Drive forward for 2 seconds (non-blocking)
+self.mobility.send_cmd_vel(linear_x=0.1, angular_z=0.0, duration=2.0)
+
+# Spin in place
+self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
+```
+
+## When to Use
+
+Scenario
+
+Recommendation
+
+Go to a saved location
+
+Use built-in (agent handles it)
+
+Survey surroundings
+
+Create custom skill with `rotate()`
+
+Follow a person
+
+Create custom skill with `send_cmd_vel()`
+
+Fine positioning for manipulation
+
+Create custom skill
+
+Patrol a route
+
+Create custom skill
+
+## Example: LookAround
+
+A skill that rotates to survey the environment:
+
+Copy
+
+```
+from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+import math
+
+class LookAround(Skill):
+    mobility = Interface(InterfaceType.MOBILITY)
+
+    @property
+    def name(self):
+        return "look_around"
+
+    def guidelines(self):
+        return "Use when the robot needs to look in multiple directions."
+
+    def execute(self, num_directions: int = 4):
+        rotation_per_step = (2 * math.pi) / num_directions
+
+        for i in range(num_directions):
+            if self._cancelled:
+                return "Survey cancelled", SkillResult.CANCELLED
+
+            self._send_feedback(f"Looking direction {i+1}/{num_directions}")
+            self.mobility.rotate(rotation_per_step)
+
+        return "Survey complete", SkillResult.SUCCESS
+
+    def cancel(self):
+        self._cancelled = True
+        return "Survey cancelled"
+```
+
+[PreviousCode-Defined Skills](/main/software/skills/code-defined-skills)[NextBody Control Interfaces](/main/software/skills/code-defined-skills/body-control-interfaces)
+

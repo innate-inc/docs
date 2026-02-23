@@ -1,122 +1,126 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "aspen",
+  "name": "Innate Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0D9373",
+    "light": "#55D799",
+    "dark": "#0D9373"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/images/favicon.png",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Guides",
-        "groups": [
+        "group": "Welcome",
+        "pages": [
+          "index",
+          "main/welcome/mars-quick-start",
+          "main/welcome/mars-quick-development",
+          "main/welcome/mars-example-use-cases",
+          "main/welcome/community-tutorials",
+          "main/welcome/frequently-asked-questions"
+        ]
+      },
+      {
+        "group": "Robots",
+        "pages": [
           {
-            "group": "Getting started",
+            "group": "MARS",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "main/robots/mars",
+              "main/robots/mars/sensors",
+              "main/robots/mars/arm",
+              "main/robots/mars/onboard-computer",
+              "main/robots/mars/control-via-app-and-leader-arm",
+              "main/robots/mars/extending-mars",
+              "main/robots/mars/manipulation",
+              "main/robots/mars/navigation",
+              "main/robots/mars/updating-mars",
+              "main/robots/mars/connecting-via-ssh",
+              "main/robots/mars/stereo-depth-calibration",
+              "main/robots/mars/charging-battery",
+              "main/robots/mars/faq",
+              "main/robots/mars/changing-voice",
+              {
+                "group": "Troubleshooting",
+                "pages": [
+                  "main/robots/mars/troubleshooting",
+                  "main/robots/mars/troubleshooting/critical-fix-before-jan-16"
+                ]
+              }
             ]
           },
           {
-            "group": "Customization",
+            "group": "Innate Controller App",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "main/robots/innate-controller-app",
+              "main/robots/innate-controller-app/connecting-to-a-robot"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
-        "groups": [
+        "group": "SOFTWARE",
+        "pages": [
+          "main/software/overview",
+          "main/software/development-setup",
           {
-            "group": "API documentation",
+            "group": "Skills",
             "pages": [
-              "api-reference/introduction"
+              "main/software/skills",
+              {
+                "group": "Code-Defined Skills",
+                "pages": [
+                  "main/software/skills/code-defined-skills",
+                  "main/software/skills/code-defined-skills/navigation-interfaces",
+                  "main/software/skills/code-defined-skills/body-control-interfaces",
+                  "main/software/skills/code-defined-skills/robot-state",
+                  "main/software/skills/code-defined-skills/physical-skill-examples",
+                  "main/software/skills/code-defined-skills/digital-skills"
+                ]
+              },
+              "main/software/skills/policy-defined-skills",
+              "main/software/skills/manual-triggering"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Agents",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "main/software/agents",
+              "main/software/agents/definitions",
+              "main/software/agents/starting-an-agent",
+              "main/software/agents/agent-examples"
+            ]
+          },
+          {
+            "group": "Inputs",
+            "pages": [
+              "main/software/inputs",
+              "main/software/inputs/definition",
+              "main/software/inputs/example-microphone"
+            ]
+          },
+          {
+            "group": "BASIC",
+            "pages": [
+              "main/software/basic",
+              "main/software/basic/connecting-to-basic"
+            ]
+          },
+          "main/software/ros2-core",
+          {
+            "group": "Advanced",
+            "pages": [
+              "main/software/advanced",
+              "main/software/advanced/ros2-reference"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    "light": "/images/logo-light.png",
+    "dark": "/images/logo-dark.png"
   }
 }

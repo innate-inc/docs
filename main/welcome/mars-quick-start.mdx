@@ -1,0 +1,240 @@
+---
+title: "MARS Quick Start"
+description: "Copy"
+---
+
+1. [Welcome](/main/welcome)
+
+Learn how to control MARS with your phone and the controller arm, make it navigate and talk, and trigger autonomous agents & skills made by others
+
+This page describes the experience of receiving your MARS robot for the first time and running it.
+
+If you want a more technical introduction to our SDK and the underlying ROS2 system, please go to:
+
+[MARS Quick Development](/main/welcome/mars-quick-development)
+
+## A quick overview
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/_Cw5fGa8i3s" title="MARS quick overview" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Powering up and connecting to MARS
+
+MARS turns on automatically when plugging the battery in. Put it on the floor, plug the battery, and open the Innate Controller App (works on iPhone and Android).
+
+The app is available  [here for android](https://innate.bot/android_app) and  [here for ios](https://testflight.apple.com/join/YeChe4A7).
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/lbwYFGgOh-g" title="Powering up and connecting to MARS" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Experience the phone control
+
+Once connected, you can verify that MARS is properly running by controling the robot straight through the app.
+
+1. Go to manual control
+
+2. Make the robot move with the joystick and the head with the slider.
+
+3. Plug the controller arm in and toggle the arm control to verify that the robot mimics your movement.
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/BhP6Z0h69Ho" title="Phone control demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Talk to MARS for the first time
+
+MARS can run BASIC, our embodied agent that allows the robot to act in real-time and decide what to do based on what it sees and hears.
+
+Put MARS on a table, in front of you, go to "Agentic" on the app, and ask it what it sees. You should start seeing its thoughts and answers appear in the chat.
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/GRWwaOIKmec" title="Talk to MARS demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Make MARS navigate
+
+When running BASIC, MARS can navigate. On the agentic screen, ask him things such as "move forward 1m", or "go to the fridge" if the fridge is in sight.
+
+You can also try more complex requests such as "explore until you see a human".
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/EsLdogaaA90" title="Navigation demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Use an autonomous arm AI skill
+
+Innate robots can use "skills" to perform actions in the physical world or the digital world.
+
+You can observe which ones are installed by going in the app to Skills (in the tab bar, middle icon) and looking at the list of physical and digital skills installed.
+
+To **run an arm skill**, go to Home -> **Manual Control**, and **select a skill in the dropdown.**
+
+You can also run an parametric skill (needs input parameters from you) by going in the **Skills tab, selecting "Digital",** picking up a skill, input parameters then press "Execute".
+
+## Use an existing agent
+
+BASIC allows to run programs we call "agents" that determine the robot's purpose and abilities. On the app, you can see which ones are already installed.
+
+Examples that come pre-installed:
+
+* **Demo Agent:** An agent that is proactively talking with you, and following your gaze
+
+* **Chess Agent:** An agent to play chess with its arm with you if you put MARS in front of a chess board
+
+* **Security Guard:** An agent that moves around and warns you if it sees someone
+
+* *More coming soon...*
+
+You can also create your own agent, see [Anatomy of an Agent](/main/software/agents/definitions)
+
+## Create your first map
+
+Innate robots have spatial memory, but they currently require a map for it to be fully functional, so that the robot can remember where it saw things.
+
+Upon connection, you will be invited to create a map first by MARS.
+
+To create another map, in the app, tap on **Configuration Tab -> Mapping** and press the  button. Once the robot is mapping, move around and observe the map being created.
+
+## Congrats, you can control your robot!
+
+Now you know how to run basic controls of the robot from the app.
+
+Next up: Create your first agent and train your first manipulation model, to run them autonomously!
+
+[MARS Quick Development](/main/welcome/mars-quick-development)
+
+## You have completed the quick start!
+
+Congrats!
+
+You can now create basic agents that allow the robot to interact with the world. There is a lot more to try.
+
+You can create additional skills like "wave" and "navigate" to use the arm for learned actions or have the arm access the internet to use Google, send emails, call other agents...
+
+Go to the following pages to learn more:
+
+[Policy-Defined Skills](/main/software/skills/policy-defined-skills)[Code-Defined Skills](/main/software/skills/code-defined-skills)[Body Control Interfaces](/main/software/skills/code-defined-skills/body-control-interfaces)[ROS2 Core](/main/software/ros2-core)
+
+Innate robots introduce a new paradigm in programming robots through code, demonstrations and language.
+
+Our robots run through **skills and agents.**
+
+**Skills** are atomic capabilities built for MARS. These can be digital written in code, like sending emails, or physical like pick up socks, navigate to room.
+
+Skills can be written as **pure code** using the sdk, trained models for manipulation (**VLAs**) and navigation or both.
+
+**Agents** are like an app for your robot.
+
+A BASIC agent is a composition of atomic skills with a system prompt. A robot running on an agent performs complex long horizon task wrapping together its skills with reasoning, memory and decision making capabilities.
+
+### Example: Security Robot
+
+This is a quick walk through of how Mars can be programmed to patrol a house and send alerts over email
+
+### 1. Installation
+
+Install the Innate SDL on your workstation, or download the Innate app from your app store
+
+Copy
+
+```
+pip install innate-sdk 
+```
+
+You can start coding right after by defining files in `~/skills` and `~/agents`
+
+### 2. Train Skill to Open Doors
+
+This is best done through the app, collect a new dataset of demonstrations, choose your parameters and train on our servers
+
+### 3. Email Skill
+
+Through code add a Skill that gives the robot the ability to send emails to different users. Define a guideline for how to use the skill and provide a method to execute
+
+Copy
+
+```
+"""
+Example: Minimal SendEmail skill
+----------------------------------
+This snippet demonstrates how to build a simple Skill class
+that sends an email using SMTP. It is designed for documentation
+purposes: clean, minimal, and easy to follow.
+"""
+
+import os, smtplib
+from email.mime.text import MIMEText
+from brain_client.primitives.types import Skill, SkillResult
+
+class SendEmail(Skill):
+    # Every skill should define a name property
+    @property
+    def name(self):
+        return "send_email"
+
+    # Provide short usage guidelines
+    def guidelines(self):
+        return "Send an emergency email. Provide subject, message, and recipients."
+
+    def __init__(self):
+        # Configure SMTP server and credentials via environment variables
+        self.smtp_server = "smtp.gmail.com"
+        self.smtp_port = 587
+        self.smtp_user = os.getenv("SMTP_USER", "")
+        self.smtp_pass = os.getenv("SMTP_PASS", "")
+
+    # The core method: what happens when the skill is executed
+    def execute(self, subject: str, message: str, recipients):
+        # Allow either a single recipient string or a list
+        if isinstance(recipients, str):
+            recipients = [recipients]
+
+        # Build the email
+        msg = MIMEText(message)
+        msg["From"] = self.smtp_user
+        msg["To"] = ", ".join(recipients)
+        msg["Subject"] = subject
+
+        # Connect to the SMTP server and send the message
+        with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+            server.starttls()
+            server.login(self.smtp_user, self.smtp_pass)
+            server.sendmail(self.smtp_user, recipients, msg.as_string())
+
+        # Return a simple success result
+        return f"Email sent to {', '.join(recipients)}", SkillResult.SUCCESS
+```
+
+### 4. Create an Agent
+
+This is what describes the purpose of the robot during its execution. Define through prompting what the robot should do in different situations, add its relevant skills.
+
+Copy
+
+```
+from typing import List
+from brain_client.agent_types import Agent
+
+class SecurityGuardAgent(Agent):
+    @property
+    def id(self) -> str:
+        return "security_guard"
+
+    @property
+    def display_name(self) -> str:
+        return "Security Guard"
+
+    def get_skills(self) -> List[str]:
+        return ["navigate_to_position", "open_door", "send_email"]
+
+    def get_prompt(self) -> str:
+        return """You are a security guard robot. Patrol the house, 
+        stay alert and professional, watch for intruders, open doors
+         when needed, and send an email immediately if you find one."""
+```
+
+### 5. Run The Agent
+
+New Agents are automatically registered. You can run them from the app.
+
+### 6. Share
+
+Agents and Skills are shareable working across robots.
+
+You can simply share the files in a github repository like our [examples repository](mailto:undefined).
+
+**Mars is designed for builders who want to push the boundaries of what's possible. Whether you're building a 3D printing assistant or something entirely new, we can't wait to see what you'll create.**
+
+[PreviousHome](/main)[NextMARS Quick Development](/main/welcome/mars-quick-development)
