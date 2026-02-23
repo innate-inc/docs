@@ -1,0 +1,230 @@
+---
+title: "Robot State"
+---
+
+The `RobotState` descriptor gives you access to sensor data—camera images, odometry, maps, and more. Declared state is **automatically updated at 50Hz** while your skill runs.
+
+## Declaration
+
+Declare state dependencies as class attributes:
+
+Copy
+
+```
+from brain_client.skill_types import Skill, RobotState, RobotStateType
+
+class MySkill(Skill):
+    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+    odom = RobotState(RobotStateType.LAST_ODOM)
+```
+
+The system injects and updates these values automatically. Always check for `None` on first access.
+
+## Available State
+
+State
+
+Type Enum
+
+Description
+
+Camera Image
+
+`RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64`
+
+Latest frame (base64 JPEG)
+
+Odometry
+
+`RobotStateType.LAST_ODOM`
+
+Position, orientation, velocity
+
+Map
+
+`RobotStateType.LAST_MAP`
+
+Occupancy grid
+
+Head Position
+
+`RobotStateType.LAST_HEAD_POSITION`
+
+Head tilt angle
+
+## Camera Image
+
+The main camera image as a base64-encoded JPEG:
+
+Copy
+
+```
+class MySkill(Skill):
+    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+
+    def execute(self):
+        if not self.image:
+            return "No image available", SkillResult.FAILURE
+
+        # Decode base64 to bytes
+        import base64
+        image_bytes = base64.b64decode(self.image)
+
+        # Use with PIL
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(image_bytes))
+
+        # Or send to vision API
+        response = vision_api.analyze(self.image)
+```
+
+## Odometry
+
+Current position, orientation, and velocity:
+
+Copy
+
+```
+class MySkill(Skill):
+    odom = RobotState(RobotStateType.LAST_ODOM)
+
+    def execute(self):
+        if self.odom:
+            x = self.odom.pose.pose.position.x
+            y = self.odom.pose.pose.position.y
+            # orientation as quaternion
+            qz = self.odom.pose.pose.orientation.z
+            qw = self.odom.pose.pose.orientation.w
+```
+
+## Map
+
+The occupancy grid map:
+
+Copy
+
+```
+class MySkill(Skill):
+    map_data = RobotState(RobotStateType.LAST_MAP)
+
+    def execute(self):
+        if self.map_data:
+            width = self.map_data.info.width
+            height = self.map_data.info.height
+            resolution = self.map_data.info.resolution
+            data = self.map_data.data  # 1D array of occupancy values
+```
+
+## Head Position
+
+Current head tilt angle:
+
+Copy
+
+```
+class MySkill(Skill):
+    head_pos = RobotState(RobotStateType.LAST_HEAD_POSITION)
+
+    def execute(self):
+        if self.head_pos:
+            current_angle = self.head_pos
+            # Returns int: -25 to +15
+```
+
+## Example: CaptureImages
+
+A skill that captures images while rotating:
+
+Copy
+
+```
+from brain_client.skill_types import (
+    Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
+)
+import math
+
+class CaptureImages(Skill):
+    mobility = Interface(InterfaceType.MOBILITY)
+    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+
+    @property
+    def name(self):
+        return "capture_images"
+
+    def guidelines(self):
+        return "Use to capture images from multiple directions."
+
+    def execute(self, num_directions: int = 4):
+        images = []
+        rotation_step = (2 * math.pi) / num_directions
+
+        for i in range(num_directions):
+            if self._cancelled:
+                return "Capture cancelled", SkillResult.CANCELLED
+
+            # Capture current frame
+            if self.image:
+                images.append(self.image)
+                self._send_feedback(f"Captured {i+1}/{num_directions}")
+
+            # Rotate to next position
+            if i < num_directions - 1:
+                self.mobility.rotate(rotation_step)
+
+        return f"Captured {len(images)} images", SkillResult.SUCCESS
+
+    def cancel(self):
+        self._cancelled = True
+        return "Capture cancelled"
+```
+
+## Example: MonitorPosition
+
+A skill that tracks robot movement:
+
+Copy
+
+```
+from brain_client.skill_types import Skill, SkillResult, RobotState, RobotStateType
+import math
+import time
+
+class MonitorPosition(Skill):
+    odom = RobotState(RobotStateType.LAST_ODOM)
+
+    @property
+    def name(self):
+        return "monitor_position"
+
+    def guidelines(self):
+        return "Use to monitor robot position for a duration."
+
+    def execute(self, duration: float = 5.0):
+        if not self.odom:
+            return "Odometry not available", SkillResult.FAILURE
+
+        start_x = self.odom.pose.pose.position.x
+        start_y = self.odom.pose.pose.position.y
+        start_time = time.time()
+
+        while time.time() - start_time < duration:
+            if self._cancelled:
+                return "Monitoring cancelled", SkillResult.CANCELLED
+
+            x = self.odom.pose.pose.position.x
+            y = self.odom.pose.pose.position.y
+            distance = math.sqrt((x - start_x)**2 + (y - start_y)**2)
+
+            self._send_feedback(f"Moved {distance:.2f}m from start")
+            time.sleep(0.5)
+
+        return f"Monitoring complete", SkillResult.SUCCESS
+
+    def cancel(self):
+        self._cancelled = True
+        return "Monitoring cancelled"
+```
+
+[PreviousBody Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces)[NextPhysical Skill Examples](/software/skills/code-defined-skills/physical-skill-examples)
+

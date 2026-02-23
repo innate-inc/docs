@@ -1,0 +1,208 @@
+---
+title: "Policy-Defined Skills"
+---
+
+Policy-defined skills are neural network policies that run end-to-end—taking sensor input and directly outputting robot actions. Unlike code-defined skills where you write explicit logic, policy-defined skills learn behaviors from demonstration.
+
+This approach works well for manipulation tasks where the variability of real-world scenarios makes explicit programming impractical.
+
+## Two Types of Policies
+
+Type
+
+Definition
+
+Use Case
+
+**Learned**
+
+Neural network trained on demonstrations
+
+Tasks requiring visual adaptation
+
+**Replay**
+
+Recorded action sequence
+
+Repeatable, fixed motions
+
+## Learned Skills (ACT Policy)
+
+Learned skills use **Action Chunking with Transformers (ACT)**—a neural network architecture that takes camera images and joint positions as input, and outputs action sequences.
+
+### Metadata Structure
+
+Copy
+
+```
+{
+    "name": "pick_socks",
+    "type": "learned",
+    "guidelines": "Use when you need to pick up socks from the floor",
+    "execution": {
+        "model_type": "act_policy",
+        "checkpoint": "act_policy_step_135000.pth",
+        "stats_file": "dataset_stats.pt",
+        "action_dim": 10,
+        "duration": 45.0,
+        "start_pose": [-0.015, -0.399, 1.456, -1.135, -0.023, 0.833]
+    }
+}
+```
+
+### Execution Flow
+
+1. **Load Policy**: Neural network checkpoint loaded into GPU memory
+
+2. **Move to Start Pose**: Arm moves to consistent initial configuration
+
+3. **Inference Loop (25Hz)**: Every 40ms:
+
+   * Capture images from both cameras
+
+   * Read current joint positions
+
+   * Run policy forward pass
+
+   * Output: 6 joint commands + 2 base velocity commands
+
+4. **Progress Monitoring**: Early termination when progress > 95%
+
+5. **End Pose**: Optionally return to safe configuration
+
+### Key Characteristics
+
+* **Reactive**: Continuously adjusts based on visual feedback
+
+* **Adaptive**: Handles variation in object position, lighting, orientation
+
+* **Coordinated**: Can move arm and base simultaneously
+
+## Replay Skills
+
+Replay skills play back pre-recorded action sequences. Simpler than learned skills, but deterministic and reliable.
+
+### Metadata Structure
+
+Copy
+
+```
+{
+    "name": "wave",
+    "type": "replay",
+    "guidelines": "Use when greeting someone or saying hello",
+    "execution": {
+        "model_type": "replay",
+        "replay_file": "episode_0.h5",
+        "replay_frequency": 50.0,
+        "start_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0],
+        "end_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0]
+    }
+}
+```
+
+### Execution Flow
+
+1. **Load Recording**: H5 file containing timestamped actions
+
+2. **Move to Start Pose**: Arm moves to recorded initial position
+
+3. **Playback (50Hz)**: Execute recorded actions in sequence
+
+4. **End Pose**: Return to specified configuration
+
+## Execution Pipeline
+
+Both skill types are executed by the **BehaviorServer**:
+
+Copy
+
+```
+BASIC calls skill
+       |
+       v
+PrimitiveExecutionActionServer
+       |
+       v (physical skill detected)
+BehaviorServer.ExecuteBehavior
+       |
+       +-- Learned --> Load policy, run inference loop
+       |
+       +-- Replay ---> Load H5 file, playback loop
+       |
+       v
+Robot hardware (/mars/arm/commands, /cmd_vel)
+```
+
+## Creating New Skills
+
+### Learned Skill Workflow
+
+1. **Collect Demonstrations**: Teleoperate robot through task 10-100 times
+
+2. **Train Policy**: Run ACT training pipeline to produce checkpoint
+
+3. **Create Metadata**: Add `metadata.json` with execution parameters
+
+4. **Deploy**: Place in `skills/<name>/` directory
+
+### Replay Skill Workflow
+
+1. **Record Episode**: Teleoperate through motion once, save to H5
+
+2. **Create Metadata**: Add `metadata.json` with replay parameters
+
+3. **Deploy**: Place in `skills/<name>/` directory
+
+## Demonstration Quality
+
+The quality of learned skills depends directly on demonstration quality:
+
+Good Demonstrations
+
+Poor Demonstrations
+
+Consistent starting positions
+
+Variable starting positions
+
+Smooth, deliberate motions
+
+Hesitant, jerky motions
+
+Varied object positions
+
+Always same position
+
+Include error recovery
+
+Only perfect executions
+
+## Skill Selection Guide
+
+Scenario
+
+Recommended Type
+
+Task requires visual adaptation
+
+Learned
+
+Object position varies
+
+Learned
+
+Motion must be identical every time
+
+Replay
+
+Simple gesture (wave, point)
+
+Replay
+
+Faster development cycle
+
+Replay
+
+[PreviousDigital Skills](/software/skills/code-defined-skills/digital-skills)[NextManual Triggering](/software/skills/manual-triggering)
+

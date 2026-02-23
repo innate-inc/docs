@@ -1,0 +1,24 @@
+---
+title: "Connecting to BASIC"
+---
+
+BASIC is accessible for free to all users of Innate robots for 300 cumulative hours - and probably more if you ask us.
+
+***
+
+## How it works
+
+BASIC runs in the cloud at `brain.innate.bot`. Your MARS robot connects to it automatically via websockets using Innate's protocol.
+
+The connection is handled by the `brain_client_node` in the Innate OS. You don't need to configure anything manually—MARS connects to BASIC on startup.
+
+***
+
+## Authentication
+
+Each MARS robot is given a unique **token ID** that authenticates it with BASIC. This token is stored in the `.env` file on your robot.
+
+If you've accidentally deleted your token or need to retrieve it, reach out to us on [Discord](https://discord.com/invite/KtkyT97kc7) or [via email](mailto:axel@innate.bot) and we'll provide it.
+
+[PreviousBASIC](/software/basic)[NextROS2 Core](/software/ros2-core)
+

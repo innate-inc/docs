@@ -1,0 +1,236 @@
+---
+title: "Agent Examples"
+---
+
+These examples demonstrate different agent patterns. Use them as starting points for your own implementations.
+
+## Security Guard
+
+A patrol agent that monitors for intruders and sends email alerts.
+
+Copy
+
+```
+from typing import List
+from brain_client.agent_types import Agent
+
+class SecurityGuardAgent(Agent):
+    """Patrols the premises and alerts on unauthorized visitors."""
+
+    @property
+    def id(self) -> str:
+        return "security_guard"
+
+    @property
+    def display_name(self) -> str:
+        return "Security Guard"
+
+    @property
+    def display_icon(self) -> str:
+        return "assets/security_guard.png"
+
+    def get_skills(self) -> List[str]:
+        return [
+            "navigate_to_position",
+            "open_door",
+            "send_email",
+        ]
+
+    def get_inputs(self) -> List[str]:
+        return ["micro"]
+
+    def get_prompt(self) -> str:
+        return """You are a security guard robot. Maintain a vigilant,
+professional demeanor at all times.
+
+Patrol route:
+1. Start in the living room
+2. Check the kitchen
+3. Move to the bedroom
+4. Inspect the back door
+5. Return to start and repeat
+
+Patrol behavior:
+- Move deliberately through each area
+- Observe carefully before proceeding
+- Open doors that block your path
+- Identify anyone who shouldn't be present
+
+Intruder protocol:
+- Do not confront
+- Send email to owner@example.com immediately
+- Include location and description of what you observed
+
+Maintain professional alertness throughout your patrol."""
+```
+
+**Key pattern**: The prompt includes a specific route, clear behavioral guidelines, and explicit instructions for edge cases (intruder detection).
+
+## Object Collector
+
+A task-focused agent that finds and collects specific items.
+
+Copy
+
+```
+from typing import List
+from brain_client.agent_types import Agent
+
+class SockCollector(Agent):
+    """Collects socks from the floor and places them in the laundry basket."""
+
+    @property
+    def id(self) -> str:
+        return "sock_collector"
+
+    @property
+    def display_name(self) -> str:
+        return "Sock Collector"
+
+    def get_skills(self) -> List[str]:
+        return [
+            "navigate_to_position",
+            "pick_up_object",
+            "drop_object",
+        ]
+
+    def get_inputs(self) -> List[str]:
+        return ["micro"]
+
+    def get_prompt(self) -> str:
+        return """You are a tidying robot. Your task: find socks on the
+floor and place them in the laundry basket.
+
+Procedure:
+1. Scan the room for socks on the floor
+2. Navigate to a visible sock
+3. Pick it up
+4. Navigate to the laundry basket (white wicker basket near the
+   bedroom door)
+5. Drop the sock in
+6. Repeat until no socks remain
+
+Guidelines:
+- Check under furniture edges where socks tend to accumulate
+- If a sock is unreachable, skip it and continue
+- Perform a final sweep when you believe you're done"""
+```
+
+**Key pattern**: Single-purpose agent with a clear procedure and practical guidelines for handling edge cases.
+
+## Tour Guide
+
+An interactive agent that engages with visitors and provides guided tours.
+
+Copy
+
+```
+from typing import List
+from brain_client.agent_types import Agent
+
+class TourGuide(Agent):
+    """Welcomes visitors and provides guided tours of the space."""
+
+    @property
+    def id(self) -> str:
+        return "tour_guide"
+
+    @property
+    def display_name(self) -> str:
+        return "Tour Guide"
+
+    def get_skills(self) -> List[str]:
+        return ["navigate_to_position", "wave"]
+
+    def get_inputs(self) -> List[str]:
+        return ["micro"]
+
+    def get_prompt(self) -> str:
+        return """You are a tour guide robot. Be warm, knowledgeable,
+and attentive to your guests.
+
+Greeting:
+1. Wave and welcome approaching visitors
+2. Ask if they would like a tour
+3. Begin the tour if they accept
+
+Tour route:
+- Entrance: Brief history of the building
+- Main hall: Notable artwork and features
+- Workshop: Current projects and activities
+- Lounge: Conclude and offer to answer questions
+
+Interaction style:
+- Speak clearly at a comfortable pace
+- Allow time for guests to observe each area
+- Answer questions thoroughly
+- Maintain eye contact during conversation
+
+If a guest needs to leave early, thank them for visiting."""
+
+    def uses_gaze(self) -> bool:
+        return True
+```
+
+**Key pattern**: Uses gaze tracking for natural interaction. The prompt covers greeting, tour content, and social protocols.
+
+## Passive Observer
+
+A minimal agent that monitors without active engagement.
+
+Copy
+
+```
+from typing import List
+from brain_client.agent_types import Agent
+
+class QuietObserver(Agent):
+    """Observes the environment and responds only when addressed."""
+
+    @property
+    def id(self) -> str:
+        return "quiet_observer"
+
+    @property
+    def display_name(self) -> str:
+        return "Quiet Observer"
+
+    def get_skills(self) -> List[str]:
+        return ["turn_and_move"]
+
+    def get_inputs(self) -> List[str]:
+        return ["micro"]
+
+    def get_prompt(self) -> str:
+        return """You are an observant robot with a calm presence.
+
+Behavior:
+- Remain quiet unless directly addressed
+- When spoken to, respond briefly and thoughtfully
+- Slowly turn to observe your surroundings
+- Do not move around unless requested
+
+Maintain a non-intrusive presence in the room."""
+
+    def uses_gaze(self) -> bool:
+        return True
+```
+
+**Key pattern**: Minimal skills and a restrained prompt create a passive presence rather than an active participant.
+
+## Combining Patterns
+
+These examples represent common patterns that can be combined:
+
+* **Patrol + Alert**: Security guard pattern
+
+* **Search + Manipulate**: Object collector pattern
+
+* **Navigate + Interact**: Tour guide pattern
+
+* **Observe + Respond**: Passive observer pattern
+
+Mix elements from different patterns to create agents suited to your specific requirements.
+
+[PreviousStarting an Agent](/software/agents/starting-an-agent)[NextInputs](/software/inputs)
+

@@ -1,0 +1,25 @@
+---
+title: "Example: Microphone"
+---
+
+Innate Robots are designed with extensibility in mind.
+
+MARS, in particular, can easily be augmented with a $50 microphone to be able to listen to you (see tested components in [Extending MARS](/robots/mars/extending-mars))
+
+By default, a "micro" input device is available on MARS. If you have a microphone plugged in and are triggering an agent using it, you will be able to talk directly to MARS. See below the relevant part of the code in the hello world agent (same than in [Anatomy of an Agent](/software/agents/definitions)).
+
+Copy
+
+```
+def get_inputs(self) -> List[str]:
+        # This directive can use an intergrated microphone input to hear user
+        return ["micro"] 
+```
+
+The code for this input device is available in our open-source repositories at TBD.
+
+#### How it looks like
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/Da_vpacFfvM" title="Microphone input demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+[PreviousDefinition](/software/inputs/definition)[NextBASIC](/software/basic)

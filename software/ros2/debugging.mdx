@@ -1,0 +1,22 @@
+---
+title: "Debugging"
+---
+
+Use SSH + tmux + ROS2 CLI to debug quickly on robot.
+
+## Basic workflow
+
+1. SSH into MARS.
+2. Attach to runtime session with `tmux attach`.
+3. Inspect active nodes, topics, and logs.
+
+## Useful commands
+
+```bash
+ros2 node list
+ros2 topic list
+ros2 service list
+ros2 doctor
+```
+
+For hardware/runtime issue patterns, see [Troubleshooting](/robots/mars/troubleshooting).

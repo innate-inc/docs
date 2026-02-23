@@ -22,63 +22,63 @@
         "group": "Get Started",
         "pages": [
           "index",
-          "main/welcome/mars-quick-start",
-          "main/welcome/mars-example-use-cases",
-          "main/welcome/developer-setup-10-min"
+          "welcome/mars-quick-start",
+          "welcome/mars-example-use-cases",
+          "welcome/developer-setup-10-min"
         ]
       },
       {
         "group": "MARS Hardware",
         "pages": [
-          "main/robots/mars",
-          "main/robots/mars/control-and-connectivity",
-          "main/robots/mars/capabilities",
-          "main/robots/mars/updates-and-maintenance",
-          "main/robots/mars/calibration",
-          "main/robots/mars/extending-mars"
+          "robots/mars",
+          "robots/mars/control-and-connectivity",
+          "robots/mars/capabilities",
+          "robots/mars/updates-and-maintenance",
+          "robots/mars/calibration",
+          "robots/mars/extending-mars"
         ]
       },
       {
         "group": "Agent SDK",
         "pages": [
-          "main/software/overview",
-          "main/software/development-setup",
-          "main/software/agents",
-          "main/software/skills",
-          "main/software/inputs",
-          "main/software/basic"
+          "software/overview",
+          "software/development-setup",
+          "software/agents",
+          "software/skills",
+          "software/inputs",
+          "software/basic"
         ]
       },
       {
         "group": "Training",
         "pages": [
-          "main/training/overview",
-          "main/training/data-collection",
-          "main/training/dataset-format",
-          "main/training/train-act-policy",
-          "main/training/evaluate",
-          "main/training/deploy-trained-skill"
+          "training/overview",
+          "training/data-collection",
+          "training/dataset-format",
+          "training/train-act-policy",
+          "training/evaluate",
+          "training/deploy-trained-skill"
         ]
       },
       {
         "group": "ROS2 Core",
         "pages": [
-          "main/software/ros2-core",
-          "main/software/ros2/topics",
-          "main/software/ros2/services",
-          "main/software/ros2/actions",
-          "main/software/ros2/navigation-stack",
-          "main/software/ros2/manipulation-stack",
-          "main/software/ros2/debugging"
+          "software/ros2-core",
+          "software/ros2/topics",
+          "software/ros2/services",
+          "software/ros2/actions",
+          "software/ros2/navigation-stack",
+          "software/ros2/manipulation-stack",
+          "software/ros2/debugging"
         ]
       },
       {
         "group": "Troubleshooting & Support",
         "pages": [
-          "main/robots/mars/troubleshooting",
-          "main/robots/mars/critical-fixes",
-          "main/robots/mars/faq",
-          "main/support/contact-discord"
+          "robots/mars/troubleshooting",
+          "robots/mars/critical-fixes",
+          "robots/mars/faq",
+          "support/contact-discord"
         ]
       }
     ]
