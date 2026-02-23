@@ -30,17 +30,16 @@ Examples of two different types of end effectors we used without changing the co
 
 ## Adding sensors and effectors on the USB and GPIOs
 
-We leave it to the user to integrate any additional sensors they want on the ports available. For any added device, users should make sure they install it properly on the robot. You can then feed the data in the BASIC OS by creating a Sensor object in the SDK (to be revealed...)
+Users can integrate additional sensors on the available ports. For any added device, make sure it is mounted and installed properly on the robot. You can then feed data into the BASIC OS by creating a `Sensor` object in the SDK (TBD).
 
 Some sensors we have already tried and work plug-and-play on MARS:
 
-* TONOR directional microphone ([$29 on Amazon](https://www.amazon.com/dp/B0CSCT63BL?ref=fed_asin_title)) - Plug it in and use the TONORMicrophoneInput (to be revealed...) to make MARS able to listen to you in real time.
+* TONOR directional microphone ([$29 on Amazon](https://www.amazon.com/dp/B0CSCT63BL?ref=fed_asin_title)) - MARS already has a built-in microphone. This optional add-on improves directional pickup. Plug it in and use `TONORMicrophoneInput` (TBD).
 
 * Blackiot [Polverine Air Quality Sensor](https://blackiot.swiss/polverine).
 
-#### Example: Adding a microphone
+#### Example: Adding a directional microphone (optional)
 
-By simply plugging a microphone in the robot and following the [Example: Microphone](/software/inputs/example-microphone) guide, you can now talk directly with your MARS, including when it's moving around and doing tasks.
+MARS can already listen with its built-in microphone. If you want more directional pickup, plug in a directional microphone and follow the [Example: Microphone](/software/inputs/example-microphone) guide.
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/Da_vpacFfvM" title="Microphone extension demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
-
