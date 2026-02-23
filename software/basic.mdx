@@ -1,14 +1,15 @@
 ---
-title: "BASIC Integration"
+title: "BASIC Capabilities"
 ---
 
-**BASIC** is our embodied agent, named in tribute to the BASIC languages that hobbyists used in the early age of PCs. Think of it as the LLM OS running your agents and skills. When running, BASIC controls the robot autonomously following your instructions.
+**BASIC** is our embodied agent, named in tribute to the BASIC languages that hobbyists used in the early age of PCs. Think of it as the LLM OS running your agents and skills: it reasons over live perception, chooses the right skills, and controls the robot autonomously from your instructions.
 
-BASIC is a complex assembly of several models, giving the impression you're interacting with one model with ability to memorize and plan spatially.
+BASIC is a multi-model system that behaves like one assistant with memory and planning. A key capability is **spatial RAG**: what MARS sees gets stored as spatial memories, so the agent can retrieve past observations (objects, places, scenes), answer questions about them, and navigate back to where they were seen.
+
+In practice, this means you can ask things like "where did you last see my keys?" and BASIC can use its memory to point to a location or return there. The Innate Controller app surfaces these memories on phone, so you can inspect what was remembered and where.
 
 ## Technical Report
 
 **TBD**
 
-**BASIC** is evaluated and improved in a 3d simulation in which we test its ability to perform a wide array of tasks. More to be revealed soon.
-
+**BASIC** is evaluated and improved in a 3D simulation where we test a wide range of tasks and long-horizon behaviors. More details to be revealed soon.

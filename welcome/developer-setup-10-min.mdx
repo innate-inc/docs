@@ -8,13 +8,25 @@ This is the fastest path to start building for MARS.
 
 Get an editor connected to your robot over SSH in about 10 minutes.
 
-## Steps
+## Setup Steps
 
-1. Install a VSCode-based editor (VSCode, Cursor, or Windsurf).
-2. Add the Remote SSH extension.
-3. Get your robot IP from the app (**Configuration -> WiFi**).
-4. Connect with `ssh jetson1@<robot-ip>`.
-5. Open your workspace on the robot (for example `~/innate-os`).
+<Steps>
+  <Step title="Install a VSCode-based editor">
+    Use VSCode, Cursor, Windsurf, or another compatible VSCode fork.
+  </Step>
+  <Step title="Add Remote SSH support">
+    Install the `Remote - SSH` extension if it is not already built in.
+  </Step>
+  <Step title="Get your robot IP">
+    In the app, open **Configuration -> WiFi** and copy the robot IP.
+  </Step>
+  <Step title="Connect over SSH">
+    Run `ssh jetson1@<robot-ip>` from your terminal, or connect through your IDE.
+  </Step>
+  <Step title="Open your robot workspace">
+    Open your project folder on the robot, for example `~/innate-os`.
+  </Step>
+</Steps>
 
 For full setup details, use the canonical guide:
 

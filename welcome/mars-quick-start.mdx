@@ -16,9 +16,27 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
 
 ## Powering up and connecting to MARS
 
-MARS turns on automatically when plugging the battery in. Put it on the floor, plug the battery, and open the Innate Controller App (works on iPhone and Android).
-
-The app is available  [here for android](https://innate.bot/android_app) and  [here for ios](https://testflight.apple.com/join/YeChe4A7).
+<Steps>
+  <Step title="Place and power">
+    Put MARS on the floor and plug in the battery. The robot powers on automatically.
+  </Step>
+  <Step title="Install/open the app">
+    Use the Innate Controller App on your phone.
+    <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap", marginTop: "8px" }}>
+      <a href="https://innate.bot/android_app" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+        <img src="/images/logos/stores/google-play.svg" alt="Google Play" width="18" height="18" />
+        <span>Android</span>
+      </a>
+      <a href="https://testflight.apple.com/join/YeChe4A7" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+        <img src="/images/logos/stores/app-store.svg" alt="App Store" width="18" height="18" />
+        <span>iOS</span>
+      </a>
+    </div>
+  </Step>
+  <Step title="Connect to your robot">
+    Follow the app onboarding flow and connect to your MARS.
+  </Step>
+</Steps>
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/lbwYFGgOh-g" title="Powering up and connecting to MARS" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
@@ -26,11 +44,17 @@ The app is available  [here for android](https://innate.bot/android_app) and  [h
 
 Once connected, you can verify that MARS is properly running by controling the robot straight through the app.
 
-1. Go to manual control
-
-2. Make the robot move with the joystick and the head with the slider.
-
-3. Plug the controller arm in and toggle the arm control to verify that the robot mimics your movement.
+<Steps>
+  <Step title="Open Manual Control">
+    Go to the **Manual Control** screen in the app.
+  </Step>
+  <Step title="Drive and move head">
+    Use the joystick for base motion and the slider for head movement.
+  </Step>
+  <Step title="Test leader arm">
+    Plug in the controller arm and toggle arm control to verify MARS mirrors your motion.
+  </Step>
+</Steps>
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/BhP6Z0h69Ho" title="Phone control demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
@@ -80,9 +104,20 @@ You can also create your own agent, see [Anatomy of an Agent](/software/agents/d
 
 Innate robots have spatial memory, but they currently require a map for it to be fully functional, so that the robot can remember where it saw things.
 
-Upon connection, you will be invited to create a map first by MARS.
-
-To create another map, in the app, tap on **Configuration Tab -> Mapping** and press the  button. Once the robot is mapping, move around and observe the map being created.
+<Steps>
+  <Step title="Start mapping">
+    On first connection, MARS prompts you to create a map.
+  </Step>
+  <Step title="Open Mapping tab">
+    In the app, go to **Configuration** -> **Mapping**.
+  </Step>
+  <Step title="Create a new map">
+    Press **Create New Map** (or the add button) to begin mapping.
+  </Step>
+  <Step title="Drive and scan">
+    Drive around your space and watch the map build in real time.
+  </Step>
+</Steps>
 
 ## Congrats, you can control your robot!
 
@@ -227,4 +262,3 @@ Agents and Skills are shareable working across robots.
 You can simply share the files in a github repository like our [examples repository](mailto:undefined).
 
 **Mars is designed for builders who want to push the boundaries of what's possible. Whether you're building a 3D printing assistant or something entirely new, we can't wait to see what you'll create.**
-

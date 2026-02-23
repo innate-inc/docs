@@ -8,17 +8,79 @@ MARS is a compact mobile manipulator with onboard AI compute, designed as a comp
 
 ## Hardware at a glance
 
-<CardGroup cols={3}>
-  <Card title="Sensors" icon="camera" href="/robots/mars/sensors">
-    Cameras and sensor stack used for perception, navigation, and manipulation.
-  </Card>
-  <Card title="Arm" icon="hand" href="/robots/mars/arm">
-    Arm hardware, capabilities, and operation details.
-  </Card>
-  <Card title="Onboard Computer" icon="microchip" href="/robots/mars/onboard-computer">
-    Jetson-based onboard compute powering the robot stack.
-  </Card>
-</CardGroup>
+### Sensors
+
+MARS features a comprehensive sensor suite with three primary sensors:
+
+#### Forward-Facing RGBD Camera
+
+* High-quality depth perception with 6.0 cm stereo baseline
+* 150° diagonal field of view
+* Effective depth range: 40 cm to 6 m
+* Depth accuracy: &lt;2% error up to 3.5 m, &lt;4% to 6.5 m, &lt;6% to 9 m
+
+#### Gripper-Mounted RGB Camera
+
+* 160° diagonal field of view
+* 2MP resolution (1920x1080)
+* 30 FPS at full resolution
+* Ideal for close-range manipulation tasks and visual servoing
+
+#### 2D LiDAR
+
+* 360° scanning coverage
+* Range: 0.15 m to 6 m
+* Angular resolution: &lt;=1°
+* Distance resolution: &lt;0.5 mm
+* Scan rate: 10 Hz
+* Primary sensor for SLAM and navigation
+
+This sensor configuration enables robust perception, precise manipulation, and reliable navigation.
+
+#### Custom sensors
+
+MARS provides two powered USB 3.0 ports for additional sensors/peripherals:
+
+* 2x USB 3.0 ports
+* Power output: 1.2 A per port
+* Data transfer rate: up to 5 Gbps
+* Hot-swappable
+* Full compatibility with USB 2.0 devices
+
+### Arm
+
+#### Specifications
+
+* Reach: 40 cm
+* Repeatability: 2 mm
+* Payload: 250 g at maximum extension
+
+#### Actuators
+
+| Qty | Actuator | Model | Link |
+| --- | --- | --- | --- |
+| 2 | Dynamixel XL430 (Robotis) | `XL430-W250-T` | [Product Page](https://www.robotis.us/dynamixel-xl430-w250-t/) |
+| 1 | Dynamixel XC430 (Robotis) | `XC430-T240BB-T` | [Product Page](https://www.robotis.us/dynamixel-xc430-t240bb-t/) |
+| 4 | Dynamixel XL330 (Robotis) | `XL330-M288` | [Product Page](https://www.robotis.us/dynamixel-xl330-m288-t/) |
+
+These actuators were chosen for robustness and repeatability. The arm can reliably perform tasks such as chess manipulation (see [Examples](/welcome/mars-example-use-cases)).
+
+### Onboard Computer
+
+MARS ships with a [Jetson Orin Nano Super 8GB Development Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/).
+
+![](/images/main/robots/mars/onboard-computer.png)
+
+Specs:
+
+* **AI Performance:** Up to 67 TOPS (sparse INT8)
+* **GPU:** NVIDIA Ampere architecture with 1024 CUDA cores and 32 Tensor cores
+* **CPU:** 6-core ARM Cortex-A78AE v8 (64-bit)
+* **Memory:** 8 GB LPDDR5
+* **Storage:** 1 TB SSD (integrated by Innate) + 32 GB microSD (for OS)
+* **Developer Kit Includes:** Jetson Orin Nano Super module and reference carrier board
+
+Innate also exposes two additional USB ports for user extensions after core system wiring.
 
 ## Platform details
 

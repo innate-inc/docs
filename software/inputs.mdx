@@ -2,9 +2,61 @@
 title: "Inputs"
 ---
 
-Inputs allow to send additional data asynchornously to BASIC when running an agent.
+Inputs let you send additional data asynchronously to BASIC while an agent is running.
 
-They are particularly fit to integrating data from a sensor you added to the robot, for example a microphone.
+They are useful when integrating external signals such as:
 
-They are also useful to have it receive data asynchronously from another device or api on the internet, like emails.
+* Added sensors (for example: directional microphone, air-quality sensor)
+* Network events (for example: incoming emails, webhook alerts)
+* Internal robot status events
 
+The most important part: an input can send live feedback to BASIC while the agent is executing.
+
+## Minimal input example (stripped down)
+
+```python
+import threading
+from brain_client.input_types import InputDevice
+
+class AlertsInput(InputDevice):
+    def __init__(self):
+        super().__init__()
+        self._stop = threading.Event()
+
+    @property
+    def name(self) -> str:
+        return "alerts_input"
+
+    def on_open(self):
+        self._stop.clear()
+
+        def loop():
+            while not self._stop.is_set():
+                events = self._poll_events()  # your sensor/API hook
+                for event_text in events:
+                    # Async feedback to BASIC during agent execution
+                    self.send_data(event_text, data_type="chat_in")
+                self._stop.wait(1.0)
+
+        threading.Thread(target=loop, daemon=True).start()
+
+    def on_close(self):
+        self._stop.set()
+
+    def _poll_events(self):
+        return []
+```
+
+## Attach it to an agent
+
+```python
+def get_inputs(self) -> list[str]:
+    return ["alerts_input"]
+```
+
+When this agent starts, `on_open()` is called and BASIC begins receiving these asynchronous updates.
+
+For more details:
+
+* [Definition](/software/inputs/definition)
+* [Example: Microphone](/software/inputs/example-microphone)

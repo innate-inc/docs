@@ -14,16 +14,33 @@ Skills are defined in one of two ways:
 
 Python classes that implement explicit logic. The AI agent reads your code's function signature and docstrings to understand what the skill does and how to call it.
 
+Interfaces are declared at class level and injected by the runtime. In `execute()`, use them directly via `self.<interface_name>`.
+
 ```python
+import math
+from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+
 class LookAround(Skill):
+    # Declared once, injected automatically
     mobility = Interface(InterfaceType.MOBILITY)
     head = Interface(InterfaceType.HEAD)
 
-    def execute(self):
+    @property
+    def name(self):
+        return "look_around"
+
+    def execute(self, num_directions: int = 4):
         """Rotate and scan the environment."""
+        if self.mobility is None or self.head is None:
+            return "Required interfaces not available", SkillResult.FAILURE
+
+        num_directions = max(1, num_directions)
         self.head.set_position(-15)  # Look down
-        self.mobility.rotate(math.pi)  # Turn 180°
-        ...
+        self.mobility.rotate((2 * math.pi) / num_directions)
+        return "Scan complete", SkillResult.SUCCESS
+
+    def cancel(self):
+        return "Cancelled"
 ```
 
 Use code-defined skills for:
@@ -111,4 +128,3 @@ Policy-defined
 `<name>/metadata.json` — JSON metadata + model checkpoint
 
 No registration required. Drop a file in the right place and the robot loads it on startup.
-

@@ -4,235 +4,133 @@ title: "Connecting via SSH"
 
 This page explains how to connect to your MARS robot via SSH.
 
-The default credentials are:
+Default credentials:
 
 * **Username:** `jetson1`
-
 * **Password:** `goodbot`
 
-***
+## Via Wi-Fi
 
-## Via WiFi
+<Steps>
+  <Step title="Join the same network">
+    Make sure your computer and MARS are on the same Wi-Fi network (or your phone hotspot).
+  </Step>
+  <Step title="Run SSH with hostname">
+    In your terminal, run `ssh jetson1@<robot-name>.local`.
+  </Step>
+  <Step title="Authenticate">
+    Enter the password `goodbot` when prompted.
+  </Step>
+</Steps>
 
-If your robot is connected to the same network as your computer, you can SSH into it using its hostname:
+### Finding your robot hostname
 
-```bash
-ssh jetson1@<robot-name>.local
-```
-
-### Finding your robot's hostname
-
-The hostname is based on **your robot's name** (the one you set in the app). The name is automatically converted to a valid hostname:
+The hostname is based on your robot name from the app, converted to a valid host:
 
 * Letters become lowercase
-
-* Spaces and special characters become hyphens (`-`)
-
-* Multiple hyphens are collapsed into one
-
+* Spaces/special characters become hyphens (`-`)
+* Multiple hyphens are collapsed
 * Leading/trailing hyphens are removed
 
-**Examples:**
+Examples:
 
-Robot Name
+| Robot name | Hostname | SSH command |
+| --- | --- | --- |
+| `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
+| `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
+| `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
 
-Hostname
-
-SSH Command
-
-`My Robot`
-
-`my-robot.local`
-
-`ssh jetson1@my-robot.local`
-
-`MARS_01`
-
-`mars-01.local`
-
-`ssh jetson1@mars-01.local`
-
-`Test Bot`
-
-`test-bot.local`
-
-`ssh jetson1@test-bot.local`
-
-If you haven't named your robot, the default hostname is `mars.local`:
+If your robot has no custom name yet, use:
 
 ```bash
 ssh jetson1@mars.local
 ```
 
-***
+## Via Ethernet (preferred wired method)
 
-## Via Ethernet (Preferred Wired Method)
+<Steps>
+  <Step title="Connect Ethernet cable">
+    Connect an Ethernet cable between your computer and MARS.
+  </Step>
+  <Step title="Set static IP on your computer">
+    Configure your Ethernet interface to `192.168.50.1` with netmask `255.255.255.0`.
+  </Step>
+  <Step title="SSH to MARS">
+    Run `ssh jetson1@192.168.50.2`.
+  </Step>
+</Steps>
 
-If you need a reliable wired connection, **Ethernet is the recommended approach**. Connect an Ethernet cable between your computer and the robot.
-
-Once connected, SSH into the robot:
-
-```bash
-ssh jetson1@192.168.50.2
-```
-
-### Configuring your computer's Ethernet
-
-You need to set a static IP on your computer's Ethernet interface. Choose your operating system:
+### Static IP setup by OS
 
 <Tabs>
   <Tab title="Windows">
-    **Windows 10 / 11**
+    <Steps>
+      <Step title="Open adapter settings">
+        Go to **Settings** -> **Network & Internet** -> **Advanced network settings** -> **More network adapter options**.
+      </Step>
+      <Step title="Open Ethernet properties">
+        Right-click **Ethernet** -> **Properties**.
+      </Step>
+      <Step title="Edit IPv4">
+        Open **Internet Protocol Version 4 (IPv4)** and select manual IP configuration.
+      </Step>
+      <Step title="Set values">
+        IP: `192.168.50.1`, Subnet mask: `255.255.255.0`, Gateway/DNS: leave empty.
+      </Step>
+      <Step title="Apply">
+        Save and reconnect Ethernet if needed.
+      </Step>
+    </Steps>
   </Tab>
 
   <Tab title="macOS">
-    1. Right-click **Start** → Select **Network Connections**
-
-    2. Click **Advanced network settings** → **More network adapter options**
-
-    3. Right-click **Ethernet** → Select **Properties**
-
-    4. Double-click **Internet Protocol Version 4 (IPv4)**
-
-    5. Select **Use the following IP address** and fill in:
-
-       * **IP address:** `192.168.50.1`
-
-       * **Subnet mask:** `255.255.255.0`
-
-       * **Default gateway:** (leave blank)
-
-       * **DNS:** (leave empty)
-
-    6. Click **OK** → **Close**
+    <Steps>
+      <Step title="Open Ethernet settings">
+        Go to **System Settings** -> **Network** -> **Ethernet**.
+      </Step>
+      <Step title="Open TCP/IP">
+        Click **Details** -> **TCP/IP**.
+      </Step>
+      <Step title="Set manual IPv4">
+        Configure IPv4 manually with IP `192.168.50.1` and subnet mask `255.255.255.0`; leave router empty.
+      </Step>
+      <Step title="Optional DNS cleanup">
+        In **Details** -> **DNS**, remove DNS servers if you do not want Ethernet to affect internet routing.
+      </Step>
+    </Steps>
   </Tab>
 
   <Tab title="Ubuntu">
-    **macOS (Ventura / Sonoma)**
-  </Tab>
-
-  <Tab title>
-    1. Open **System Settings** → **Network** → Select **Ethernet**
-
-       * If missing: click **+** → **Ethernet**
-
-    2. Click **Details** → **TCP/IP**
-
-    3. Set:
-
-       * **Configure IPv4:** Manually
-
-       * **IP Address:** `192.168.50.1`
-
-       * **Subnet Mask:** `255.255.255.0`
-
-       * **Router:** (leave blank)
-
-    4. Click **OK**
-
-    5. *(Optional)* Go to **Details** → **DNS** and remove any DNS servers to prevent Ethernet from affecting your internet connection
-  </Tab>
-
-  <Tab title>
-    **Ubuntu (GNOME)**
-  </Tab>
-
-  <Tab title>
-    1. Click the top-right system menu → **Wired** → **Wired Settings**
-
-       * Or: **Settings** → **Network** → **Wired**
-
-    2. Click the ⚙️ gear icon next to **Wired**
-
-    3. Go to the **IPv4** tab and set:
-
-       * **Method:** Manual
-
-       * **Address:** `192.168.50.1`
-
-       * **Netmask:** `255.255.255.0`
-
-       * **Gateway:** (leave empty)
-
-       * **DNS:** (leave empty)
-
-    4. Click **Apply**
-
-    5. Toggle **Wired** OFF → ON to apply changes
+    <Steps>
+      <Step title="Open wired settings">
+        Go to **Settings** -> **Network** -> **Wired** and click the gear icon.
+      </Step>
+      <Step title="Configure IPv4 manually">
+        Set method to manual, address `192.168.50.1`, netmask `255.255.255.0`, and leave gateway/DNS empty.
+      </Step>
+      <Step title="Apply">
+        Save and toggle wired OFF/ON.
+      </Step>
+    </Steps>
   </Tab>
 </Tabs>
 
-**macOS (Ventura / Sonoma)**
+## Via USB-C (last resort)
 
-1. Open **System Settings** → **Network** → Select **Ethernet**
+USB-C is not recommended. Use this only when Wi-Fi and Ethernet are unavailable.
 
-   * If missing: click **+** → **Ethernet**
+<Accordion title="Show USB-C connection instructions">
+  <Steps>
+    <Step title="Connect USB-C">
+      Connect a USB-C cable between your computer and the Jetson USB-C port on MARS.
+    </Step>
+    <Step title="Use USB network address">
+      The Jetson exposes a USB network interface at `192.168.55.1`.
+    </Step>
+    <Step title="SSH to Jetson">
+      Run `ssh jetson1@192.168.55.1`.
+    </Step>
+  </Steps>
 
-2. Click **Details** → **TCP/IP**
-
-3. Set:
-
-   * **Configure IPv4:** Manually
-
-   * **IP Address:** `192.168.50.1`
-
-   * **Subnet Mask:** `255.255.255.0`
-
-   * **Router:** (leave blank)
-
-4. Click **OK**
-
-5. *(Optional)* Go to **Details** → **DNS** and remove any DNS servers to prevent Ethernet from affecting your internet connection
-
-**Ubuntu (GNOME)**
-
-1. Click the top-right system menu → **Wired** → **Wired Settings**
-
-   * Or: **Settings** → **Network** → **Wired**
-
-2. Click the ⚙️ gear icon next to **Wired**
-
-3. Go to the **IPv4** tab and set:
-
-   * **Method:** Manual
-
-   * **Address:** `192.168.50.1`
-
-   * **Netmask:** `255.255.255.0`
-
-   * **Gateway:** (leave empty)
-
-   * **DNS:** (leave empty)
-
-4. Click **Apply**
-
-5. Toggle **Wired** OFF → ON to apply changes
-
-***
-
-## Via USB-C (Last Resort)
-
-**USB-C connection is not recommended.** You need to unplug an internal cable to use this method. Only use this as a last resort when WiFi and Ethernet are not available.
-
-<Accordion title="chevron-rightShow USB-C connection instructions">
-  If WiFi and Ethernet are unavailable, you can connect directly to the Jetson's USB-C port.
-
-  1. Connect a USB-C cable between your computer and the Jetson's USB-C port on MARS.
-
-  2. The Jetson exposes a network interface over USB-C at a fixed IP address.
-
-  3. SSH into the robot:
-
-```bash
-  ssh jetson1@192.168.55.1
-  ```
-
-  This method is useful when:
-
-  * The robot is not yet configured for WiFi
-
-  * Ethernet is not available
-
-  * You're debugging network issues as a last resort
+  This mode is useful for first-time recovery or network debugging.
 </Accordion>
-

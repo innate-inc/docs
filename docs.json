@@ -23,8 +23,7 @@
         "pages": [
           "index",
           "welcome/mars-quick-start",
-          "welcome/mars-example-use-cases",
-          "welcome/developer-setup-10-min"
+          "welcome/mars-example-use-cases"
         ]
       },
       {
