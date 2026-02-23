@@ -3,11 +3,19 @@
   "theme": "aspen",
   "name": "Innate Docs",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#55D799",
-    "dark": "#0D9373"
+    "primary": "#401FFB",
+    "light": "#7569FD",
+    "dark": "#130A77"
   },
-  "favicon": "/images/favicon.png",
+  "fonts": {
+    "heading": {
+      "family": "Algebra Display",
+      "source": "/fonts/algebradisplay-regular-trial.woff",
+      "format": "woff",
+      "weight": 500
+    }
+  },
+  "favicon": "/images/logo-white-on-blue-512.png",
   "navigation": {
     "groups": [
       {
