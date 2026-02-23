@@ -2,19 +2,145 @@
 title: "Control & Connectivity"
 ---
 
-Use this section to set up app control, leader-arm teleoperation, and SSH/debug access.
+This page covers app control, leader-arm teleoperation, first-time connectivity, and SSH access.
 
-<CardGroup cols={2}>
-  <Card title="Control via App & Leader Arm" icon="gamepad" href="/main/robots/mars/control-via-app-and-leader-arm">
-    Connect your phone app and leader arm to drive and teleoperate MARS.
-  </Card>
-  <Card title="Innate Controller App" icon="mobile" href="/main/robots/innate-controller-app">
-    Overview of the controller app and the core control workflow.
-  </Card>
-  <Card title="Connecting to a Robot" icon="wifi" href="/main/robots/innate-controller-app/connecting-to-a-robot">
-    First-time onboarding, BLE setup, and Wi-Fi connection flow.
-  </Card>
-  <Card title="Connecting via SSH" icon="terminal" href="/main/robots/mars/connecting-via-ssh">
-    SSH access through network or USB-C for advanced setup and debugging.
-  </Card>
-</CardGroup>
+## Control via App and Leader Arm
+
+MARS (and all Innate robots) are controllable via the Innate app:
+
+* [Android](https://innate.bot/android_app)
+* [iOS (TestFlight)](https://testflight.apple.com/join/YeChe4A7)
+
+Every MARS robot comes with a leader arm attachable to your phone:
+
+<Frame caption="The arm is plugged in your phone with a double USB-C cable">
+  <img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="375" />
+</Frame>
+
+The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm. For best results, stand behind the robot while teleoperating.
+
+**iOS users:** The leader arm connects via USB-C and is not compatible with iOS devices. Reach out on [Discord](https://discord.com/invite/KtkyT97kc7) for access to a free Android phone for leader arm teleoperation.
+
+### Mapping your space
+
+Before autonomous navigation, map your environment with these guidelines:
+
+* Keep the arm in a safe resting position
+* Keep the camera unobstructed
+* Drive slowly and steadily
+* Cover each room, corners, and doorways
+
+For examples, see [MARS Quick Start](/main/welcome/mars-quick-start).
+
+## Innate Controller App Overview
+
+The app is available for both iOS and Android so you can control your robot and trigger agents from your phone.
+
+### Current versions (February 2026)
+
+| Component | Version |
+| --- | --- |
+| MARS OS | `0.3.0` |
+| Cloud Agent | `0.2.1` |
+| Innate Controller App | `1.0.2` |
+
+Latest app builds:
+
+* [Android APK](https://cdn.innate.bot/innate-app-latest.apk)
+* [iOS (TestFlight)](https://testflight.apple.com/join/YeChe4A7)
+
+### Key features
+
+* Drive base control and arm control from phone
+* Leader arm teleoperation
+* Map-free navigation, mapping mode, and go-to mode
+* Video recording and export
+* Agent start/stop from the home screen
+* Digital skills UI with input validation and feedback
+* Low battery warnings
+* Version compatibility checks
+
+## Connecting to a Robot (Wi-Fi + BLE)
+
+The app connects to your robot via Wi-Fi. It can also work through your phone hotspot.
+
+### First-time connection flow
+
+1. **Bluetooth pairing:** The app uses BLE to discover the robot and set network settings.
+2. **Wi-Fi configuration:** Select the Wi-Fi network the robot should join.
+3. **Connection:** Once both are on the same network, the app connects over Wi-Fi.
+
+The robot publishes a `.local` hostname (for example `mars-robot.local`) so you can still connect if IP changes.
+
+<Frame caption="Press on the robot when it appears to connect via bluetooth">
+  <img src="/images/main/robots/innate-controller-app/connect-step-1.png" width="375" />
+</Frame>
+
+<Frame caption="If it's already on the same network than your phone, you can connect">
+  <img src="/images/main/robots/innate-controller-app/connect-step-2.png" />
+</Frame>
+
+<Frame caption="Otherwise, select &#x22;Change Robot WiFi&#x22; to pick another network to connect it to">
+  <img src="/images/main/robots/innate-controller-app/connect-step-3.png" width="375" />
+</Frame>
+
+Once connected, you can view the current robot IP in **Configuration** -> **WiFi**.
+
+## Connecting via SSH
+
+Default credentials:
+
+* **Username:** `jetson1`
+* **Password:** `goodbot`
+
+### Via Wi-Fi
+
+If your robot is on the same network as your computer:
+
+```bash
+ssh jetson1@<robot-name>.local
+```
+
+Hostname conversion rules:
+
+* Uppercase letters become lowercase
+* Spaces/special characters become `-`
+* Duplicate hyphens are collapsed
+* Leading/trailing hyphens are removed
+
+Examples:
+
+| Robot name | Hostname | SSH command |
+| --- | --- | --- |
+| `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
+| `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
+| `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
+
+If unnamed, default hostname is:
+
+```bash
+ssh jetson1@mars.local
+```
+
+### Via Ethernet (preferred wired method)
+
+Connect Ethernet between computer and robot, then SSH:
+
+```bash
+ssh jetson1@192.168.50.2
+```
+
+Set your computer Ethernet interface to static IPv4:
+
+* IP: `192.168.50.1`
+* Netmask: `255.255.255.0`
+* Gateway: empty
+* DNS: empty
+
+### Via USB-C (last resort)
+
+USB-C is not recommended and should only be used when Wi-Fi and Ethernet are unavailable.
+
+```bash
+ssh jetson1@192.168.55.1
+```

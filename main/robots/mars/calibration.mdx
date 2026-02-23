@@ -4,6 +4,46 @@ title: "Calibration"
 
 Calibrate stereo depth to ensure stable obstacle avoidance and navigation behavior.
 
-<Card title="Stereo Depth Calibration" icon="ruler-combined" href="/main/robots/mars/stereo-depth-calibration">
-  Full depth-calibration workflow, calibration board setup, and verification steps.
-</Card>
+MARS uses stereo depth for navigation and obstacle avoidance. Because cameras vary slightly across units, each robot must be calibrated.
+
+Run calibration:
+
+* After first setup
+* After major OS updates that include depth changes
+* Any time depth readings appear unstable
+
+## 1) Prepare the calibration board
+
+Download and print:
+
+* [Calibration board PDF](https://github.com/innate-inc/web-docs/blob/main/.gitbook/assets/mars-calibration-board.pdf)
+
+<Frame caption="Print this board at 100% scale.">
+  <img src="/images/main/robots/mars/mars-stereo-calibration-board.png" />
+</Frame>
+
+Setup notes:
+
+* Print at **100% scale** (no fit-to-page scaling)
+* Mount it flat on a letter-sized cardboard backing
+* Do not cover checker squares or markers
+* Flatness matters more than perfect edge trimming
+
+## 2) Start calibration from the app
+
+1. Open the Innate Controller App.
+2. Go to **Configuration** -> **Depth**.
+3. Tap **Start calibration**.
+
+When MARS raises its hand:
+
+* Place the board in front of the hand, pattern facing the robot head
+* Hold steady until MARS grabs it
+
+## 3) Let calibration complete
+
+* Stay clear while MARS runs the sequence
+* Wait for completion status in the app
+* If it fails, repeat with better board flatness and stability
+
+After completion, run **Configuration** -> **Depth** -> **Check depth** before normal navigation.

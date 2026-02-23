@@ -2,16 +2,104 @@
 title: "Updates and Maintenance"
 ---
 
-Keep your robot stable and current with regular software and battery maintenance.
+Keep your robot stable and current with software updates, safe charging, and core configuration checks.
 
-<CardGroup cols={3}>
-  <Card title="Updating MARS" icon="arrow-rotate-right" href="/main/robots/mars/updating-mars">
-    Use `innate-update` to check, apply, and validate OS updates.
-  </Card>
-  <Card title="Charging the Battery" icon="battery-half" href="/main/robots/mars/charging-battery">
-    Safe charging workflow, required settings, and battery safety warnings.
-  </Card>
-  <Card title="Changing the Voice" icon="volume-high" href="/main/robots/mars/changing-voice">
-    Configure or update voice behavior from the controller app.
-  </Card>
-</CardGroup>
+## Updating MARS
+
+Use `innate-update` on the robot to fetch and apply MARS OS updates.
+
+Updating will:
+
+* Fetch the latest compatible Innate OS version
+* Apply code and configuration changes
+* Restart robot software services
+
+If update notes include stereo-depth changes, run [Calibration](/main/robots/mars/calibration) before normal navigation.
+
+### Prerequisites
+
+* You can access the robot over SSH
+* `innate-update` is available on the robot
+* The robot has internet access
+
+### Basic workflow
+
+```bash
+innate-update status
+innate-update check
+innate-update apply
+```
+
+Use `status` to verify current version, `check` to view available updates, and `apply` to install.
+
+During `apply`, services may restart and the robot can be temporarily unresponsive.
+
+If update commands fail, retry once and capture:
+
+* The command you ran
+* Full terminal error output
+
+## Charging the Battery
+
+Charge carefully. Improper charging can be dangerous.
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/SnGpyMkS0WM" title="Charging the battery guide" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+### What you need
+
+Use the charger provided with your robot, including the balancing cable.
+
+### Charging procedure
+
+1. Connect charger cable to battery.
+2. Confirm voltage is between `10.5V` and `12.6V`.
+3. Set battery type to **LiPo** and cells to **3S**.
+4. Hold **Enter** until prompted.
+5. Confirm and start charging.
+6. Keep voltage in the safe range while charging.
+
+### Safety warning
+
+Do not charge if the white balancing connector is unplugged.
+
+If the battery pack is swollen (bump visible), stop using it and replace it.
+
+## Changing the Voice
+
+MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech.
+
+### Method 1: `.env` (recommended)
+
+1. SSH into the robot.
+2. Edit `.env`:
+
+```bash
+nano ~/innate-os/.env
+```
+
+3. Add or update:
+
+```bash
+CARTESIA_VOICE_ID=your-voice-id-here
+```
+
+4. Restart robot services.
+
+### Method 2: launch file (advanced)
+
+1. Edit launch file:
+
+```bash
+~/innate-os/ros2_ws/src/brain/brain_client/launch/brain_client.launch.py
+```
+
+2. Update `cartesia_voice_id` default value.
+3. Rebuild:
+
+```bash
+cd ~/innate-os/ros2_ws && colcon build
+```
+
+4. Restart MARS.
+
+You can use existing Cartesia voices or create a custom voice. See [Cartesia docs](https://docs.cartesia.ai/get-started/overview).

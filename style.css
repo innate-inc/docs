@@ -45,6 +45,13 @@ pre,
     "Liberation Mono", "Courier New", monospace !important;
 }
 
+/* Match GitBook-like image behavior: no forced full-width on markdown images */
+#content p > img {
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+}
+
 /* Sequoia sidebar section titles */
 #sidebar-content .sidebar-group-header {
   color: #111827 !important;

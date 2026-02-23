@@ -4,11 +4,66 @@ title: "Capabilities"
 
 Core autonomous behavior on MARS is split across navigation and manipulation.
 
-<CardGroup cols={2}>
-  <Card title="Navigation" icon="route" href="/main/robots/mars/navigation">
-    Map-free and mapped navigation modes, go-to workflows, and developer notes.
-  </Card>
-  <Card title="Manipulation" icon="hand" href="/main/robots/mars/manipulation">
-    Arm task capabilities and manipulation-oriented usage examples.
-  </Card>
-</CardGroup>
+## Navigation
+
+MARS supports multiple navigation modes through the Innate Controller App.
+
+### Map-Free mode (default)
+
+Map-free mode uses the local costmap from onboard sensors and does not require a pre-built map. It is best for:
+
+* Fast deployment in new environments
+* Dynamic spaces
+* Simple point-to-point tasks
+* Outdoor scenarios
+
+### Mapping mode
+
+To build a map:
+
+1. Open the Innate Controller App.
+2. Go to **Configuration** -> **Mapping**.
+3. Select **Create New Map**.
+4. Drive MARS through the full environment.
+5. Save the map.
+
+During mapping:
+
+* Keep the arm in a safe resting position
+* Drive slowly for cleaner map quality
+* Cover corners and doorways
+
+### Navigation with maps
+
+After saving a map, MARS can navigate autonomously to selected goals.
+
+### Go-To mode
+
+1. Open the map view in the app.
+2. Enable **Go-To Mode**.
+3. Tap and drag to define position and orientation.
+4. MARS plans and executes the trajectory.
+
+You can stop at any time with the app **Stop** button.
+
+### Stability improvements
+
+* Dynamic footprint adapts to arm position
+* Reduced zigzag behavior for smoother paths
+* Better goal tolerance at arrival
+
+### For developers
+
+Navigation mode is published on `/nav/current_mode` with values:
+
+* `mapfree`
+* `mapping`
+* `navigation`
+
+See [ROS2 Reference](/main/software/advanced/ros2-reference) for interface details.
+
+## Manipulation
+
+Detailed manipulation docs are still being expanded.
+
+For current workflows and demos, see [MARS Quick Start](/main/welcome/mars-quick-start).
