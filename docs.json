@@ -17,93 +17,101 @@
   },
   "favicon": "/images/logo-white-on-blue-512.png",
   "navigation": {
-    "groups": [
+    "versions": [
       {
-        "group": "Get Started",
-        "pages": [
-          "index",
-          "welcome/mars-quick-start",
-          "welcome/mars-example-use-cases"
-        ]
-      },
-      {
-        "group": "MARS Hardware",
-        "pages": [
-          "robots/mars",
-          "robots/mars/control-and-connectivity",
-          "robots/mars/capabilities",
-          "robots/mars/updates-and-maintenance",
-          "robots/mars/calibration",
-          "robots/mars/extending-mars"
-        ]
-      },
-      {
-        "group": "Agent SDK",
-        "pages": [
-          "software/overview",
-          "software/development-setup",
+        "version": "OS 0.4.0",
+        "default": true,
+        "groups": [
           {
-            "group": "Agents",
+            "group": "Get Started",
             "pages": [
-              "software/agents",
-              "software/agents/definitions",
-              "software/agents/starting-an-agent",
-              "software/agents/agent-examples"
+              "index",
+              "welcome/mars-quick-start",
+              "welcome/mars-example-use-cases"
             ]
           },
           {
-            "group": "Skills",
+            "group": "MARS Hardware",
             "pages": [
-              "software/skills",
+              "robots/mars",
+              "robots/mars/control-and-connectivity",
+              "robots/mars/capabilities",
+              "robots/mars/updates-and-maintenance",
+              "robots/mars/charging-battery",
+              "robots/mars/calibration",
+              "robots/mars/extending-mars"
+            ]
+          },
+          {
+            "group": "Agent SDK",
+            "pages": [
+              "software/overview",
+              "software/development-setup",
               {
-                "group": "Code-Defined Skills",
+                "group": "Agents",
                 "pages": [
-                  "software/skills/code-defined-skills",
-                  "software/skills/code-defined-skills/navigation-interfaces",
-                  "software/skills/code-defined-skills/body-control-interfaces",
-                  "software/skills/code-defined-skills/robot-state",
-                  "software/skills/code-defined-skills/physical-skill-examples",
-                  "software/skills/code-defined-skills/digital-skills"
+                  "software/agents",
+                  "software/agents/definitions",
+                  "software/agents/starting-an-agent",
+                  "software/agents/agent-examples"
                 ]
               },
-              "software/skills/policy-defined-skills",
-              "software/skills/manual-triggering"
+              {
+                "group": "Skills",
+                "pages": [
+                  "software/skills",
+                  {
+                    "group": "Code-Defined Skills",
+                    "pages": [
+                      "software/skills/code-defined-skills",
+                      "software/skills/code-defined-skills/navigation-interfaces",
+                      "software/skills/code-defined-skills/body-control-interfaces",
+                      "software/skills/code-defined-skills/robot-state",
+                      "software/skills/code-defined-skills/physical-skill-examples",
+                      "software/skills/code-defined-skills/digital-skills"
+                    ]
+                  },
+                  "software/skills/policy-defined-skills",
+                  "software/skills/manual-triggering"
+                ]
+              },
+              "software/inputs",
+              "software/basic"
             ]
           },
-          "software/inputs",
-          "software/basic"
-        ]
-      },
-      {
-        "group": "Training",
-        "pages": [
-          "training/overview",
-          "training/data-collection",
-          "training/dataset-format",
-          "training/train-act-policy",
-          "training/evaluate",
-          "training/deploy-trained-skill"
-        ]
-      },
-      {
-        "group": "ROS2 Core",
-        "pages": [
-          "software/ros2-core",
-          "software/ros2/topics",
-          "software/ros2/services",
-          "software/ros2/actions",
-          "software/ros2/navigation-stack",
-          "software/ros2/manipulation-stack",
-          "software/ros2/debugging"
-        ]
-      },
-      {
-        "group": "Troubleshooting & Support",
-        "pages": [
-          "robots/mars/troubleshooting",
-          "robots/mars/critical-fixes",
-          "robots/mars/faq",
-          "support/contact-discord"
+          {
+            "group": "Training",
+            "pages": [
+              "training/overview",
+              "training/data-collection",
+              "training/dataset-format",
+              "training/train-act-policy",
+              "training/evaluate",
+              "training/deploy-trained-skill"
+            ]
+          },
+          {
+            "group": "ROS2 Core",
+            "pages": [
+              "software/ros2-core",
+              "software/advanced/ros2-reference",
+              "software/ros2/topics",
+              "software/ros2/services",
+              "software/ros2/actions",
+              "software/ros2/navigation-stack",
+              "software/ros2/manipulation-stack",
+              "software/ros2/debugging"
+            ]
+          },
+          {
+            "group": "Troubleshooting & Support",
+            "pages": [
+              "robots/mars/troubleshooting",
+              "robots/mars/critical-fixes",
+              "robots/mars/faq",
+              "support/contact-discord"
+            ]
+          }
         ]
       }
     ]

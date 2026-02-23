@@ -41,28 +41,11 @@ If update commands fail, retry once and capture:
 
 ## Charging the Battery
 
-Charge carefully. Improper charging can be dangerous.
+Charging has a dedicated page with full safety instructions and a step-by-step procedure.
 
-<iframe width="100%" height="420" src="https://www.youtube.com/embed/SnGpyMkS0WM" title="Charging the battery guide" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
-
-### What you need
-
-Use the charger provided with your robot, including the balancing cable.
-
-### Charging procedure
-
-1. Connect charger cable to battery.
-2. Confirm voltage is between `10.5V` and `12.6V`.
-3. Set battery type to **LiPo** and cells to **3S**.
-4. Hold **Enter** until prompted.
-5. Confirm and start charging.
-6. Keep voltage in the safe range while charging.
-
-### Safety warning
-
-Do not charge if the white balancing connector is unplugged.
-
-If the battery pack is swollen (bump visible), stop using it and replace it.
+<Card title="Charging the Battery" href="/robots/mars/charging-battery">
+  Open the dedicated charging guide.
+</Card>
 
 ## Changing the Voice
 
@@ -102,4 +85,12 @@ cd ~/innate-os/ros2_ws && colcon build
 
 4. Restart MARS.
 
-You can use existing Cartesia voices or create a custom voice. See [Cartesia docs](https://docs.cartesia.ai/get-started/overview).
+You can use existing Cartesia voices or create a custom voice:
+
+<Card title="Cartesia Docs" href="https://docs.cartesia.ai/get-started/overview">
+  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <img src="/images/logos/services/cartesia-light.png" alt="Cartesia logo" width="18" height="18" className="block dark:hidden" />
+    <img src="/images/logos/services/cartesia-dark.png" alt="Cartesia logo" width="18" height="18" className="hidden dark:block" />
+    <span>Voice library, custom voice cloning, and setup guides.</span>
+  </div>
+</Card>

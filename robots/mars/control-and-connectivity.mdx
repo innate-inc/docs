@@ -8,8 +8,14 @@ This page covers app control, leader-arm teleoperation, first-time connectivity,
 
 MARS (and all Innate robots) are controllable via the Innate app:
 
-* [Android](https://innate.bot/android_app)
-* [iOS (TestFlight)](https://testflight.apple.com/join/YeChe4A7)
+<CardGroup cols={2}>
+  <Card title="Android App" href="https://innate.bot/android_app">
+    Open the Android app download page.
+  </Card>
+  <Card title="iOS TestFlight" href="https://testflight.apple.com/join/YeChe4A7">
+    Open the iOS beta access page.
+  </Card>
+</CardGroup>
 
 Every MARS robot comes with a leader arm attachable to your phone:
 
@@ -40,14 +46,20 @@ The app is available for both iOS and Android so you can control your robot and 
 
 | Component | Version |
 | --- | --- |
-| MARS OS | `0.3.0` |
+| MARS OS | `0.4.0` |
 | Cloud Agent | `0.2.1` |
 | Innate Controller App | `1.0.2` |
 
 Latest app builds:
 
-* [Android APK](https://cdn.innate.bot/innate-app-latest.apk)
-* [iOS (TestFlight)](https://testflight.apple.com/join/YeChe4A7)
+<CardGroup cols={2}>
+  <Card title="Android APK (Latest)" href="https://cdn.innate.bot/innate-app-latest.apk">
+    Direct APK download.
+  </Card>
+  <Card title="iOS TestFlight" href="https://testflight.apple.com/join/YeChe4A7">
+    Open the latest iOS TestFlight build.
+  </Card>
+</CardGroup>
 
 ### Key features
 
@@ -66,23 +78,36 @@ The app connects to your robot via Wi-Fi. It can also work through your phone ho
 
 ### First-time connection flow
 
-1. **Bluetooth pairing:** The app uses BLE to discover the robot and set network settings.
-2. **Wi-Fi configuration:** Select the Wi-Fi network the robot should join.
-3. **Connection:** Once both are on the same network, the app connects over Wi-Fi.
+This is the same onboarding flow covered in [Quick Start](/welcome/mars-quick-start).
+
+<Steps>
+  <Step title="Bluetooth pairing">
+    The app uses BLE to discover the robot and initialize network setup.
+  </Step>
+  <Step title="Wi-Fi configuration">
+    Select the Wi-Fi network the robot should join. If the robot is not yet
+    connected to any Wi-Fi, use screen 2 to pick a network and enter its
+    password.
+  </Step>
+  <Step title="Connect over Wi-Fi">
+    Once your phone and robot are on the same network, the app connects over Wi-Fi.
+  </Step>
+</Steps>
 
 The robot publishes a `.local` hostname (for example `mars-robot.local`) so you can still connect if IP changes.
 
-<Frame caption="Press on the robot when it appears to connect via bluetooth">
-  <img src="/images/main/robots/innate-controller-app/connect-step-1.png" width="375" />
-</Frame>
-
-<Frame caption="If it's already on the same network than your phone, you can connect">
-  <img src="/images/main/robots/innate-controller-app/connect-step-2.png" />
-</Frame>
-
-<Frame caption="Otherwise, select &#x22;Change Robot WiFi&#x22; to pick another network to connect it to">
-  <img src="/images/main/robots/innate-controller-app/connect-step-3.png" width="375" />
-</Frame>
+<CardGroup cols={3}>
+  <Card title="1. Discover Robot">
+    <img src="/images/main/robots/innate-controller-app/connect-step-1.png" alt="Bluetooth discovery step" />
+  </Card>
+  <Card title="2. Join Network">
+    <img src="/images/main/robots/innate-controller-app/connect-step-2.png" alt="Wi-Fi selection step" />
+    If the robot is not connected yet, choose a Wi-Fi network here and set the password.
+  </Card>
+  <Card title="3. Change Robot Wi-Fi">
+    <img src="/images/main/robots/innate-controller-app/connect-step-3.png" alt="Change Robot Wi-Fi step" />
+  </Card>
+</CardGroup>
 
 Once connected, you can view the current robot IP in **Configuration** -> **WiFi**.
 

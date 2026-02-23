@@ -49,6 +49,31 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/lbwYFGgOh-g" title="Powering up and connecting to MARS" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
+## Create your first map
+
+Innate robots have spatial memory, and mapping starts automatically after you connect if no map exists yet.
+
+If you want to create a **new** map later, use the Mapping screen:
+
+<div style={{ display: "flex", gap: "24px", alignItems: "flex-start", flexWrap: "wrap" }}>
+  <div style={{ flex: "1 1 420px", minWidth: "300px" }}>
+    <Steps>
+      <Step title="Open Mapping tab">
+        In the app, go to **Configuration** -> **Mapping**.
+      </Step>
+      <Step title="Create a new map">
+        Press **Create New Map** (or the add button) to begin mapping.
+      </Step>
+      <Step title="Drive and scan">
+        Drive around your space and watch the map build in real time.
+      </Step>
+    </Steps>
+  </div>
+  <div style={{ flex: "0 1 340px", minWidth: "260px" }}>
+    <iframe width="100%" height="560" src="https://www.youtube.com/embed/DiHl1VKuVJ8" title="Create your first MARS map" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+  </div>
+</div>
+
 ## Experience the phone control
 
 Once connected, you can verify that MARS is properly running by controling the robot straight through the app.
@@ -108,25 +133,6 @@ Examples that come pre-installed:
 * *More coming soon...*
 
 You can also create your own agent, see [Anatomy of an Agent](/software/agents/definitions)
-
-## Create your first map
-
-Innate robots have spatial memory, but they currently require a map for it to be fully functional, so that the robot can remember where it saw things.
-
-<Steps>
-  <Step title="Start mapping">
-    On first connection, MARS prompts you to create a map.
-  </Step>
-  <Step title="Open Mapping tab">
-    In the app, go to **Configuration** -> **Mapping**.
-  </Step>
-  <Step title="Create a new map">
-    Press **Create New Map** (or the add button) to begin mapping.
-  </Step>
-  <Step title="Drive and scan">
-    Drive around your space and watch the map build in real time.
-  </Step>
-</Steps>
 
 ## Congrats, you can control your robot!
 
