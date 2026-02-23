@@ -10,50 +10,55 @@ MARS is a compact mobile manipulator with onboard AI compute, designed as a comp
 
 ### Sensors
 
-MARS features a comprehensive sensor suite with three primary sensors:
+MARS combines complementary perception sources: a forward-facing RGBD camera for scene depth, a gripper-mounted RGB camera for close manipulation, and a 2D LiDAR for localization.
 
-#### Forward-Facing RGBD Camera
+#### Camera matrix
 
-* High-quality depth perception with 6.0 cm stereo baseline
-* 150° diagonal field of view
-* Effective depth range: 40 cm to 6 m
-* Depth accuracy: &lt;2% error up to 3.5 m, &lt;4% to 6.5 m, &lt;6% to 9 m
-
-#### Gripper-Mounted RGB Camera
-
-* 160° diagonal field of view
-* 2MP resolution (1920x1080)
-* 30 FPS at full resolution
-* Ideal for close-range manipulation tasks and visual servoing
+| Spec | Forward-Facing RGBD Camera | Gripper-Mounted RGB Camera |
+| --- | --- | --- |
+| Camera type | Stereo RGBD | RGB |
+| Diagonal field of view | 150° | 160° |
+| Effective range | 40 cm to 6 m | Close-range manipulation |
+| Depth support | Yes | No |
+| Depth accuracy | &lt;2% up to 3.5 m, &lt;4% to 6.5 m, &lt;6% to 9 m | N/A |
+| Resolution | N/A | 2MP (1920x1080) |
+| Frame rate | N/A | 30 FPS |
+| Primary role | Navigation and scene perception | Visual servoing and grasp alignment |
 
 #### 2D LiDAR
 
-* 360° scanning coverage
-* Range: 0.15 m to 6 m
-* Angular resolution: &lt;=1°
-* Distance resolution: &lt;0.5 mm
-* Scan rate: 10 Hz
-* Primary sensor for SLAM and navigation
+| Property | Value |
+| --- | --- |
+| Coverage | 360° |
+| Range | 0.15 m to 6 m |
+| Angular resolution | &lt;=1° |
+| Distance resolution | &lt;0.5 mm |
+| Scan rate | 10 Hz |
+| Primary use | SLAM and navigation |
 
-This sensor configuration enables robust perception, precise manipulation, and reliable navigation.
+Reference: LiDAR data is exposed on `/scan` as `sensor_msgs/LaserScan` in [ROS2 Topics](/software/ros2/topics) (RPLidar stack).
 
 #### Custom sensors
 
-MARS provides two powered USB 3.0 ports for additional sensors/peripherals:
+MARS provides two powered USB 3.0 ports for additional sensors/peripherals.
 
-* 2x USB 3.0 ports
-* Power output: 1.2 A per port
-* Data transfer rate: up to 5 Gbps
-* Hot-swappable
-* Full compatibility with USB 2.0 devices
+| Port property | Value |
+| --- | --- |
+| USB ports | 2x USB 3.0 |
+| Power output | 1.2 A per port |
+| Data rate | Up to 5 Gbps |
+| Hot swap | Supported |
+| Backward compatibility | USB 2.0 devices supported |
 
 ### Arm
 
 #### Specifications
 
-* Reach: 40 cm
-* Repeatability: 2 mm
-* Payload: 250 g at maximum extension
+| Property | Value |
+| --- | --- |
+| Reach | 40 cm |
+| Repeatability | 2 mm |
+| Payload | 250 g at maximum extension |
 
 #### Actuators
 
@@ -71,14 +76,14 @@ MARS ships with a [Jetson Orin Nano Super 8GB Development Kit](https://www.nvidi
 
 ![](/images/main/robots/mars/onboard-computer.png)
 
-Specs:
-
-* **AI Performance:** Up to 67 TOPS (sparse INT8)
-* **GPU:** NVIDIA Ampere architecture with 1024 CUDA cores and 32 Tensor cores
-* **CPU:** 6-core ARM Cortex-A78AE v8 (64-bit)
-* **Memory:** 8 GB LPDDR5
-* **Storage:** 1 TB SSD (integrated by Innate) + 32 GB microSD (for OS)
-* **Developer Kit Includes:** Jetson Orin Nano Super module and reference carrier board
+| Component | Specification |
+| --- | --- |
+| AI performance | Up to 67 TOPS (sparse INT8) |
+| GPU | NVIDIA Ampere architecture with 1024 CUDA cores and 32 Tensor cores |
+| CPU | 6-core ARM Cortex-A78AE v8 (64-bit) |
+| Memory | 8 GB LPDDR5 |
+| Storage | 1 TB SSD (integrated by Innate) + 32 GB microSD (for OS) |
+| Dev kit base | Jetson Orin Nano Super module and reference carrier board |
 
 Innate also exposes two additional USB ports for user extensions after core system wiring.
 

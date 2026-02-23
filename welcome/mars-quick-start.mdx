@@ -10,6 +10,13 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
 
 [MARS Quick Development](/welcome/mars-quick-development)
 
+## Prerequisites
+
+* A MARS robot from Innate, configured with your service key.
+* The Innate Controller app, downloaded from one of the stores:
+  [Android](https://innate.bot/android_app) or
+  [iOS](https://testflight.apple.com/join/YeChe4A7).
+
 ## A quick overview
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/_Cw5fGa8i3s" title="MARS quick overview" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
@@ -24,11 +31,13 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
     Use the Innate Controller App on your phone.
     <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap", marginTop: "8px" }}>
       <a href="https://innate.bot/android_app" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-        <img src="/images/logos/stores/google-play.svg" alt="Google Play" width="18" height="18" />
+        <img src="/images/logos/stores/google-play.svg" alt="Google Play" width="18" height="18" className="block dark:hidden" />
+        <img src="/images/logos/stores/google-play-dark.svg" alt="Google Play" width="18" height="18" className="hidden dark:block" />
         <span>Android</span>
       </a>
       <a href="https://testflight.apple.com/join/YeChe4A7" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-        <img src="/images/logos/stores/app-store.svg" alt="App Store" width="18" height="18" />
+        <img src="/images/logos/stores/app-store.svg" alt="App Store" width="18" height="18" className="block dark:hidden" />
+        <img src="/images/logos/stores/app-store-dark.svg" alt="App Store" width="18" height="18" className="hidden dark:block" />
         <span>iOS</span>
       </a>
     </div>

@@ -91,3 +91,26 @@ pre,
     margin-left: max(0px, calc(50vw - 460px - 18rem)) !important;
   }
 }
+
+/* Show "Innate Docs" next to the top-left logo */
+@media (min-width: 1024px) {
+  #navbar .hidden.lg\:flex a[data-slot="context-menu-trigger"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  #navbar .hidden.lg\:flex a[data-slot="context-menu-trigger"]::after {
+    content: "Innate Docs";
+    font-family: "MD IO", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #111827;
+    line-height: 1;
+  }
+
+  .dark #navbar .hidden.lg\:flex a[data-slot="context-menu-trigger"]::after {
+    color: #ffffff;
+  }
+}
