@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "aspen",
+  "theme": "sequoia",
   "name": "Innate Docs",
   "colors": {
     "primary": "#401FFB",
@@ -68,7 +68,7 @@
         ]
       },
       {
-        "group": "SOFTWARE",
+        "group": "Software",
         "pages": [
           "main/software/overview",
           "main/software/development-setup",
