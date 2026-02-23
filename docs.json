@@ -23,77 +23,62 @@
         "pages": [
           "index",
           "main/welcome/mars-quick-start",
-          "main/welcome/mars-example-use-cases"
+          "main/welcome/mars-example-use-cases",
+          "main/welcome/developer-setup-10-min"
         ]
       },
       {
-        "group": "MARS",
+        "group": "MARS Hardware",
         "pages": [
           "main/robots/mars",
           "main/robots/mars/control-and-connectivity",
           "main/robots/mars/capabilities",
           "main/robots/mars/updates-and-maintenance",
           "main/robots/mars/calibration",
-          "main/robots/mars/extending-mars",
-          "main/robots/mars/troubleshooting-and-faq"
+          "main/robots/mars/extending-mars"
         ]
       },
       {
-        "group": "Software",
+        "group": "Agent SDK",
         "pages": [
           "main/software/overview",
           "main/software/development-setup",
-          {
-            "group": "Skills",
-            "pages": [
-              "main/software/skills",
-              {
-                "group": "Code-Defined Skills",
-                "pages": [
-                  "main/software/skills/code-defined-skills",
-                  "main/software/skills/code-defined-skills/navigation-interfaces",
-                  "main/software/skills/code-defined-skills/body-control-interfaces",
-                  "main/software/skills/code-defined-skills/robot-state",
-                  "main/software/skills/code-defined-skills/physical-skill-examples",
-                  "main/software/skills/code-defined-skills/digital-skills"
-                ]
-              },
-              "main/software/skills/policy-defined-skills",
-              "main/software/skills/manual-triggering"
-            ]
-          },
-          {
-            "group": "Agents",
-            "pages": [
-              "main/software/agents",
-              "main/software/agents/definitions",
-              "main/software/agents/starting-an-agent",
-              "main/software/agents/agent-examples"
-            ]
-          },
-          {
-            "group": "Inputs",
-            "pages": [
-              "main/software/inputs",
-              "main/software/inputs/definition",
-              "main/software/inputs/example-microphone"
-            ]
-          },
-          {
-            "group": "BASIC",
-            "pages": [
-              "main/software/basic",
-              "main/software/basic/connecting-to-basic"
-            ]
-          },
+          "main/software/agents",
+          "main/software/skills",
+          "main/software/inputs",
+          "main/software/basic"
+        ]
+      },
+      {
+        "group": "Training",
+        "pages": [
+          "main/training/overview",
+          "main/training/data-collection",
+          "main/training/dataset-format",
+          "main/training/train-act-policy",
+          "main/training/evaluate",
+          "main/training/deploy-trained-skill"
+        ]
+      },
+      {
+        "group": "ROS2 Core",
+        "pages": [
           "main/software/ros2-core",
-          {
-            "group": "Advanced",
-            "pages": [
-              "main/software/advanced",
-              "main/software/advanced/ros2-reference"
-            ]
-          }
+          "main/software/ros2/topics",
+          "main/software/ros2/services",
+          "main/software/ros2/actions",
+          "main/software/ros2/navigation-stack",
+          "main/software/ros2/manipulation-stack",
+          "main/software/ros2/debugging"
+        ]
+      },
+      {
+        "group": "Troubleshooting & Support",
+        "pages": [
+          "main/robots/mars/troubleshooting",
+          "main/robots/mars/critical-fixes",
+          "main/robots/mars/faq",
+          "main/support/contact-discord"
         ]
       }
     ]

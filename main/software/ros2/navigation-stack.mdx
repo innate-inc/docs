@@ -1,0 +1,20 @@
+---
+title: "Navigation Stack"
+---
+
+MARS navigation is built on Nav2 plus MARS-specific wrappers.
+
+## What to know
+
+* `/cmd_vel` drives base motion
+* `/odom` and `/scan` are core for localization and obstacle avoidance
+* App navigation modes map to ROS2-level behavior mode changes
+
+## Validate navigation signals
+
+```bash
+ros2 topic echo /odom
+ros2 topic echo /scan
+```
+
+For mode behavior from the app side, see [Capabilities](/main/robots/mars/capabilities).

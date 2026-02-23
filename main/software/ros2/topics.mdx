@@ -1,0 +1,23 @@
+---
+title: "Topics"
+---
+
+Use ROS2 topics for streaming robot state and continuous commands.
+
+## Common topics
+
+* `/cmd_vel` (`geometry_msgs/Twist`) for base velocity commands
+* `/odom` (`nav_msgs/Odometry`) for odometry
+* `/battery_state` (`sensor_msgs/BatteryState`) for battery telemetry
+* `/scan` (`sensor_msgs/LaserScan`) for LiDAR
+* `/mars/main_camera/image` (`sensor_msgs/Image`) for RGB camera
+
+## Quick commands
+
+```bash
+ros2 topic list
+ros2 topic echo /battery_state
+ros2 topic hz /scan
+```
+
+For the full interface tables, see [ROS2 Reference](/main/software/advanced/ros2-reference).
