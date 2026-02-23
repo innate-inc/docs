@@ -30,23 +30,12 @@
         "group": "MARS",
         "pages": [
           "main/robots/mars",
-          "main/robots/mars/sensors",
-          "main/robots/mars/arm",
-          "main/robots/mars/onboard-computer",
-          "main/robots/mars/control-via-app-and-leader-arm",
+          "main/robots/mars/control-and-connectivity",
+          "main/robots/mars/capabilities",
+          "main/robots/mars/updates-and-maintenance",
+          "main/robots/mars/calibration",
           "main/robots/mars/extending-mars",
-          "main/robots/mars/manipulation",
-          "main/robots/mars/navigation",
-          "main/robots/mars/updating-mars",
-          "main/robots/mars/connecting-via-ssh",
-          "main/robots/mars/stereo-depth-calibration",
-          "main/robots/mars/charging-battery",
-          "main/robots/mars/faq",
-          "main/robots/mars/changing-voice",
-          "main/robots/mars/troubleshooting",
-          "main/robots/mars/troubleshooting/critical-fix-before-jan-16",
-          "main/robots/innate-controller-app",
-          "main/robots/innate-controller-app/connecting-to-a-robot"
+          "main/robots/mars/troubleshooting-and-faq"
         ]
       },
       {
