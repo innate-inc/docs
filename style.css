@@ -75,6 +75,17 @@ pre,
   max-width: 920px !important;
 }
 
+/* Slightly tighter paragraph line spacing */
+#content-area .mdx-content p,
+#content-area .mdx-content span[data-as="p"] {
+  line-height: 1.6 !important;
+}
+
+/* Hide Mintlify built-in previous/next page cards */
+#pagination {
+  display: none !important;
+}
+
 @media (min-width: 1280px) {
   #content-area {
     margin-left: max(0px, calc(50vw - 460px - 18rem)) !important;
