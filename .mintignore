@@ -2,7 +2,14 @@
 # .git, .github, .claude, .agents, .idea, node_modules,
 # README.md, LICENSE.md, CHANGELOG.md, CONTRIBUTING.md
 
+# Be explicit to avoid parser noise from workspace dependencies and helper files
+node_modules/
+node_modules/**
+**/node_modules/**
+AGENTS.md
+*.md
+**/*.md
+
 # Draft content
 drafts/
 *.draft.mdx
-AGENTS.md

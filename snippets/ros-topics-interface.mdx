@@ -1,154 +1,160 @@
-export const topicSections = [
-  {
-    id: "mobility",
-    title: "Mobility",
-    rows: [
-      {
-        topic: "/cmd_vel",
-        dir: "SUB",
-        msgType: "geometry_msgs/Twist",
-        desc: "Velocity commands for robot base motion.",
-      },
-      {
-        topic: "/odom",
-        dir: "PUB",
-        msgType: "nav_msgs/Odometry",
-        desc: "Odometry estimate (position, orientation, and velocity).",
-      },
-    ],
-  },
-  {
-    id: "system",
-    title: "System",
-    rows: [
-      {
-        topic: "/battery_state",
-        dir: "PUB",
-        msgType: "sensor_msgs/BatteryState",
-        desc: "Battery level, voltage, and charging status.",
-      },
-      {
-        topic: "/scan",
-        dir: "PUB",
-        msgType: "sensor_msgs/LaserScan",
-        desc: "LiDAR scan data from the RPLidar stack.",
-      },
-    ],
-  },
-  {
-    id: "cameras",
-    title: "Cameras",
-    rows: [
-      {
-        topic: "/mars/main_camera/image",
-        dir: "PUB",
-        msgType: "sensor_msgs/Image",
-        desc: "Main front-facing RGB stream.",
-      },
-      {
-        topic: "/mars/arm/image_raw",
-        dir: "PUB",
-        msgType: "sensor_msgs/Image",
-        desc: "Gripper-mounted RGB camera feed for manipulation.",
-      },
-      {
-        topic: "/oak/rgb/image_raw",
-        dir: "PUB",
-        msgType: "sensor_msgs/Image",
-        desc: "Alternative camera topic from OAK-D pipeline.",
-      },
-    ],
-  },
-  {
-    id: "arm",
-    title: "Arm",
-    rows: [
-      {
-        topic: "/mars/arm/state",
-        dir: "PUB",
-        msgType: "sensor_msgs/JointState",
-        desc: "Current arm joint states from robot actuators.",
-      },
-      {
-        topic: "/mars/arm/commands",
-        dir: "SUB",
-        msgType: "std_msgs/Float64MultiArray",
-        desc: "Direct arm joint command input topic.",
-      },
-      {
-        topic: "/leader/state",
-        dir: "PUB",
-        msgType: "sensor_msgs/JointState",
-        desc: "Leader arm joint states when teleoperation is enabled.",
-      },
-      {
-        topic: "/joint_states",
-        dir: "PUB",
-        msgType: "sensor_msgs/JointState",
-        desc: "Combined joint state stream for robot visualization and tools.",
-      },
-    ],
-  },
-  {
-    id: "brain",
-    title: "Brain",
-    rows: [
-      {
-        topic: "/ws_messages",
-        dir: "SUB",
-        msgType: "std_msgs/String",
-        desc: "Incoming WebSocket payloads from cloud-side orchestration.",
-      },
-      {
-        topic: "/ws_outgoing",
-        dir: "PUB",
-        msgType: "std_msgs/String",
-        desc: "Outgoing WebSocket payloads emitted by robot-side brain client.",
-      },
-    ],
-  },
-];
+export const RosTopicsInterface = () => {
+  const topicSections = [
+    {
+      id: "mobility",
+      title: "Mobility",
+      rows: [
+        {
+          topic: "/cmd_vel",
+          dir: "SUB",
+          msgType: "geometry_msgs/Twist",
+          desc: "Velocity commands for robot base motion.",
+        },
+        {
+          topic: "/odom",
+          dir: "PUB",
+          msgType: "nav_msgs/Odometry",
+          desc: "Odometry estimate (position, orientation, and velocity).",
+        },
+      ],
+    },
+    {
+      id: "system",
+      title: "System",
+      rows: [
+        {
+          topic: "/battery_state",
+          dir: "PUB",
+          msgType: "sensor_msgs/BatteryState",
+          desc: "Battery level, voltage, and charging status.",
+        },
+        {
+          topic: "/scan",
+          dir: "PUB",
+          msgType: "sensor_msgs/LaserScan",
+          desc: "LiDAR scan data from the RPLidar stack.",
+        },
+      ],
+    },
+    {
+      id: "cameras",
+      title: "Cameras",
+      rows: [
+        {
+          topic: "/mars/main_camera/image",
+          dir: "PUB",
+          msgType: "sensor_msgs/Image",
+          desc: "Main front-facing RGB stream.",
+        },
+        {
+          topic: "/mars/arm/image_raw",
+          dir: "PUB",
+          msgType: "sensor_msgs/Image",
+          desc: "Gripper-mounted RGB camera feed for manipulation.",
+        },
+        {
+          topic: "/oak/rgb/image_raw",
+          dir: "PUB",
+          msgType: "sensor_msgs/Image",
+          desc: "Alternative camera topic from OAK-D pipeline.",
+        },
+      ],
+    },
+    {
+      id: "arm",
+      title: "Arm",
+      rows: [
+        {
+          topic: "/mars/arm/state",
+          dir: "PUB",
+          msgType: "sensor_msgs/JointState",
+          desc: "Current arm joint states from robot actuators.",
+        },
+        {
+          topic: "/mars/arm/commands",
+          dir: "SUB",
+          msgType: "std_msgs/Float64MultiArray",
+          desc: "Direct arm joint command input topic.",
+        },
+        {
+          topic: "/leader/state",
+          dir: "PUB",
+          msgType: "sensor_msgs/JointState",
+          desc: "Leader arm joint states when teleoperation is enabled.",
+        },
+        {
+          topic: "/joint_states",
+          dir: "PUB",
+          msgType: "sensor_msgs/JointState",
+          desc: "Combined joint state stream for robot visualization and tools.",
+        },
+      ],
+    },
+    {
+      id: "brain",
+      title: "Brain",
+      rows: [
+        {
+          topic: "/ws_messages",
+          dir: "SUB",
+          msgType: "std_msgs/String",
+          desc: "Incoming WebSocket payloads from cloud-side orchestration.",
+        },
+        {
+          topic: "/ws_outgoing",
+          dir: "PUB",
+          msgType: "std_msgs/String",
+          desc: "Outgoing WebSocket payloads emitted by robot-side brain client.",
+        },
+      ],
+    },
+  ];
 
-export const RosTopicsInterface = () => (
-  <AccordionGroup>
-    {topicSections.map((section) => (
-      <Accordion key={section.id} title={section.title}>
-        <span className="ros-topic-badge">{section.rows.length} topics</span>
-        <div className="ros-topic-table-wrap" style={{ marginTop: "10px" }}>
-          <table className="ros-topic-table">
-            <thead>
-              <tr>
-                <th>Topic Name</th>
-                <th>Dir</th>
-                <th>Message Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {section.rows.map((row) => (
-                <tr key={row.topic}>
-                  <td>
-                    <span className="ros-topic-code ros-topic-path">{row.topic}</span>
-                  </td>
-                  <td>
-                    <span
-                      className={`ros-topic-tag ${
-                        row.dir === "PUB" ? "ros-topic-tag-pub" : "ros-topic-tag-sub"
-                      }`}
-                    >
-                      {row.dir}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="ros-topic-code ros-topic-msg">{row.msgType}</span>
-                  </td>
-                  <td>{row.desc}</td>
+  return (
+    <AccordionGroup>
+      {topicSections.map((section) => (
+        <Accordion
+          key={section.id}
+          title={section.title}
+          defaultOpen={section.id === "mobility" || section.id === "system"}
+        >
+          <span className="ros-topic-badge">{section.rows.length} topics</span>
+          <div className="ros-topic-table-wrap" style={{ marginTop: "10px" }}>
+            <table className="ros-topic-table">
+              <thead>
+                <tr>
+                  <th>Topic Name</th>
+                  <th>Dir</th>
+                  <th>Message Type</th>
+                  <th>Description</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Accordion>
-    ))}
-  </AccordionGroup>
-);
+              </thead>
+              <tbody>
+                {section.rows.map((row) => (
+                  <tr key={row.topic}>
+                    <td>
+                      <span className="ros-topic-code ros-topic-path">{row.topic}</span>
+                    </td>
+                    <td>
+                      <span
+                        className={`ros-topic-tag ${
+                          row.dir === "PUB" ? "ros-topic-tag-pub" : "ros-topic-tag-sub"
+                        }`}
+                      >
+                        {row.dir}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="ros-topic-code ros-topic-msg">{row.msgType}</span>
+                    </td>
+                    <td>{row.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Accordion>
+      ))}
+    </AccordionGroup>
+  );
+};
