@@ -2,15 +2,13 @@
 title: "Topics"
 ---
 
+import { RosTopicsInterface } from '/snippets/ros-topics-interface.mdx';
+
 Use ROS2 topics for streaming robot state and continuous commands.
 
-## Common topics
+## Topic Interface
 
-* `/cmd_vel` (`geometry_msgs/Twist`) for base velocity commands
-* `/odom` (`nav_msgs/Odometry`) for odometry
-* `/battery_state` (`sensor_msgs/BatteryState`) for battery telemetry
-* `/scan` (`sensor_msgs/LaserScan`) for LiDAR
-* `/mars/main_camera/image` (`sensor_msgs/Image`) for RGB camera
+<RosTopicsInterface />
 
 ## Quick commands
 

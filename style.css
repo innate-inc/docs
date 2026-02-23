@@ -114,3 +114,201 @@ pre,
     color: #ffffff;
   }
 }
+
+/* ROS2 topic panels inspired by terminal-monitor style, aligned to Innate palette */
+#content-area .ros-topic-section {
+  border: 1px solid #d8d8df;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 14px;
+  background: #ffffff;
+}
+
+.dark #content-area .ros-topic-section {
+  border-color: #2a2a36;
+  background: #0a0a10;
+}
+
+#content-area .ros-topic-section summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 3px solid #7569fd;
+  background: linear-gradient(90deg, rgba(117, 105, 253, 0.08) 0%, rgba(117, 105, 253, 0.01) 100%);
+  user-select: none;
+}
+
+#content-area .ros-topic-section summary::-webkit-details-marker {
+  display: none;
+}
+
+#content-area .ros-topic-section[open] summary {
+  border-left-color: #401ffb;
+}
+
+.dark #content-area .ros-topic-section summary {
+  background: linear-gradient(90deg, rgba(64, 31, 251, 0.2) 0%, rgba(64, 31, 251, 0.04) 100%);
+}
+
+#content-area .ros-topic-summary-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#content-area .ros-topic-title {
+  font-family: "MD IO", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #130a77;
+}
+
+.dark #content-area .ros-topic-title {
+  color: #ffffff;
+}
+
+#content-area .ros-topic-badge {
+  font-family: "MD IO", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #401ffb;
+  background: rgba(64, 31, 251, 0.08);
+  border: 1px solid rgba(64, 31, 251, 0.24);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.dark #content-area .ros-topic-badge {
+  color: #c9c4ff;
+  background: rgba(117, 105, 253, 0.2);
+  border-color: rgba(117, 105, 253, 0.45);
+}
+
+#content-area .ros-topic-chevron {
+  color: #7569fd;
+  transition: transform 0.16s ease;
+}
+
+#content-area .ros-topic-section[open] .ros-topic-chevron {
+  transform: rotate(180deg);
+}
+
+#content-area .ros-topic-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#content-area .ros-topic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.91rem;
+}
+
+#content-area .ros-topic-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #4b5563;
+  background: #f7f7fb;
+  border-bottom: 1px solid #e2e2ea;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.dark #content-area .ros-topic-table thead th {
+  color: #9ca3af;
+  background: #11111a;
+  border-bottom-color: #252535;
+}
+
+#content-area .ros-topic-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #ececf3;
+  vertical-align: top;
+  color: #111827;
+}
+
+.dark #content-area .ros-topic-table td {
+  border-bottom-color: #232333;
+  color: #d1d5db;
+}
+
+#content-area .ros-topic-table tbody tr:nth-child(even) {
+  background: rgba(117, 105, 253, 0.03);
+}
+
+.dark #content-area .ros-topic-table tbody tr:nth-child(even) {
+  background: rgba(117, 105, 253, 0.06);
+}
+
+#content-area .ros-topic-code {
+  font-family: "MD IO", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  border-radius: 6px;
+  border: 1px solid #dadcf0;
+  background: #f6f7ff;
+  padding: 2px 7px;
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
+.dark #content-area .ros-topic-code {
+  border-color: #353551;
+  background: #16162a;
+}
+
+#content-area .ros-topic-path {
+  color: #130a77;
+}
+
+.dark #content-area .ros-topic-path {
+  color: #bfb8ff;
+}
+
+#content-area .ros-topic-msg {
+  color: #401ffb;
+}
+
+.dark #content-area .ros-topic-msg {
+  color: #a79dff;
+}
+
+#content-area .ros-topic-tag {
+  display: inline-block;
+  min-width: 38px;
+  text-align: center;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#content-area .ros-topic-tag-pub {
+  color: #fb541f;
+  border: 1px solid rgba(251, 84, 31, 0.35);
+  background: rgba(251, 84, 31, 0.08);
+}
+
+#content-area .ros-topic-tag-sub {
+  color: #130a77;
+  border: 1px solid rgba(64, 31, 251, 0.35);
+  background: rgba(64, 31, 251, 0.09);
+}
+
+.dark #content-area .ros-topic-tag-pub {
+  color: #ff9d7b;
+  border-color: rgba(251, 84, 31, 0.45);
+  background: rgba(251, 84, 31, 0.14);
+}
+
+.dark #content-area .ros-topic-tag-sub {
+  color: #cdc8ff;
+  border-color: rgba(117, 105, 253, 0.5);
+  background: rgba(117, 105, 253, 0.18);
+}

@@ -26,8 +26,8 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "welcome/mars-quick-start",
-              "welcome/mars-example-use-cases"
+              "get-started/mars-quick-start",
+              "get-started/mars-example-use-cases"
             ]
           },
           {
@@ -47,6 +47,7 @@
             "pages": [
               "software/overview",
               "software/development-setup",
+              "software/mars-quick-development",
               {
                 "group": "Agents",
                 "pages": [
