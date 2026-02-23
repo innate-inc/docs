@@ -12,9 +12,7 @@ The skill SDK is designed to be **pythonic**—you should be able to read a skil
 
 The AI agent understands your skill through its Python signature:
 
-Copy
-
-```
+```python
 def execute(self, target: str, speed: float = 0.5):
     """Move toward the target object.
 
@@ -30,9 +28,7 @@ The agent sees `execute(target: str, speed: float = 0.5)` and knows exactly how 
 
 Dependencies are declared as class attributes, not boilerplate in `__init__`:
 
-Copy
-
-```
+```python
 class MySkill(Skill):
     # Hardware access - one line
     mobility = Interface(InterfaceType.MOBILITY)
@@ -47,9 +43,7 @@ The system automatically injects what you declare. No manual wiring.
 
 Once declared, use your dependencies as normal Python attributes:
 
-Copy
-
-```
+```python
 def execute(self):
     if self.image:                    # Latest camera frame, updated at 50Hz
         self.mobility.rotate(0.5)     # Rotate 0.5 radians
@@ -61,9 +55,7 @@ No callbacks, no message passing, no ROS complexity. Just Python.
 
 Every code-defined skill extends `Skill` and implements these methods:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult
 
 class MySkill(Skill):
@@ -109,9 +101,7 @@ Clean shutdown when the user or agent interrupts
 
 Return a tuple of `(message, status)` from `execute()`:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import SkillResult
 
 def execute(self):
@@ -143,9 +133,7 @@ Skill was interrupted via `cancel()`
 
 Send progress updates during long-running skills. The agent reads feedback in real-time and can act on it—for example, canceling the skill or triggering another one immediately:
 
-Copy
-
-```
+```python
 def execute(self):
     for i in range(10):
         self._send_feedback(f"Step {i+1}/10")
@@ -164,6 +152,4 @@ def execute(self):
 * [**Physical Skill Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Full-body behaviors combining navigation + manipulation
 
 * [**Digital Skills**](/software/skills/code-defined-skills/digital-skills) — APIs, email, web services
-
-[PreviousSkills](/software/skills)[NextNavigation Interfaces](/software/skills/code-defined-skills/navigation-interfaces)
 

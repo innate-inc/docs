@@ -10,17 +10,13 @@ Now that you know the basics, you can create your first agent for Mars using the
 
 Now, on your PC, ssh in the robot with
 
-Copy
-
-```
+```bash
 ssh jetson1@<YOUR-ROBOT-IP>
 ```
 
 Go to `~/agents/` and create a `hello_world.py` agent file:
 
-Copy
-
-```
+```python
 from typing import List
 from brain_client.agent_types import Agent
 
@@ -80,16 +76,13 @@ Once you collected around 50 episodes, you can start considering stopping data c
 
 Once the model is trained (which takes up to 4 hours), you can get it back on your robot and then trigger it from Manual Control Screen!
 
-
 ## Create your first digital skill
 
 Innate robots can also run any kind of code in the embodied agent BASIC, which can be used to query APIs online or run custom routines onboard.
 
 Below is an example of how to create a skill that queries gmail to read the last emails.
 
-Copy
-
-```
+```python
 import imaplib
 import email
 from brain_client.skill_types import Skill, SkillResult
@@ -122,9 +115,7 @@ class RetrieveEmails(Primitive):
 
 You can run this skill in an agent that can query it:
 
-Copy
-
-```
+```python
 from typing import List
 from brain_client.agent_types import Agent
 
@@ -151,9 +142,7 @@ When the user sits in front of you, you should tell them what their last email i
 
 Below is the result of running it:
 
-
 To learn more about the Skills SDK:
 
 [Skills](/software/skills)
 
-[PreviousMARS Quick Start](/welcome/mars-quick-start)[NextMARS Example use-cases](/welcome/mars-example-use-cases)

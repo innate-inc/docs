@@ -8,9 +8,7 @@ Complete examples of skills that combine navigation, manipulation, and sensor da
 
 Rotate to find a person, then wave:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import (
     Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
 )
@@ -77,9 +75,7 @@ class ScanAndWave(Skill):
 
 Position, look down, and prepare arm for pickup:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import (
     Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
 )
@@ -140,9 +136,7 @@ class PickupRoutine(Skill):
 
 Patrol between positions while monitoring camera:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import (
     Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
 )
@@ -197,9 +191,7 @@ class PatrolAndMonitor(Skill):
 
 Approach an object and examine it from multiple angles:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import (
     Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
 )
@@ -252,9 +244,7 @@ class InspectObject(Skill):
 
 Return to a safe home configuration:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 
 class GoHomePosition(Skill):
@@ -295,6 +285,4 @@ class GoHomePosition(Skill):
         self._cancelled = True
         return "Go home cancelled"
 ```
-
-[PreviousRobot State](/software/skills/code-defined-skills/robot-state)[NextDigital Skills](/software/skills/code-defined-skills/digital-skills)
 

@@ -22,9 +22,7 @@ Unlike physical skills that deal with real-world variability, digital skills ope
 
 Sends email notifications, typically for alerts or status updates.
 
-Copy
-
-```
+```python
 class SendEmail(Skill):
     @property
     def name(self):
@@ -81,9 +79,7 @@ Recipients (defaults to configured list)
 
 Sends an email with the robot's current camera view attached.
 
-Copy
-
-```
+```python
 class SendPictureViaEmail(Skill):
     # Declare camera image dependency - updated at 50Hz while skill runs
     image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
@@ -100,9 +96,7 @@ This skill demonstrates **state dependencies**—using the `RobotState` descript
 
 Fetches recent emails from configured account.
 
-Copy
-
-```
+```python
 class RetrieveEmails(Skill):
     def guidelines(self):
         return (
@@ -120,9 +114,7 @@ class RetrieveEmails(Skill):
 
 ### Template
 
-Copy
-
-```
+```python
 import os
 from brain_client.skill_types import Skill, SkillResult
 
@@ -166,9 +158,7 @@ class MyDigitalSkill(Skill):
 
 **Error Handling**
 
-Copy
-
-```
+```python
 def execute(self, query: str):
     try:
         response = self.client.call(query, timeout=10)
@@ -197,9 +187,7 @@ def execute(self, query: str):
 
 Skills declare sensor data dependencies using the `RobotState` descriptor:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import RobotState, RobotStateType
 
 class MySkill(Skill):
@@ -243,14 +231,10 @@ See [Robot State](/software/skills/code-defined-skills/robot-state) for more det
 
 Many digital operations are atomic and cannot be meaningfully cancelled:
 
-Copy
-
-```
+```python
 def cancel(self):
     return "Email sending is an atomic operation that cannot be canceled once started"
 ```
 
 BASIC understands this limitation and factors it into planning decisions.
-
-[PreviousPhysical Skill Examples](/software/skills/code-defined-skills/physical-skill-examples)[NextPolicy-Defined Skills](/software/skills/policy-defined-skills)
 

@@ -14,8 +14,6 @@ Skills are defined in one of two ways:
 
 Python classes that implement explicit logic. The AI agent reads your code's function signature and docstrings to understand what the skill does and how to call it.
 
-Copy
-
 ```python
 class LookAround(Skill):
     mobility = Interface(InterfaceType.MOBILITY)
@@ -41,8 +39,6 @@ Use code-defined skills for:
 ### Policy-Defined Skills (End-to-End)
 
 Neural network policies trained from demonstration. Currently uses **ACT (Action Chunking with Transformers)** for manipulation tasks.
-
-Copy
 
 ```json
 {
@@ -116,4 +112,3 @@ Policy-defined
 
 No registration required. Drop a file in the right place and the robot loads it on startup.
 
-[PreviousDevelopment Setup](/software/development-setup)[NextCode-Defined Skills](/software/skills/code-defined-skills)

@@ -124,9 +124,7 @@ This is a quick walk through of how Mars can be programmed to patrol a house and
 
 Install the Innate SDL on your workstation, or download the Innate app from your app store
 
-Copy
-
-```
+```bash
 pip install innate-sdk 
 ```
 
@@ -140,9 +138,7 @@ This is best done through the app, collect a new dataset of demonstrations, choo
 
 Through code add a Skill that gives the robot the ability to send emails to different users. Define a guideline for how to use the skill and provide a method to execute
 
-Copy
-
-```
+```python
 """
 Example: Minimal SendEmail skill
 ----------------------------------
@@ -198,9 +194,7 @@ class SendEmail(Skill):
 
 This is what describes the purpose of the robot during its execution. Define through prompting what the robot should do in different situations, add its relevant skills.
 
-Copy
-
-```
+```python
 from typing import List
 from brain_client.agent_types import Agent
 
@@ -234,4 +228,3 @@ You can simply share the files in a github repository like our [examples reposit
 
 **Mars is designed for builders who want to push the boundaries of what's possible. Whether you're building a 3D printing assistant or something entirely new, we can't wait to see what you'll create.**
 
-[PreviousHome](/)[NextMARS Quick Development](/welcome/mars-quick-development)

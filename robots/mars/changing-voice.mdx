@@ -14,17 +14,13 @@ The simplest way to change the voice is through the `.env` file. No rebuild requ
 
 2. Edit the `.env` file:
 
-Copy
-
-```
+```bash
 nano ~/innate-os/.env
 ```
 
 1. Add or modify the `CARTESIA_VOICE_ID` variable:
 
-Copy
-
-```
+```text
 CARTESIA_VOICE_ID=your-voice-id-here
 ```
 
@@ -38,9 +34,7 @@ For more permanent changes, you can modify the launch file directly.
 
 The voice ID is configured in the brain client launch file:
 
-Copy
-
-```
+```text
 ~/innate-os/ros2_ws/src/brain/brain_client/launch/brain_client.launch.py
 ```
 
@@ -48,9 +42,7 @@ Copy
 
 Look for the `cartesia_voice_id_arg` parameter and update the `default_value`:
 
-Copy
-
-```
+```text
 cartesia_voice_id_arg = DeclareLaunchArgument(
     "cartesia_voice_id",
     default_value="9fdaae0b-f885-4813-b589-3c07cf9d5fea",  # Change this ID
@@ -64,9 +56,7 @@ Replace the voice ID with your desired Cartesia voice ID.
 
 Run the following command to recompile:
 
-Copy
-
-```
+```bash
 cd ~/innate-os/ros2_ws && colcon build
 ```
 
@@ -85,6 +75,4 @@ You can either:
 * **Create a custom voice** — Cartesia allows you to clone a voice with just 10 seconds of audio recording
 
 Check out the [Cartesia documentation](https://docs.cartesia.ai/get-started/overview) to learn more about available voices and how to create your own.
-
-[PreviousFAQ](/robots/mars/faq)[NextTroubleshooting](/robots/mars/troubleshooting)
 

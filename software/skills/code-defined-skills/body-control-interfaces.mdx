@@ -8,9 +8,7 @@ The `ManipulationInterface` and `HeadInterface` give you direct control over the
 
 Declare the interface at class level:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, Interface, InterfaceType
 
 class MySkill(Skill):
@@ -59,9 +57,7 @@ Solve IK without moving
 
 Move the end-effector to a specific position and orientation:
 
-Copy
-
-```
+```text
 # Move to position (x, y, z) with orientation (roll, pitch, yaw)
 self.manipulation.move_to_cartesian_pose(
     x=0.2, y=0.0, z=0.3,
@@ -74,18 +70,14 @@ self.manipulation.move_to_cartesian_pose(
 
 Move directly to joint angles (6 joints):
 
-Copy
-
-```
+```text
 # Move to joint configuration [j1, j2, j3, j4, j5, j6]
 self.manipulation.goto_joint_state([0, -0.5, 1.5, -1.0, 0, 0])
 ```
 
 ### Reading State
 
-Copy
-
-```
+```text
 # Get current end-effector pose
 pose = self.manipulation.get_current_end_effector_pose()
 # Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
@@ -99,9 +91,7 @@ rpy = self.manipulation.get_current_orientation_rpy()
 
 Check if a pose is reachable before moving:
 
-Copy
-
-```
+```yaml
 joints = self.manipulation.solve_ik(
     x=0.2, y=0.0, z=0.3,
     roll=0.0, pitch=0.0, yaw=0.0,
@@ -117,9 +107,7 @@ else:
 
 Control camera tilt:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, Interface, InterfaceType
 
 class MySkill(Skill):
@@ -158,9 +146,7 @@ Straight ahead
 
 Faces/shelves above
 
-Copy
-
-```
+```text
 self.head.set_position(-15)  # Look down at objects
 self.head.set_position(0)    # Look straight ahead
 self.head.set_position(10)   # Look up at faces
@@ -170,9 +156,7 @@ self.head.set_position(10)   # Look up at faces
 
 A skill that waves the arm:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 import time
 
@@ -211,9 +195,7 @@ class Wave(Skill):
 
 A skill that adjusts head to look at objects:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 
 class LookAtObject(Skill):
@@ -243,6 +225,4 @@ class LookAtObject(Skill):
     def cancel(self):
         return "Cannot cancel head movement"
 ```
-
-[PreviousNavigation Interfaces](/software/skills/code-defined-skills/navigation-interfaces)[NextRobot State](/software/skills/code-defined-skills/robot-state)
 

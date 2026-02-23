@@ -22,9 +22,7 @@ When you tell the robot "go to the kitchen," the agent automatically:
 
 Declare the interface at class level:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, Interface, InterfaceType
 
 class MySkill(Skill):
@@ -59,9 +57,7 @@ Rotate at speed for duration
 
 ### Examples
 
-Copy
-
-```
+```python
 import math
 
 # Rotate 90 degrees (blocking)
@@ -104,9 +100,7 @@ Create custom skill
 
 A skill that rotates to survey the environment:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 import math
 
@@ -136,6 +130,4 @@ class LookAround(Skill):
         self._cancelled = True
         return "Survey cancelled"
 ```
-
-[PreviousCode-Defined Skills](/software/skills/code-defined-skills)[NextBody Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces)
 

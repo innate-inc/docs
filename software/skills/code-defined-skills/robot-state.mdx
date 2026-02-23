@@ -8,9 +8,7 @@ The `RobotState` descriptor gives you access to sensor data—camera images, odo
 
 Declare state dependencies as class attributes:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, RobotState, RobotStateType
 
 class MySkill(Skill):
@@ -56,9 +54,7 @@ Head tilt angle
 
 The main camera image as a base64-encoded JPEG:
 
-Copy
-
-```
+```python
 class MySkill(Skill):
     image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
 
@@ -83,9 +79,7 @@ class MySkill(Skill):
 
 Current position, orientation, and velocity:
 
-Copy
-
-```
+```python
 class MySkill(Skill):
     odom = RobotState(RobotStateType.LAST_ODOM)
 
@@ -102,9 +96,7 @@ class MySkill(Skill):
 
 The occupancy grid map:
 
-Copy
-
-```
+```python
 class MySkill(Skill):
     map_data = RobotState(RobotStateType.LAST_MAP)
 
@@ -120,9 +112,7 @@ class MySkill(Skill):
 
 Current head tilt angle:
 
-Copy
-
-```
+```python
 class MySkill(Skill):
     head_pos = RobotState(RobotStateType.LAST_HEAD_POSITION)
 
@@ -136,9 +126,7 @@ class MySkill(Skill):
 
 A skill that captures images while rotating:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import (
     Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
 )
@@ -183,9 +171,7 @@ class CaptureImages(Skill):
 
 A skill that tracks robot movement:
 
-Copy
-
-```
+```python
 from brain_client.skill_types import Skill, SkillResult, RobotState, RobotStateType
 import math
 import time
@@ -225,6 +211,4 @@ class MonitorPosition(Skill):
         self._cancelled = True
         return "Monitoring cancelled"
 ```
-
-[PreviousBody Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces)[NextPhysical Skill Examples](/software/skills/code-defined-skills/physical-skill-examples)
 

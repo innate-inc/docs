@@ -43,8 +43,34 @@
         "pages": [
           "software/overview",
           "software/development-setup",
-          "software/agents",
-          "software/skills",
+          {
+            "group": "Agents",
+            "pages": [
+              "software/agents",
+              "software/agents/definitions",
+              "software/agents/starting-an-agent",
+              "software/agents/agent-examples"
+            ]
+          },
+          {
+            "group": "Skills",
+            "pages": [
+              "software/skills",
+              {
+                "group": "Code-Defined Skills",
+                "pages": [
+                  "software/skills/code-defined-skills",
+                  "software/skills/code-defined-skills/navigation-interfaces",
+                  "software/skills/code-defined-skills/body-control-interfaces",
+                  "software/skills/code-defined-skills/robot-state",
+                  "software/skills/code-defined-skills/physical-skill-examples",
+                  "software/skills/code-defined-skills/digital-skills"
+                ]
+              },
+              "software/skills/policy-defined-skills",
+              "software/skills/manual-triggering"
+            ]
+          },
           "software/inputs",
           "software/basic"
         ]

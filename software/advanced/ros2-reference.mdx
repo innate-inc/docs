@@ -154,9 +154,7 @@ Move head to default AI viewing position
 
 **GotoJS Request:**
 
-Copy
-
-```
+```text
 std_msgs/Float64MultiArray data  # Target joint positions
 int32 time                        # Duration in milliseconds
 ---
@@ -197,9 +195,7 @@ Trigger firmware update
 
 **LightCommand Request:**
 
-Copy
-
-```
+```text
 uint8 mode       # 0=Off, 1=Solid, 2=Blink, 3=Ring
 uint16 interval  # Animation interval in ms (1-10000)
 uint8 r          # Red (0-255)
@@ -376,9 +372,7 @@ Execute a skill/primitive
 
 **ExecuteBehavior:**
 
-Copy
-
-```
+```text
 # Goal
 string behavior_name
 string behavior_config  # JSON config from metadata.json
@@ -395,9 +389,7 @@ string status
 
 **ExecutePrimitive:**
 
-Copy
-
-```
+```text
 # Goal
 string primitive_type   # Skill name
 string inputs           # JSON-encoded inputs
@@ -441,9 +433,7 @@ Follow a sequence of waypoints
 
 ### Read battery level (Python)
 
-Copy
-
-```
+```python
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import BatteryState
@@ -464,18 +454,14 @@ rclpy.spin(node)
 
 ### Set LED color (command line)
 
-Copy
-
-```
+```bash
 ros2 service call /light_command maurice_msgs/srv/LightCommand \
   "{mode: 1, interval: 0, r: 255, g: 0, b: 0}"
 ```
 
 ### Move the arm (Python)
 
-Copy
-
-```
+```python
 from maurice_msgs.srv import GotoJS
 from std_msgs.msg import Float64MultiArray
 
@@ -494,9 +480,7 @@ future = client.call_async(request)
 
 ### Drive forward (command line)
 
-Copy
-
-```
+```bash
 ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
   "{linear: {x: 0.2}, angular: {z: 0.0}}" --rate 10
 ```
@@ -505,9 +489,7 @@ ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
 
 ## Useful Commands
 
-Copy
-
-```
+```bash
 # List all active topics
 ros2 topic list
 
@@ -544,6 +526,4 @@ ros2 node list
 * [Nav2 Documentation](https://docs.nav2.org/) — navigation stack details
 
 * [MoveIt2 Documentation](https://moveit.picknik.ai/) — motion planning details
-
-[PreviousAdvanced](/software/advanced)
 
