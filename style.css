@@ -81,6 +81,13 @@ pre,
   line-height: 1.6 !important;
 }
 
+/* Raise dark-mode body text from gray-400 to gray-300 */
+.dark #content-area .mdx-content p,
+.dark #content-area .mdx-content li,
+.dark #content-area .mdx-content span[data-as="p"] {
+  color: #d1d5db !important;
+}
+
 /* Hide Mintlify built-in previous/next page cards */
 #pagination {
   display: none !important;

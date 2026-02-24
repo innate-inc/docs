@@ -68,8 +68,16 @@ Navigation mode is published on `/nav/current_mode` with values `mapfree`, `mapp
 
 ## Manipulation
 
-Detailed manipulation docs are still being expanded.
+MARS supports two manipulation methods:
 
-<Card title="MARS Quick Start" href="/get-started/mars-quick-start">
-  Current manipulation workflows and demos.
-</Card>
+1. Standard CV + code-defined skills: use explicit logic and perception pipelines for deterministic task behavior.
+2. End-to-end AI policies: train manipulation skills from demonstrations and deploy the trained policy on robot.
+
+<CardGroup cols={2}>
+  <Card title="Code + CV Manipulation" href="/software/skills/code-defined-skills">
+    Build manipulation behaviors with code-defined skills and robot interfaces.
+  </Card>
+  <Card title="End-to-End AI Manipulation" href="/training/overview">
+    Train and deploy learned manipulation skills from demonstrations.
+  </Card>
+</CardGroup>
