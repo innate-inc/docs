@@ -2,17 +2,57 @@
 title: "Actions"
 ---
 
+import { RosActionsInterface } from '/snippets/ros-actions-interface.mdx';
+
 Use ROS2 actions for long-running tasks with feedback and cancellation.
 
-## Typical usage
+## Action Interface
 
-Actions are useful when execution takes time and you need progress updates (for example navigation goals or complex motion routines).
+<RosActionsInterface />
+
+## When to use an action
+
+Actions are useful when execution takes time and you need progress updates, cancellation, and a final result (for example navigation goals or manipulation routines). For one-shot RPC, use [Services](/software/ros2/services); for continuous streams, use [Topics](/software/ros2/topics).
 
 ## Quick commands
 
 ```bash
 ros2 action list
+ros2 action list -t
 ros2 action info <action_name>
 ```
 
-For stack-specific details, see [Navigation Stack](/software/ros2/navigation-stack) and [Manipulation Stack](/software/ros2/manipulation-stack).
+## Send goal examples
+
+### Navigate to a pose
+
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  "{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}" \
+  --feedback
+```
+
+### Execute a learned manipulation behavior
+
+```bash
+ros2 action send_goal /execute_behavior brain_messages/action/ExecuteBehavior \
+  "{behavior_name: pick_socks, behavior_config: \"{}\"}" \
+  --feedback
+```
+
+### Execute a skill (primitive)
+
+```bash
+ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
+  "{primitive_type: wave, inputs: \"{}\"}" \
+  --feedback
+```
+
+<CardGroup cols={2}>
+  <Card title="Navigation Stack" href="/software/ros2/navigation-stack">
+    Planner/controller details and navigation runtime behavior.
+  </Card>
+  <Card title="Manipulation Stack" href="/software/ros2/manipulation-stack">
+    Behavior execution and manipulation runtime details.
+  </Card>
+</CardGroup>

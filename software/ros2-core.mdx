@@ -64,6 +64,34 @@ The Innate OS has two main package groups:
 
 ***
 
+## Visualization
+
+You can visualize ROS2 data with either RViz or Flora. If you are on Linux, RViz is the standard option. If you are not on Linux, use **flora.fan** with the Foxglove Bridge running on MARS.
+
+### RViz (Linux)
+
+Use RViz to inspect frames, point clouds, LiDAR, trajectories, and robot state directly from a Linux ROS2 workstation.
+
+### Flora + Foxglove Bridge (non-Linux)
+
+If you do not have Linux, run Foxglove Bridge on the robot and connect from **flora.fan**: [flora.dan](https://flora.dan)
+
+Typical flow:
+
+<Steps>
+  <Step title="SSH into MARS">
+    Connect to the robot over SSH on the same network.
+  </Step>
+  <Step title="Start Foxglove Bridge">
+    Run the Foxglove Bridge node on MARS so topics are exposed over WebSocket.
+  </Step>
+  <Step title="Open flora.fan and connect">
+    In your browser, open flora.fan (link above) and connect to the robot bridge endpoint.
+  </Step>
+</Steps>
+
+***
+
 ## Going Deeper
 
 Use these ROS2 sections:
@@ -74,8 +102,3 @@ Use these ROS2 sections:
 * [Navigation Stack](/software/ros2/navigation-stack)
 * [Manipulation Stack](/software/ros2/manipulation-stack)
 * [Debugging](/software/ros2/debugging)
-
-For full topic/service reference tables, system diagrams, and low-level details:
-
-* [ROS2 Reference](/software/advanced/ros2-reference)
-

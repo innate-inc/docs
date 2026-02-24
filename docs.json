@@ -95,7 +95,6 @@
             "group": "ROS2 Core",
             "pages": [
               "software/ros2-core",
-              "software/advanced/ros2-reference",
               "software/ros2/topics",
               "software/ros2/services",
               "software/ros2/actions",

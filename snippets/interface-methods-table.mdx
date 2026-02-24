@@ -1,0 +1,130 @@
+export const InterfaceMethodsTable = ({ rows = [] }) => {
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                {row.params?.length ? (
+                  <div className="interface-method-params">
+                    {row.params.map((param) => (
+                      <span key={`${row.method}-${param.name}`} className="interface-param-badge">
+                        {param.name}
+                        {param.type ? (
+                          <span className="interface-param-type">: {param.type}</span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="interface-no-params">None</span>
+                )}
+              </td>
+              <td>{row.desc}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const NavigationInterfaceMethods = () => {
+  const rows = [
+    {
+      method: "rotate()",
+      params: [{ name: "angle_radians", type: "float" }],
+      desc: "Rotate in place (blocking, uses Nav2).",
+    },
+    {
+      method: "send_cmd_vel()",
+      params: [
+        { name: "linear_x", type: "float" },
+        { name: "angular_z", type: "float" },
+        { name: "duration", type: "float" },
+      ],
+      desc: "Publish velocity commands (non-blocking).",
+    },
+    {
+      method: "rotate_in_place()",
+      params: [
+        { name: "angular_speed", type: "float" },
+        { name: "duration", type: "float" },
+      ],
+      desc: "Rotate at a fixed angular speed for a set duration.",
+    },
+  ];
+
+  return <InterfaceMethodsTable rows={rows} />;
+};
+
+export const ManipulationInterfaceMethods = () => {
+  const rows = [
+    {
+      method: "move_to_cartesian_pose()",
+      params: [
+        { name: "x", type: "float" },
+        { name: "y", type: "float" },
+        { name: "z", type: "float" },
+        { name: "roll", type: "float" },
+        { name: "pitch", type: "float" },
+        { name: "yaw", type: "float" },
+        { name: "duration", type: "float" },
+      ],
+      desc: "Move the end-effector to a target Cartesian pose.",
+    },
+    {
+      method: "goto_joint_state()",
+      params: [{ name: "joints", type: "list[float]" }],
+      desc: "Move the arm to a target joint configuration (6 values).",
+    },
+    {
+      method: "get_current_orientation_rpy()",
+      params: [],
+      desc: "Get current end-effector orientation as roll/pitch/yaw values.",
+    },
+    {
+      method: "get_current_end_effector_pose()",
+      params: [],
+      desc: "Get current end-effector pose (position + quaternion).",
+    },
+    {
+      method: "solve_ik()",
+      params: [
+        { name: "x", type: "float" },
+        { name: "y", type: "float" },
+        { name: "z", type: "float" },
+        { name: "roll", type: "float" },
+        { name: "pitch", type: "float" },
+        { name: "yaw", type: "float" },
+        { name: "timeout", type: "float" },
+      ],
+      desc: "Solve inverse kinematics for a target pose without moving the arm.",
+    },
+  ];
+
+  return <InterfaceMethodsTable rows={rows} />;
+};
+
+export const HeadInterfaceMethods = () => {
+  const rows = [
+    {
+      method: "set_position()",
+      params: [{ name: "angle", type: "int" }],
+      desc: "Set head tilt angle (from -25deg to +15deg).",
+    },
+  ];
+
+  return <InterfaceMethodsTable rows={rows} />;
+};

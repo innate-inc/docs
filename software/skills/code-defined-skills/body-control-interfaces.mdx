@@ -2,6 +2,11 @@
 title: "Body Control Interfaces"
 ---
 
+import {
+  ManipulationInterfaceMethods,
+  HeadInterfaceMethods,
+} from '/snippets/interface-methods-table.mdx';
+
 The `ManipulationInterface` and `HeadInterface` give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
 
 ## ManipulationInterface
@@ -17,41 +22,7 @@ class MySkill(Skill):
 
 ### Methods
 
-Method
-
-Parameters
-
-Description
-
-`move_to_cartesian_pose()`
-
-`x, y, z, roll, pitch, yaw, duration`
-
-Move end-effector to pose
-
-`goto_joint_state()`
-
-`joints: list[float]`
-
-Move to joint configuration (6 values)
-
-`get_current_orientation_rpy()`
-
-—
-
-Get current orientation as dict
-
-`get_current_end_effector_pose()`
-
-—
-
-Get current pose (position + quaternion)
-
-`solve_ik()`
-
-`x, y, z, roll, pitch, yaw, timeout`
-
-Solve IK without moving
+<ManipulationInterfaceMethods />
 
 ### Cartesian Control
 
@@ -116,17 +87,7 @@ class MySkill(Skill):
 
 ### Methods
 
-Method
-
-Parameters
-
-Description
-
-`set_position()`
-
-`angle: int`
-
-Set head tilt (-25° to +15°)
+<HeadInterfaceMethods />
 
 ### Tilt Angles
 
@@ -225,4 +186,3 @@ class LookAtObject(Skill):
     def cancel(self):
         return "Cannot cancel head movement"
 ```
-

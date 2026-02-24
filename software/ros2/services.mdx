@@ -2,19 +2,56 @@
 title: "Services"
 ---
 
+import { RosServicesInterface } from '/snippets/ros-services-interface.mdx';
+
 Use ROS2 services for request/response operations.
 
-## Common services
+## Service Interface
 
-* `/mars/arm/goto_js` for joint-space arm moves
-* `/mars/head/set_ai_position` for head reset/position helpers
+<RosServicesInterface />
+
+## When to use a service
+
+Use a service when you need a single request/response interaction (for example "do this now and return success/failure"). Use [Topics](/software/ros2/topics) for continuous streaming and [Actions](/software/ros2/actions) for long-running operations with progress/cancel.
 
 ## Quick commands
 
 ```bash
 ros2 service list
+ros2 service list -t
 ros2 service type /mars/arm/goto_js
+ros2 interface show maurice_msgs/srv/GotoJS
 ros2 service call /mars/head/set_ai_position std_srvs/srv/Trigger {}
 ```
 
-For all service signatures and message details, see [ROS2 Reference](/software/advanced/ros2-reference).
+## Common call examples
+
+### Set LED color
+
+```bash
+ros2 service call /light_command maurice_msgs/srv/LightCommand \
+  "{mode: 1, interval: 0, r: 64, g: 31, b: 251}"
+```
+
+### Move arm in joint space
+
+```bash
+ros2 service call /mars/arm/goto_js maurice_msgs/srv/GotoJS \
+  "{data: {data: [0.0, -0.8, 1.2, -0.6, 0.0, 0.0]}, time: 2000}"
+```
+
+### Switch navigation mode
+
+```bash
+ros2 service call /change_navigation_mode brain_messages/srv/ChangeNavigationMode \
+  "{mode: navigation}"
+```
+
+<CardGroup cols={2}>
+  <Card title="Topics" href="/software/ros2/topics">
+    Streaming state and command channels.
+  </Card>
+  <Card title="Actions" href="/software/ros2/actions">
+    Long-running tasks with feedback and cancellation.
+  </Card>
+</CardGroup>

@@ -54,9 +54,17 @@ During mapping, keep the arm in a safe resting position, drive slowly for cleane
 
 Navigation mode is published on `/nav/current_mode` with values `mapfree`, `mapping`, and `navigation`.
 
-<Card title="ROS2 Reference" href="/software/advanced/ros2-reference">
-  Full topic/service/action interface tables and low-level details.
-</Card>
+<CardGroup cols={3}>
+  <Card title="ROS2 Topics" href="/software/ros2/topics">
+    Live streams including `/nav/current_mode`, LiDAR, and state telemetry.
+  </Card>
+  <Card title="ROS2 Services" href="/software/ros2/services">
+    Request/response interfaces for mode and map operations.
+  </Card>
+  <Card title="ROS2 Actions" href="/software/ros2/actions">
+    Long-running goals with feedback and cancellation.
+  </Card>
+</CardGroup>
 
 ## Manipulation
 

@@ -2,6 +2,8 @@
 title: "Navigation Interfaces"
 ---
 
+import { NavigationInterfaceMethods } from '/snippets/interface-methods-table.mdx';
+
 The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
 
 ## Core Navigation (Built-in)
@@ -31,29 +33,7 @@ class MySkill(Skill):
 
 ### Methods
 
-Method
-
-Parameters
-
-Description
-
-`rotate()`
-
-`angle_radians: float`
-
-Rotate in place (blocking, uses Nav2)
-
-`send_cmd_vel()`
-
-`linear_x, angular_z, duration`
-
-Publish velocity (non-blocking)
-
-`rotate_in_place()`
-
-`angular_speed, duration`
-
-Rotate at speed for duration
+<NavigationInterfaceMethods />
 
 ### Examples
 
@@ -130,4 +110,3 @@ class LookAround(Skill):
         self._cancelled = True
         return "Survey cancelled"
 ```
-

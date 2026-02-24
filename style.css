@@ -312,3 +312,117 @@ pre,
   border-color: rgba(117, 105, 253, 0.5);
   background: rgba(117, 105, 253, 0.18);
 }
+
+/* Interface methods tables (skills interfaces) */
+#content-area .interface-methods-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d8d8df;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.dark #content-area .interface-methods-table-wrap {
+  border-color: #2a2a36;
+  background: #0a0a10;
+}
+
+#content-area .interface-methods-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.91rem;
+}
+
+#content-area .interface-methods-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #4b5563;
+  background: #f7f7fb;
+  border-bottom: 1px solid #e2e2ea;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.dark #content-area .interface-methods-table thead th {
+  color: #9ca3af;
+  background: #11111a;
+  border-bottom-color: #252535;
+}
+
+#content-area .interface-methods-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #ececf3;
+  vertical-align: top;
+  color: #111827;
+}
+
+.dark #content-area .interface-methods-table td {
+  border-bottom-color: #232333;
+  color: #d1d5db;
+}
+
+#content-area .interface-methods-table tbody tr:nth-child(even) {
+  background: rgba(117, 105, 253, 0.03);
+}
+
+.dark #content-area .interface-methods-table tbody tr:nth-child(even) {
+  background: rgba(117, 105, 253, 0.06);
+}
+
+#content-area .interface-method-pill {
+  display: inline-block;
+  font-family: "MD IO", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  color: #130a77;
+  background: #f6f7ff;
+  border: 1px solid #dadcf0;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.dark #content-area .interface-method-pill {
+  color: #cdc8ff;
+  background: #16162a;
+  border-color: #353551;
+}
+
+#content-area .interface-method-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#content-area .interface-param-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: "MD IO", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem;
+  color: #401ffb;
+  background: rgba(64, 31, 251, 0.08);
+  border: 1px solid rgba(64, 31, 251, 0.24);
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+.dark #content-area .interface-param-badge {
+  color: #c9c4ff;
+  background: rgba(117, 105, 253, 0.2);
+  border-color: rgba(117, 105, 253, 0.45);
+}
+
+#content-area .interface-param-type {
+  opacity: 0.78;
+}
+
+#content-area .interface-no-params {
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.dark #content-area .interface-no-params {
+  color: #9ca3af;
+}

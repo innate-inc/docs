@@ -1,0 +1,75 @@
+export const RosActionsInterface = () => {
+  const actionSections = [
+    {
+      id: "navigation-actions",
+      title: "Navigation Actions",
+      rows: [
+        {
+          action: "/navigate_to_pose",
+          type: "nav2_msgs/NavigateToPose",
+          desc: "Navigate to a target pose in map frame with feedback and result.",
+        },
+        {
+          action: "/follow_waypoints",
+          type: "nav2_msgs/FollowWaypoints",
+          desc: "Execute a sequence of map waypoints.",
+        },
+      ],
+    },
+    {
+      id: "manipulation-actions",
+      title: "Manipulation Actions",
+      rows: [
+        {
+          action: "/execute_behavior",
+          type: "brain_messages/ExecuteBehavior",
+          desc: "Execute a learned manipulation behavior with runtime feedback.",
+        },
+        {
+          action: "/execute_policy",
+          type: "brain_messages/ExecutePolicy",
+          desc: "Run a policy for a configured duration.",
+        },
+        {
+          action: "/execute_primitive",
+          type: "brain_messages/ExecutePrimitive",
+          desc: "Execute a skill/primitive with JSON inputs.",
+        },
+      ],
+    },
+  ];
+
+  return (
+    <AccordionGroup>
+      {actionSections.map((section, idx) => (
+        <Accordion key={section.id} title={section.title} defaultOpen={idx === 0}>
+          <span className="ros-topic-badge">{section.rows.length} actions</span>
+          <div className="ros-topic-table-wrap" style={{ marginTop: "10px" }}>
+            <table className="ros-topic-table">
+              <thead>
+                <tr>
+                  <th>Action Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {section.rows.map((row) => (
+                  <tr key={row.action}>
+                    <td>
+                      <span className="ros-topic-code ros-topic-path">{row.action}</span>
+                    </td>
+                    <td>
+                      <span className="ros-topic-code ros-topic-msg">{row.type}</span>
+                    </td>
+                    <td>{row.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Accordion>
+      ))}
+    </AccordionGroup>
+  );
+};

@@ -10,12 +10,25 @@ Use ROS2 topics for streaming robot state and continuous commands.
 
 <RosTopicsInterface />
 
+## How to read PUB/SUB
+
+The **Dir** column is from the robot runtime perspective. `PUB` means MARS publishes that topic and you subscribe to it. `SUB` means MARS subscribes to that topic and you can publish commands to it.
+
 ## Quick commands
 
 ```bash
 ros2 topic list
+ros2 topic list -t
 ros2 topic echo /battery_state
 ros2 topic hz /scan
+ros2 topic info /cmd_vel
 ```
 
-For the full interface tables, see [ROS2 Reference](/software/advanced/ros2-reference).
+<CardGroup cols={2}>
+  <Card title="Services" href="/software/ros2/services">
+    Request/response interfaces for map, system, and runtime control.
+  </Card>
+  <Card title="Actions" href="/software/ros2/actions">
+    Long-running goal APIs with feedback and cancellation.
+  </Card>
+</CardGroup>

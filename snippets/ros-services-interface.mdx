@@ -1,0 +1,187 @@
+export const RosServicesInterface = () => {
+  const serviceSections = [
+    {
+      id: "arm-control",
+      title: "Arm Control",
+      rows: [
+        {
+          service: "/mars/arm/goto_js",
+          type: "maurice_msgs/GotoJS",
+          desc: "Move arm joints to target positions over a specified duration.",
+        },
+        {
+          service: "/mars/head/set_ai_position",
+          type: "std_srvs/Trigger",
+          desc: "Set the head to the default AI viewing position.",
+        },
+      ],
+    },
+    {
+      id: "navigation-maps",
+      title: "Navigation and Maps",
+      rows: [
+        {
+          service: "/grid_localize",
+          type: "maurice_msgs/GridLocalize",
+          desc: "Estimate robot pose on map from current scan.",
+        },
+        {
+          service: "/change_map",
+          type: "brain_messages/ChangeMap",
+          desc: "Switch the active saved map.",
+        },
+        {
+          service: "/save_map",
+          type: "brain_messages/SaveMap",
+          desc: "Save the current mapping session.",
+        },
+        {
+          service: "/delete_map",
+          type: "brain_messages/DeleteMap",
+          desc: "Delete a saved map.",
+        },
+        {
+          service: "/change_navigation_mode",
+          type: "brain_messages/ChangeNavigationMode",
+          desc: "Switch between mapfree, mapping, and navigation modes.",
+        },
+      ],
+    },
+    {
+      id: "system",
+      title: "System",
+      rows: [
+        {
+          service: "/light_command",
+          type: "maurice_msgs/LightCommand",
+          desc: "Control LED mode, interval, and RGB color.",
+        },
+        {
+          service: "/shutdown",
+          type: "maurice_msgs/Shutdown",
+          desc: "Trigger robot shutdown sequence.",
+        },
+        {
+          service: "/set_robot_name",
+          type: "maurice_msgs/SetRobotName",
+          desc: "Set display name used by app and hostname conversion.",
+        },
+        {
+          service: "/trigger_update",
+          type: "maurice_msgs/TriggerUpdate",
+          desc: "Trigger update flow on the robot.",
+        },
+      ],
+    },
+    {
+      id: "brain-agent",
+      title: "Brain and Agent Runtime",
+      rows: [
+        {
+          service: "/get_available_primitives",
+          type: "brain_messages/GetAvailablePrimitives",
+          desc: "List available skills (primitives).",
+        },
+        {
+          service: "/get_available_directives",
+          type: "brain_messages/GetAvailableDirectives",
+          desc: "List available agents (directives).",
+        },
+        {
+          service: "/get_available_behaviors",
+          type: "brain_messages/GetAvailableBehaviors",
+          desc: "List available learned manipulation behaviors.",
+        },
+        {
+          service: "/reset_brain",
+          type: "brain_messages/ResetBrain",
+          desc: "Reset brain runtime state.",
+        },
+        {
+          service: "/set_directive_on_startup",
+          type: "brain_messages/SetDirectiveOnStartup",
+          desc: "Choose which agent should auto-load at boot.",
+        },
+        {
+          service: "/get_chat_history",
+          type: "brain_messages/GetChatHistory",
+          desc: "Retrieve BASIC conversation history.",
+        },
+      ],
+    },
+    {
+      id: "data-recording",
+      title: "Data Recording",
+      rows: [
+        {
+          service: "/new_task",
+          type: "brain_messages/ManipulationTask",
+          desc: "Start recording a new manipulation task.",
+        },
+        {
+          service: "/new_episode",
+          type: "std_srvs/Trigger",
+          desc: "Start a new episode inside current task.",
+        },
+        {
+          service: "/save_episode",
+          type: "std_srvs/Trigger",
+          desc: "Save current episode.",
+        },
+        {
+          service: "/cancel_episode",
+          type: "std_srvs/Trigger",
+          desc: "Discard current episode.",
+        },
+        {
+          service: "/end_task",
+          type: "std_srvs/Trigger",
+          desc: "Finalize current task recording.",
+        },
+        {
+          service: "/get_task_metadata",
+          type: "brain_messages/GetTaskMetadata",
+          desc: "Read metadata for a recording task.",
+        },
+        {
+          service: "/get_dataset_info",
+          type: "brain_messages/GetDatasetInfo",
+          desc: "Read dataset summary and statistics.",
+        },
+      ],
+    },
+  ];
+
+  return (
+    <AccordionGroup>
+      {serviceSections.map((section, idx) => (
+        <Accordion key={section.id} title={section.title} defaultOpen={idx < 2}>
+          <div className="ros-topic-table-wrap">
+            <table className="ros-topic-table">
+              <thead>
+                <tr>
+                  <th>Service Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {section.rows.map((row) => (
+                  <tr key={row.service}>
+                    <td>
+                      <span className="ros-topic-code ros-topic-path">{row.service}</span>
+                    </td>
+                    <td>
+                      <span className="ros-topic-code ros-topic-msg">{row.type}</span>
+                    </td>
+                    <td>{row.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Accordion>
+      ))}
+    </AccordionGroup>
+  );
+};
