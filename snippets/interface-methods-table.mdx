@@ -1,4 +1,29 @@
-export const InterfaceMethodsTable = ({ rows = [] }) => {
+export const NavigationInterfaceMethods = () => {
+  const rows = [
+    {
+      method: "rotate()",
+      params: [{ name: "angle_radians", type: "float" }],
+      desc: "Rotate in place (blocking, uses Nav2).",
+    },
+    {
+      method: "send_cmd_vel()",
+      params: [
+        { name: "linear_x", type: "float" },
+        { name: "angular_z", type: "float" },
+        { name: "duration", type: "float" },
+      ],
+      desc: "Publish velocity commands (non-blocking).",
+    },
+    {
+      method: "rotate_in_place()",
+      params: [
+        { name: "angular_speed", type: "float" },
+        { name: "duration", type: "float" },
+      ],
+      desc: "Rotate at a fixed angular speed for a set duration.",
+    },
+  ];
+
   return (
     <div className="interface-methods-table-wrap">
       <table className="interface-methods-table">
@@ -38,35 +63,6 @@ export const InterfaceMethodsTable = ({ rows = [] }) => {
       </table>
     </div>
   );
-};
-
-export const NavigationInterfaceMethods = () => {
-  const rows = [
-    {
-      method: "rotate()",
-      params: [{ name: "angle_radians", type: "float" }],
-      desc: "Rotate in place (blocking, uses Nav2).",
-    },
-    {
-      method: "send_cmd_vel()",
-      params: [
-        { name: "linear_x", type: "float" },
-        { name: "angular_z", type: "float" },
-        { name: "duration", type: "float" },
-      ],
-      desc: "Publish velocity commands (non-blocking).",
-    },
-    {
-      method: "rotate_in_place()",
-      params: [
-        { name: "angular_speed", type: "float" },
-        { name: "duration", type: "float" },
-      ],
-      desc: "Rotate at a fixed angular speed for a set duration.",
-    },
-  ];
-
-  return <InterfaceMethodsTable rows={rows} />;
 };
 
 export const ManipulationInterfaceMethods = () => {
@@ -114,7 +110,45 @@ export const ManipulationInterfaceMethods = () => {
     },
   ];
 
-  return <InterfaceMethodsTable rows={rows} />;
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                {row.params?.length ? (
+                  <div className="interface-method-params">
+                    {row.params.map((param) => (
+                      <span key={`${row.method}-${param.name}`} className="interface-param-badge">
+                        {param.name}
+                        {param.type ? (
+                          <span className="interface-param-type">: {param.type}</span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="interface-no-params">None</span>
+                )}
+              </td>
+              <td>{row.desc}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 export const HeadInterfaceMethods = () => {
@@ -126,5 +160,43 @@ export const HeadInterfaceMethods = () => {
     },
   ];
 
-  return <InterfaceMethodsTable rows={rows} />;
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                {row.params?.length ? (
+                  <div className="interface-method-params">
+                    {row.params.map((param) => (
+                      <span key={`${row.method}-${param.name}`} className="interface-param-badge">
+                        {param.name}
+                        {param.type ? (
+                          <span className="interface-param-type">: {param.type}</span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="interface-no-params">None</span>
+                )}
+              </td>
+              <td>{row.desc}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };
