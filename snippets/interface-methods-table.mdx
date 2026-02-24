@@ -200,3 +200,378 @@ export const HeadInterfaceMethods = () => {
     </div>
   );
 };
+
+export const AgentCoreMethodsTable = () => {
+  const rows = [
+    { method: "id", returns: "str", purpose: "Unique identifier (snake_case)." },
+    { method: "display_name", returns: "str", purpose: "Human-readable name shown in the app." },
+    { method: "get_skills()", returns: "List[str]", purpose: "Skills this agent can use." },
+    { method: "get_prompt()", returns: "str", purpose: "Personality and behavioral instructions." },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Returns</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                <span className="interface-param-badge">
+                  {row.returns}
+                </span>
+              </td>
+              <td>{row.purpose}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const AgentOptionalMethodsTable = () => {
+  const rows = [
+    { method: "display_icon", returns: "str", purpose: "Path to a 32x32 pixel icon." },
+    { method: "get_inputs()", returns: "List[str]", purpose: "Input devices to activate (for example: [\"micro\"])." },
+    { method: "uses_gaze()", returns: "bool", purpose: "Enable person-tracking eye movement." },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Returns</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                <span className="interface-param-badge">
+                  {row.returns}
+                </span>
+              </td>
+              <td>{row.purpose}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const SkillCoreMethodsTable = () => {
+  const rows = [
+    {
+      method: "name",
+      purpose: "Unique identifier the agent uses to call this skill.",
+    },
+    {
+      method: "guidelines()",
+      purpose: "Natural language instructions for when and how to use the skill.",
+    },
+    {
+      method: "execute()",
+      purpose: "The actual behavior. The signature defines the skill parameters.",
+    },
+    {
+      method: "cancel()",
+      purpose: "Clean shutdown when the user or agent interrupts.",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>{row.purpose}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const SkillResultsTable = () => {
+  const rows = [
+    { status: "SUCCESS", meaning: "Skill completed its task." },
+    { status: "FAILURE", meaning: "Something went wrong." },
+    { status: "CANCELLED", meaning: "Skill was interrupted via cancel()." },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.status}>
+              <td>
+                <span className="interface-param-badge">{row.status}</span>
+              </td>
+              <td>{row.meaning}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const NavigationUseCasesTable = () => {
+  const rows = [
+    {
+      scenario: "Go to a saved location",
+      recommendation: "Use built-in behavior (agent handles it).",
+    },
+    {
+      scenario: "Survey surroundings",
+      recommendation: "Create a custom skill with rotate().",
+    },
+    {
+      scenario: "Follow a person",
+      recommendation: "Create a custom skill with send_cmd_vel().",
+    },
+    {
+      scenario: "Fine positioning for manipulation",
+      recommendation: "Create a custom skill.",
+    },
+    {
+      scenario: "Patrol a route",
+      recommendation: "Create a custom skill.",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Recommendation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.scenario}>
+              <td>{row.scenario}</td>
+              <td>{row.recommendation}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const HeadTiltAnglesTable = () => {
+  const rows = [
+    { angle: "-25deg", view: "Floor and objects below." },
+    { angle: "0deg", view: "Straight ahead." },
+    { angle: "+15deg", view: "Faces and shelves above." },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Angle</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.angle}>
+              <td>
+                <span className="interface-param-badge">{row.angle}</span>
+              </td>
+              <td>{row.view}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const RobotStateAvailableTable = () => {
+  const rows = [
+    {
+      state: "Camera Image",
+      typeEnum: "RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64",
+      description: "Latest frame (base64 JPEG).",
+    },
+    {
+      state: "Odometry",
+      typeEnum: "RobotStateType.LAST_ODOM",
+      description: "Position, orientation, and velocity.",
+    },
+    {
+      state: "Map",
+      typeEnum: "RobotStateType.LAST_MAP",
+      description: "Occupancy grid.",
+    },
+    {
+      state: "Head Position",
+      typeEnum: "RobotStateType.LAST_HEAD_POSITION",
+      description: "Head tilt angle.",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Type Enum</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.typeEnum}>
+              <td>{row.state}</td>
+              <td>
+                <span className="interface-param-badge">{row.typeEnum}</span>
+              </td>
+              <td>{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const DigitalSendEmailParametersTable = () => {
+  const rows = [
+    {
+      parameter: "subject",
+      type: "str",
+      required: "Yes",
+      description: "Email subject line.",
+    },
+    {
+      parameter: "message",
+      type: "str",
+      required: "Yes",
+      description: "Email body content.",
+    },
+    {
+      parameter: "recipients",
+      type: "list[str]",
+      required: "No",
+      description: "Recipients (defaults to configured list).",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.parameter}>
+              <td>
+                <span className="interface-method-pill">{row.parameter}</span>
+              </td>
+              <td>
+                <span className="interface-param-badge">{row.type}</span>
+              </td>
+              <td>
+                <span className="interface-param-badge">{row.required}</span>
+              </td>
+              <td>{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const DigitalStateTypesTable = () => {
+  const rows = [
+    {
+      stateType: "LAST_MAIN_CAMERA_IMAGE_B64",
+      description: "Latest camera frame (base64 JPEG).",
+    },
+    {
+      stateType: "LAST_ODOM",
+      description: "Current odometry.",
+    },
+    {
+      stateType: "LAST_MAP",
+      description: "Occupancy grid.",
+    },
+    {
+      stateType: "LAST_HEAD_POSITION",
+      description: "Head tilt angle.",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>State Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.stateType}>
+              <td>
+                <span className="interface-param-badge">{row.stateType}</span>
+              </td>
+              <td>{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};

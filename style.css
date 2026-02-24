@@ -426,3 +426,17 @@ pre,
 .dark #content-area .interface-no-params {
   color: #9ca3af;
 }
+
+/* Calibration app screenshots side by side */
+#content-area .calibration-app-screens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  #content-area .calibration-app-screens {
+    grid-template-columns: 1fr;
+  }
+}

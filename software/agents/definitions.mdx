@@ -2,6 +2,11 @@
 title: "Anatomy of an Agent"
 ---
 
+import {
+  AgentCoreMethodsTable,
+  AgentOptionalMethodsTable,
+} from '/snippets/interface-methods-table.mdx';
+
 Every agent follows the same structure. Once you understand it, you can create any agent you need.
 
 ## File Location
@@ -14,61 +19,11 @@ Add a file, and the agent appears. Remove it, and the agent disappears.
 
 Every agent implements four methods:
 
-Method
-
-Returns
-
-Purpose
-
-`id`
-
-`str`
-
-Unique identifier (snake\_case)
-
-`display_name`
-
-`str`
-
-Human-readable name shown in the app
-
-`get_skills()`
-
-`List[str]`
-
-Skills this agent can use
-
-`get_prompt()`
-
-`str`
-
-Personality and behavioral instructions
+<AgentCoreMethodsTable />
 
 Optional methods:
 
-Method
-
-Returns
-
-Purpose
-
-`display_icon`
-
-`str`
-
-Path to a 32×32 pixel icon
-
-`get_inputs()`
-
-`List[str]`
-
-Input devices to activate (e.g., `["micro"]`)
-
-`uses_gaze()`
-
-`bool`
-
-Enable person-tracking eye movement
+<AgentOptionalMethodsTable />
 
 ## Minimal Example
 
@@ -214,4 +169,3 @@ Include:
 ```
 
 Save this as `my_agent.py` in `~/agents`, and the system will load it automatically.
-

@@ -2,6 +2,11 @@
 title: "Overview"
 ---
 
+import {
+  SkillCoreMethodsTable,
+  SkillResultsTable,
+} from '/snippets/interface-methods-table.mdx';
+
 Code-defined skills are Python classes that implement robot behaviors with explicit logic. The AI agent reads your code's function signature and docstrings to understand what the skill does and how to call it.
 
 ## Design Principles
@@ -77,25 +82,7 @@ class MySkill(Skill):
         return "Cancelled"
 ```
 
-Method
-
-Purpose
-
-`name`
-
-Unique identifier the agent uses to call this skill
-
-`guidelines()`
-
-Natural language instructions for when/how to use the skill
-
-`execute()`
-
-The actual behavior—signature defines the skill's parameters
-
-`cancel()`
-
-Clean shutdown when the user or agent interrupts
+<SkillCoreMethodsTable />
 
 ## Skill Results
 
@@ -113,21 +100,7 @@ def execute(self):
         return "Something went wrong", SkillResult.FAILURE
 ```
 
-Status
-
-Meaning
-
-`SUCCESS`
-
-Skill completed its task
-
-`FAILURE`
-
-Something went wrong
-
-`CANCELLED`
-
-Skill was interrupted via `cancel()`
+<SkillResultsTable />
 
 ## Feedback
 
@@ -152,4 +125,3 @@ def execute(self):
 * [**Physical Skill Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Full-body behaviors combining navigation + manipulation
 
 * [**Digital Skills**](/software/skills/code-defined-skills/digital-skills) — APIs, email, web services
-

@@ -5,6 +5,7 @@ title: "Body Control Interfaces"
 import {
   ManipulationInterfaceMethods,
   HeadInterfaceMethods,
+  HeadTiltAnglesTable,
 } from '/snippets/interface-methods-table.mdx';
 
 The `ManipulationInterface` and `HeadInterface` give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
@@ -28,7 +29,7 @@ class MySkill(Skill):
 
 Move the end-effector to a specific position and orientation:
 
-```text
+```python
 # Move to position (x, y, z) with orientation (roll, pitch, yaw)
 self.manipulation.move_to_cartesian_pose(
     x=0.2, y=0.0, z=0.3,
@@ -41,14 +42,14 @@ self.manipulation.move_to_cartesian_pose(
 
 Move directly to joint angles (6 joints):
 
-```text
+```python
 # Move to joint configuration [j1, j2, j3, j4, j5, j6]
 self.manipulation.goto_joint_state([0, -0.5, 1.5, -1.0, 0, 0])
 ```
 
 ### Reading State
 
-```text
+```python
 # Get current end-effector pose
 pose = self.manipulation.get_current_end_effector_pose()
 # Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
@@ -62,7 +63,7 @@ rpy = self.manipulation.get_current_orientation_rpy()
 
 Check if a pose is reachable before moving:
 
-```yaml
+```python
 joints = self.manipulation.solve_ik(
     x=0.2, y=0.0, z=0.3,
     roll=0.0, pitch=0.0, yaw=0.0,
@@ -91,23 +92,9 @@ class MySkill(Skill):
 
 ### Tilt Angles
 
-Angle
+<HeadTiltAnglesTable />
 
-View
-
--25°
-
-Floor/objects below
-
-0°
-
-Straight ahead
-
-+15°
-
-Faces/shelves above
-
-```text
+```python
 self.head.set_position(-15)  # Look down at objects
 self.head.set_position(0)    # Look straight ahead
 self.head.set_position(10)   # Look up at faces

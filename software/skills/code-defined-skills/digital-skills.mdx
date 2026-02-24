@@ -2,6 +2,11 @@
 title: "Digital Skills"
 ---
 
+import {
+  DigitalSendEmailParametersTable,
+  DigitalStateTypesTable,
+} from '/snippets/interface-methods-table.mdx';
+
 Digital skills enable the robot to interact with external services—sending emails, making API calls, retrieving information. These are always code skills, implementing explicit protocols and handling authentication, errors, and network conditions.
 
 ## Characteristics
@@ -43,37 +48,7 @@ class SendEmail(Skill):
 
 **Parameters:**
 
-Parameter
-
-Type
-
-Required
-
-Description
-
-`subject`
-
-str
-
-Yes
-
-Email subject line
-
-`message`
-
-str
-
-Yes
-
-Email body content
-
-`recipients`
-
-list\[str]
-
-No
-
-Recipients (defaults to configured list)
+<DigitalSendEmailParametersTable />
 
 ### SendPictureViaEmail
 
@@ -205,25 +180,7 @@ The system automatically updates declared state at 50Hz while your skill runs. A
 
 Available state types:
 
-State Type
-
-Description
-
-`LAST_MAIN_CAMERA_IMAGE_B64`
-
-Latest camera frame (base64 JPEG)
-
-`LAST_ODOM`
-
-Current odometry
-
-`LAST_MAP`
-
-Occupancy grid
-
-`LAST_HEAD_POSITION`
-
-Head tilt angle
+<DigitalStateTypesTable />
 
 See [Robot State](/software/skills/code-defined-skills/robot-state) for more details on the RobotState system.
 
@@ -237,4 +194,3 @@ def cancel(self):
 ```
 
 BASIC understands this limitation and factors it into planning decisions.
-

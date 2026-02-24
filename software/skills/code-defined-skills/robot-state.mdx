@@ -2,6 +2,8 @@
 title: "Robot State"
 ---
 
+import { RobotStateAvailableTable } from '/snippets/interface-methods-table.mdx';
+
 The `RobotState` descriptor gives you access to sensor data—camera images, odometry, maps, and more. Declared state is **automatically updated at 50Hz** while your skill runs.
 
 ## Declaration
@@ -20,35 +22,7 @@ The system injects and updates these values automatically. Always check for `Non
 
 ## Available State
 
-State
-
-Type Enum
-
-Description
-
-Camera Image
-
-`RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64`
-
-Latest frame (base64 JPEG)
-
-Odometry
-
-`RobotStateType.LAST_ODOM`
-
-Position, orientation, velocity
-
-Map
-
-`RobotStateType.LAST_MAP`
-
-Occupancy grid
-
-Head Position
-
-`RobotStateType.LAST_HEAD_POSITION`
-
-Head tilt angle
+<RobotStateAvailableTable />
 
 ## Camera Image
 
@@ -211,4 +185,3 @@ class MonitorPosition(Skill):
         self._cancelled = True
         return "Monitoring cancelled"
 ```
-

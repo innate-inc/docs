@@ -2,7 +2,10 @@
 title: "Navigation Interfaces"
 ---
 
-import { NavigationInterfaceMethods } from '/snippets/interface-methods-table.mdx';
+import {
+  NavigationInterfaceMethods,
+  NavigationUseCasesTable,
+} from '/snippets/interface-methods-table.mdx';
 
 The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
 
@@ -52,29 +55,7 @@ self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 
 ## When to Use
 
-Scenario
-
-Recommendation
-
-Go to a saved location
-
-Use built-in (agent handles it)
-
-Survey surroundings
-
-Create custom skill with `rotate()`
-
-Follow a person
-
-Create custom skill with `send_cmd_vel()`
-
-Fine positioning for manipulation
-
-Create custom skill
-
-Patrol a route
-
-Create custom skill
+<NavigationUseCasesTable />
 
 ## Example: LookAround
 
