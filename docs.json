@@ -88,12 +88,7 @@
           {
             "group": "Manipulation",
             "pages": [
-              "training/overview",
-              "training/data-collection",
-              "training/dataset-format",
-              "training/train-act-policy",
-              "training/evaluate",
-              "training/deploy-trained-skill"
+              "training/overview"
             ]
           },
           {
