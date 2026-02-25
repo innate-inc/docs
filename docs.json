@@ -2,6 +2,11 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "sequoia",
   "name": "Innate Docs",
+  "metadata": {
+    "canonical": "https://docs.innate.bot",
+    "og:url": "https://docs.innate.bot"
+  },
+  "isWhiteLabeled": true,
   "colors": {
     "primary": "#401FFB",
     "light": "#7569FD",
