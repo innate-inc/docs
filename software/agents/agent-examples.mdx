@@ -4,9 +4,9 @@ title: "Agent Examples"
 
 These examples demonstrate different agent patterns. Use them as starting points for your own implementations.
 
-## Security Guard
-
-A patrol agent that monitors for intruders and sends email alerts.
+<AccordionGroup>
+  <Accordion title="Security Guard" defaultOpen={true}>
+    A patrol agent that monitors for intruders and sends email alerts.
 
 ```python
 from typing import List
@@ -62,11 +62,11 @@ Intruder protocol:
 Maintain professional alertness throughout your patrol."""
 ```
 
-**Key pattern**: The prompt includes a specific route, clear behavioral guidelines, and explicit instructions for edge cases (intruder detection).
+    Key pattern: the prompt includes a specific route, clear behavior guidelines, and explicit edge-case handling.
+  </Accordion>
 
-## Object Collector
-
-A task-focused agent that finds and collects specific items.
+  <Accordion title="Object Collector">
+    A task-focused agent that finds and collects specific items.
 
 ```python
 from typing import List
@@ -112,11 +112,11 @@ Guidelines:
 - Perform a final sweep when you believe you're done"""
 ```
 
-**Key pattern**: Single-purpose agent with a clear procedure and practical guidelines for handling edge cases.
+    Key pattern: single-purpose objective with a concrete procedure and practical fallback rules.
+  </Accordion>
 
-## Tour Guide
-
-An interactive agent that engages with visitors and provides guided tours.
+  <Accordion title="Tour Guide">
+    An interactive agent that engages with visitors and provides guided tours.
 
 ```python
 from typing import List
@@ -166,11 +166,11 @@ If a guest needs to leave early, thank them for visiting."""
         return True
 ```
 
-**Key pattern**: Uses gaze tracking for natural interaction. The prompt covers greeting, tour content, and social protocols.
+    Key pattern: gaze-enabled social interaction with route and dialogue structure.
+  </Accordion>
 
-## Passive Observer
-
-A minimal agent that monitors without active engagement.
+  <Accordion title="Passive Observer">
+    A minimal agent that monitors quietly and only engages when addressed.
 
 ```python
 from typing import List
@@ -188,7 +188,7 @@ class QuietObserver(Agent):
         return "Quiet Observer"
 
     def get_skills(self) -> List[str]:
-        return ["turn_and_move"]
+        return ["navigate_to_position"]
 
     def get_inputs(self) -> List[str]:
         return ["micro"]
@@ -199,8 +199,8 @@ class QuietObserver(Agent):
 Behavior:
 - Remain quiet unless directly addressed
 - When spoken to, respond briefly and thoughtfully
-- Slowly turn to observe your surroundings
-- Do not move around unless requested
+- Rotate in place slowly to observe your surroundings
+- Do not navigate away unless requested
 
 Maintain a non-intrusive presence in the room."""
 
@@ -208,19 +208,10 @@ Maintain a non-intrusive presence in the room."""
         return True
 ```
 
-**Key pattern**: Minimal skills and a restrained prompt create a passive presence rather than an active participant.
+    Key pattern: minimal skill set with a restrained prompt for passive behavior.
+  </Accordion>
+</AccordionGroup>
 
 ## Combining Patterns
 
-These examples represent common patterns that can be combined:
-
-* **Patrol + Alert**: Security guard pattern
-
-* **Search + Manipulate**: Object collector pattern
-
-* **Navigate + Interact**: Tour guide pattern
-
-* **Observe + Respond**: Passive observer pattern
-
-Mix elements from different patterns to create agents suited to your specific requirements.
-
+These examples represent reusable patterns you can mix depending on your use case: patrol + alert, search + manipulate, navigate + interact, and observe + respond. In practice, most production agents combine at least two of these patterns.

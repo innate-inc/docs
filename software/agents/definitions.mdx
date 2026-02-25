@@ -94,31 +94,13 @@ You are a friendly robot who greets people.
         return True
 ```
 
-This agent:
-
-* **Has skills**: Navigation and waving
-
-* **Has inputs**: Microphone for voice interaction
-
-* **Has personality**: Friendly, casual, responsive
-
-* **Uses gaze**: Tracks nearby people with its eyes
+This agent combines navigation and waving skills, microphone input, a friendly prompt, and gaze tracking for more natural interaction.
 
 ## Writing Effective Prompts
 
 The prompt determines how the robot behaves. Skills define what's *possible*; the prompt defines what *actually happens*.
 
-A good prompt covers:
-
-* **Personality**: Tone, communication style, demeanor
-
-* **Goals**: What the robot should accomplish
-
-* **Constraints**: What the robot should avoid
-
-* **Strategy**: How to approach the task
-
-Be specific. The AI interprets your prompt literally—vague instructions produce unpredictable results.
+A good prompt defines personality, goals, constraints, and strategy in plain language. Be specific. The AI interprets your prompt literally, and vague instructions produce inconsistent behavior.
 
 ## Template
 
@@ -156,12 +138,7 @@ class MyCustomAgent(Agent):
     def get_prompt(self) -> str:
         return """
 Describe who the robot is and what it should do.
-
-Include:
-- Personality and tone
-- Goals and objectives
-- How to approach the task
-- What to avoid
+Be explicit about personality, goals, strategy, and constraints.
 """
 
     def uses_gaze(self) -> bool:

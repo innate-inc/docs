@@ -6,107 +6,34 @@ Once you've created an agent, you can activate it through the Controller App or 
 
 ## Using the Controller App
 
-1. Open the **Innate Controller App** on your phone
+Open the **Innate Controller App**, connect to your robot on the same network, then go to the **Home** screen and tap an agent card to activate it. To switch agents, tap a different card. To stop the current one, use the stop button.
 
-2. Connect to your robot (it appears automatically on the same network)
-
-3. Navigate to the **Home** screen
-
-4. Locate your agent in the list
-
-5. Tap to activate
-
-The robot switches to the new agent immediately. To switch agents, tap a different one. To stop the current agent, use the stop button.
-
-![](/images/main/software/agents/starting-an-agent.png)
+<img src="/images/main/software/agents/starting-an-agent.png" alt="Starting an agent from the app" style={{ maxWidth: "360px", width: "100%", display: "block", margin: "16px auto" }} />
 
 ## Setting a Default Agent
 
 You can configure an agent to start automatically when the robot boots.
 
-Use cases:
-
-* Demonstrations requiring immediate readiness
-
-* Permanent installations
-
-* Unattended operation
-
-To set a default agent:
-
-1. Open the Controller App
-
-2. Go to **Home**
-
-3. Long-press on an agent
-
-4. Select **Set as default**
-
-The app displays an indicator on default agents. To remove the default, long-press and select **Remove default**.
+In the Controller App, go to **Home**, long-press an agent card, and select **Set as default**. The app marks it as default. To remove it, long-press again and select **Remove default**.
 
 ## Activation Sequence
 
-When you activate an agent, the system performs these steps:
-
-1. **Skills load** — Required skills become available
-
-2. **Inputs activate** — Microphone, sensors, and other inputs start
-
-3. **Prompt uploads** — Personality instructions are sent to the cloud AI
-
-4. **Gaze enables** — Person tracking starts (if configured)
-
-5. **Processing begins** — The AI starts analyzing camera feeds and making decisions
-
-This sequence completes in approximately one second.
+When you activate an agent, the runtime loads its skills, opens its inputs, uploads the prompt, enables gaze if configured, and starts the perception/decision loop. This typically completes in about one second.
 
 ## Switching Between Agents
 
-Agent switching is instantaneous and clean:
-
-1. Current agent's skills deactivate
-
-2. Current inputs close
-
-3. New agent's skills load
-
-4. New inputs open
-
-5. New prompt uploads
-
-In-progress actions are cancelled immediately. The robot doesn't complete pending tasks from the previous agent—it transitions directly to the new identity.
+Switching is immediate: the current agent is torn down, the new one is loaded, and in-progress actions from the previous agent are cancelled rather than completed.
 
 ## Troubleshooting
 
 ### Agent doesn't appear in the app
 
-* Verify the file is in `~/agents` on the robot
-
-* Check for Python syntax errors by importing the file manually
-
-* Restart the brain service: `sudo systemctl restart innate-brain`
+Check that the file is in `~/agents`, then on the app **Home** screen swipe down (pull-to-refresh) to reload the agent list. If it still does not appear, verify the file imports without Python errors and inspect runtime logs using the [Troubleshooting guide](/robots/mars/troubleshooting#navigate-tmux-to-find-issues).
 
 ### Agent won't start
 
-* Check robot logs for error messages
-
-* Verify all skills referenced in `get_skills()` exist
-
-* Confirm the prompt is not empty
+Check robot logs for startup errors (see [Troubleshooting](/robots/mars/troubleshooting#navigate-tmux-to-find-issues)), confirm every skill listed in `get_skills()` exists, and ensure the prompt is valid for the behavior you expect.
 
 ### Agent starts but robot is unresponsive
 
-* Make the prompt more specific—vague instructions produce inconsistent behavior
-
-* Verify required skills are listed in `get_skills()`
-
-* Confirm necessary inputs (like microphone) are in `get_inputs()`
-
-## Next Steps
-
-* [Skills](/software/skills) — Create custom actions for your agents
-
-* [Inputs](/software/inputs) — Connect additional sensors
-
-* [System Overview](/software/overview) — Understand the full architecture
-
+Usually this is a prompt or wiring issue. Tighten the prompt wording, verify required skills are in `get_skills()`, and confirm necessary inputs (for example `micro`) are present in `get_inputs()`.

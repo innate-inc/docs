@@ -1,20 +1,12 @@
 ---
-title: "Agents"
+title: "Introduction"
 ---
 
 An agent defines who your robot is and what it can do. Without an agent, a robot is just hardware waiting for instructions. With an agent, it becomes a security guard, a tour guide, a friendly greeter etc.
 
 ## What is an Agent?
 
-An agent is a Python class that configures three things:
-
-1. **Skills** — The actions the robot can perform
-
-2. **Inputs** — The sensors and data streams the robot monitors
-
-3. **Prompt** — The personality and behavioral guidelines
-
-When you activate an agent, the robot adopts that identity. The same hardware can run completely different agents, each with distinct capabilities and personalities.
+An agent is a Python class that defines three things together: the **skills** the robot can execute, the **inputs** it listens to, and the **prompt** that defines behavior and tone. When you activate an agent, the robot adopts that identity. The same hardware can run very different agents with distinct personalities and capabilities.
 
 ## Agents as Portable Applications
 
@@ -22,19 +14,33 @@ Agents are designed to be shareable. Write an agent once, and anyone with an Inn
 
 No configuration files. No complex setup. Just Python.
 
-Every Innate robot ships with pre-installed agents that appear on the **Home** screen in the Innate Controller App.
+For OS 0.4.0, the built-in agents come from `innate-os/agents` and appear on the **Home** screen in the Innate Controller App.
 
-**Built-in agents include:**
+<CardGroup cols={2}>
+  <Card title="No Prompt (`basic_agent`)">
+    Minimal default behavior with `navigate_to_position` and no prompt text.
+  </Card>
+  <Card title="Demo Agent (`demo_agent`)">
+    Friendly interactive demo agent with navigation, waving, and gaze.
+  </Card>
+  <Card title="J3SO (`j3so_directive`)">
+    Character-style conversational agent with navigation.
+  </Card>
+  <Card title="Security Guard (`security_guard_agent`)">
+    Patrol-oriented agent with door opening and email alert behavior.
+  </Card>
+  <Card title="Chess Piece Agent (`chess_piece_agent`)">
+    Chess gameplay agent using piece manipulation and move detection.
+  </Card>
+  <Card title="Chess Self-Play Agent (`chess_self_play_agent`)">
+    Autonomous self-play chess agent with narrated moves.
+  </Card>
+  <Card title="Board Calibration Agent (`board_calibration_agent`)">
+    Guided workflow agent for chess board corner calibration.
+  </Card>
+</CardGroup>
 
-* **MARS** — The default agent with a friendly personality, can wave and interact with people
-
-* **Basic** — A minimal agent for simple demonstrations
-
-* **Demo** — Showcases various robot capabilities including gaze tracking
-
-These serve as starting points. The real power comes from writing your own agents tailored to your specific use cases.
-
-![](/images/main/software/agents-overview.png)
+<img src="/images/main/software/agents-overview.png" alt="Built-in agents in the app" style={{ maxWidth: "360px", width: "100%", display: "block", margin: "16px auto" }} />
 
 ## System Architecture
 
@@ -68,4 +74,3 @@ Your agent is the contract between you and the AI—it defines who the robot is 
 Traditional robotics software often requires deep expertise to modify. Agents take a different approach: they're designed to be readable and modifiable.
 
 You can look at an agent file and immediately understand what it does. You can modify it, experiment, and iterate quickly. The goal is to let you focus on building interesting robot behaviors rather than wrestling with infrastructure.
-
