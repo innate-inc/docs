@@ -1,5 +1,62 @@
 ---
-title: "Data Collection"
+title: "Recording Data"
 ---
 
-TBD. This section is being written and will be published soon.
+This page documents what is already available in the Innate Controller App for collecting manipulation data.  
+The rest of the Manipulation docs are still in progress.
+
+## Where to record data
+
+In the app, open **Skills**, stay on the **Physical** tab, and open the skill you want to collect data for.  
+Inside that skill page, open **Dataset**.
+
+You will see an episodes counter (`N episodes`), the current episode list, and a **Record Episode** button.
+
+## Record a new episode
+
+<Steps>
+  <Step title="Open record screen">
+    In the skill&apos;s **Dataset** tab, tap **Record Episode**.
+  </Step>
+  <Step title="Enable arm streaming">
+    On the recorder screen, toggle **Arm** on.  
+    The **Record** button is enabled only when arm updates are flowing (you will see an MPS value).
+  </Step>
+  <Step title="Capture the demonstration">
+    Press **Record**, teleoperate the robot, then press **Stop** when done.
+  </Step>
+  <Step title="Save or discard">
+    After stopping, choose **Save** to keep the episode, or **Discard** to drop it.
+  </Step>
+</Steps>
+
+## Review your dataset
+
+After saving, return to the skill&apos;s **Dataset** tab to inspect your episodes.  
+Each episode card shows an episode index plus timestamp metadata.
+
+To replay an episode, tap the card (or the play icon) to open **Episode Replay**.
+
+In replay, you can play/pause, stop, and view progress with elapsed time.
+
+## Create a new physical skill dataset
+
+If you need a new dataset/skill entry first:
+
+<Steps>
+  <Step title="Create skill entry">
+    In **Skills** (Physical tab), tap the **+** button.
+  </Step>
+  <Step title="Name it">
+    Enter a name in **Enter Action name here**.
+  </Step>
+  <Step title="Start collecting">
+    Tap **Create Physical Skill**. The app opens the episode recorder directly.
+  </Step>
+</Steps>
+
+## Note on training
+
+The **Train** tab currently shows **Coming Soon** in the app and is planned for version **1.1.0**.  
+Using Innate&apos;s fast training service requires a valid **Innate service key** on your robot/account.  
+Training workflow docs will be added here as they are finalized.
