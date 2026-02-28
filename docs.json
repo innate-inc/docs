@@ -59,7 +59,14 @@
                   "software/agents",
                   "software/agents/definitions",
                   "software/agents/starting-an-agent",
-                  "software/agents/agent-examples"
+                  "software/agents/agent-examples",
+                  {
+                    "group": "Chess (Beta)",
+                    "pages": [
+                      "software/agents/chess-beta",
+                      "software/agents/chessboard-calibration-beta"
+                    ]
+                  }
                 ]
               },
               {

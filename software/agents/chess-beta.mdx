@@ -1,0 +1,97 @@
+---
+title: "Chess (Beta)"
+---
+
+MARS chess is playable end-to-end and currently in beta.
+
+This page covers setup and runtime behavior for `chess_agent`. For the dedicated chessboard calibration workflow, go to [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).
+
+## Before you start
+
+- Make sure arm control and cameras are working.
+- Keep the chessboard fixed in one position while playing.
+- Use the app Home screen to start agents.
+- Configure Gemini for move detection.
+
+## Configure Gemini key
+
+`detect_opponent_move` loads `GEMINI_API_KEY` from `~/innate-os/skills/.env.scan`.
+
+Create or update this file on the robot:
+
+```bash
+cat > ~/innate-os/skills/.env.scan <<'EOF_ENV'
+GEMINI_API_KEY=your_key_here
+EOF_ENV
+```
+
+## Agents and skills used
+
+`chess_agent` uses:
+
+- `pick_up_piece_simple`
+- `detect_opponent_move`
+- `update_chess_state`
+- `recalibrate_manual`
+- `arm_utils`
+- `reset_chess_game`
+- `head_emotion`
+
+For first setup (or after board movement), run the top-corner calibration flow in [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).
+
+## Start a game
+
+1. Run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta) if needed.
+2. Start `chess_agent`.
+3. Call `reset_chess_game(robot_color="white")`.
+4. Human plays Black, robot plays White.
+
+Game state is stored in `~/chess_game_state.json`.
+
+## Recommended physical validation
+
+Before real play, test placement accuracy:
+
+1. Place a spare pawn on `A4`.
+2. Keep `H5` empty.
+3. Run:
+
+```python
+pick_up_piece_simple(square="A4", place_square="H5", piece="pawn", is_capture=False, speed=1.5)
+```
+
+4. If placement is off, run manual recalibration and test again.
+
+This is a physical calibration check only. Do not treat it as game state.
+
+## Runtime move loop
+
+The expected cycle is:
+
+1. Human makes a move.
+2. Run `detect_opponent_move(robot_color="white")`.
+3. Run `update_chess_state(move_uci="...")` for the detected move.
+4. Decide robot move.
+5. Run `pick_up_piece_simple(...)` for physical execution.
+6. Run `update_chess_state(move_uci="...")` for the robot move.
+
+## Castling behavior
+
+Physical castling requires two motion calls:
+
+- king move (`E1 -> G1` or `E1 -> C1`)
+- rook move (`H1 -> F1` or `A1 -> D1`)
+
+Board state still updates once with the king UCI castling move (`e1g1` or `e1c1`).
+
+## Troubleshooting
+
+- Move detection fails:
+  - verify `GEMINI_API_KEY` in `~/innate-os/skills/.env.scan`
+  - verify wrist camera view is unobstructed
+- Piece placement drifts:
+  - run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta#quick-manual-recalibration-for-drift)
+- Reset fails with calibration error:
+  - run full board calibration first
+- Arm hardware issue:
+  - run `arm_utils(command="reboot_arm")`

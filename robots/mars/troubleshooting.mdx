@@ -50,6 +50,28 @@ Once inside the tmux session, you'll see multiple windows or panes, each running
 
 ***
 
+## App can reach Wi-Fi but robot services are not launched
+
+If your robot is connected to Wi-Fi and the app shows a service launch failure screen, the ROS2 core likely did not start correctly.
+
+1. [SSH into your robot](/robots/mars/connecting-via-ssh).
+
+   Default password: `goodbot`
+
+2. Rerun the post-update recovery script:
+
+```bash
+sudo ~/innate-os/scripts/update/post_update.sh
+```
+
+   Sudo password: `goodbot`
+
+3. Wait for the script to finish, then retry the connection from the app.
+
+This usually resolves failures caused by an interrupted or incomplete post-update startup.
+
+***
+
 ## Common Hardware Issues
 
 ### Arm Goes Limp / Servos Not Holding Position

@@ -1,0 +1,79 @@
+---
+title: "Chessboard calibration (beta)"
+---
+
+This calibration is for chess manipulation only.
+
+It is different from [Stereo depth calibration](/robots/mars/calibration), which is used for navigation.
+
+## What this controls
+
+Chess calibration is used to:
+
+- map chess squares (`A1` to `H8`) to arm coordinates
+- move pieces with `pick_up_piece_simple`
+- move to the board observation pose for `detect_opponent_move`
+
+Calibration is stored in `~/board_calibration.json`.
+
+## Board mapping used by chess skills
+
+Current mapping is:
+
+- `top_left` = `A8`
+- `top_right` = `H8`
+- `bottom_right` = `H1`
+- `bottom_left` = `A1`
+
+## Full board calibration (first setup, current beta flow)
+
+In the current chess beta flow, calibration is driven from the two top corners only (`A8`, `H8`) using `recalibrate_manual`. The skill then computes `A1` and `H1` automatically and writes all 4 corners to `~/board_calibration.json`.
+
+Use this on first setup or any time the board position changes:
+
+1. Put the chessboard in its final position.
+2. Run `arm_utils(command="torque_off")`.
+3. Manually place the end effector above the center of `A8`.
+4. Run `recalibrate_manual(corner="A8")`.
+5. Manually place the end effector above the center of `H8`.
+6. Run `recalibrate_manual(corner="H8")`.
+7. Run `arm_utils(command="torque_on")`.
+8. Verify `~/board_calibration.json` contains `top_left`, `top_right`, `bottom_left`, and `bottom_right`.
+
+You can still use `board_calibration_agent` (`record_position`) for a manual 4-corner workflow, but the chess agent calibration flow uses the top-corner method above.
+
+## Quick manual recalibration for drift
+
+Use this if board placement is the same but piece placement quality drifted.
+
+1. Run `arm_utils(command="torque_off")`.
+2. Manually place the end effector above the center of `A8`.
+3. Run `recalibrate_manual(corner="A8")`.
+4. Manually place the end effector above the center of `H8`.
+5. Run `recalibrate_manual(corner="H8")`.
+6. Run `arm_utils(command="torque_on")`.
+
+`recalibrate_manual` recomputes all four corners and updates `~/board_calibration.json`.
+
+## Validate before playing
+
+Run a physical validation move:
+
+1. Place a spare pawn on `A4`.
+2. Keep `H5` empty.
+3. Run:
+
+```python
+pick_up_piece_simple(square="A4", place_square="H5", piece="pawn", is_capture=False, speed=1.5)
+```
+
+4. If placement is off, run manual recalibration and retest.
+
+## Troubleshooting
+
+- `board_calibration.json` missing or invalid:
+  - rerun the top-corner calibration flow (`A8` then `H8` with `recalibrate_manual`)
+- detection works but arm pose over board is wrong:
+  - verify all four corners exist in `~/board_calibration.json`
+- reset fails because calibration is missing:
+  - complete full calibration, then run `reset_chess_game(...)` again
