@@ -6,17 +6,17 @@ This calibration is for chess manipulation only (not depth/navigation calibratio
 
 Chess calibration uses top corners `A8` and `H8` with `recalibrate_manual`, then computes `A1` and `H1` automatically and saves all corners to `~/board_calibration.json`.
 
-## 1) Calibration process
+## Calibration process
 
 <Steps>
   <Step title="Fix board position">
     Put the chessboard in its final position. Do not move it during calibration.
   </Step>
-  <Step title="Torque off">
-    Turn torque off with `arm_utils(command=torque_off)` (or app **Dev settings -> Torque Off**).
+  <Step title="Enable manual arm movement">
+    Set the arm to manual/limp mode so you can position the end effector by hand.
   </Step>
   <Step title="Position for A8 and record">
-    Move the end effector to the center of `A8`, then trigger `recalibrate_manual(corner=A8)`.
+    Move the end effector to the center of `A8` and record that top corner reference.
     <Frame caption="Target pose example: end effector centered on A8">
       <img
         src="/images/main/software/agents/chess-calibration-a8-end-effector.jpg"
@@ -26,14 +26,14 @@ Chess calibration uses top corners `A8` and `H8` with `recalibrate_manual`, then
     </Frame>
   </Step>
   <Step title="Position for H8 and record">
-    Move the end effector to the center of `H8`, then trigger `recalibrate_manual(corner=H8)`.
+    Move the end effector to the center of `H8` and record that second top-corner reference.
   </Step>
-  <Step title="Torque on and verify">
-    Turn torque back on with `arm_utils(command=torque_on)`. Verify `~/board_calibration.json` contains `top_left`, `top_right`, `bottom_left`, and `bottom_right`.
+  <Step title="Finish and verify">
+    Re-enable holding torque. Verify `~/board_calibration.json` contains `top_left`, `top_right`, `bottom_left`, and `bottom_right`.
   </Step>
 </Steps>
 
-## 2) Manual calibration
+## 1) Manual triggering
 
 Trigger the skills from the app or CLI.
 
@@ -64,7 +64,7 @@ ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive 
   '{primitive_type: arm_utils, inputs: "{\"command\":\"torque_on\"}"}' --feedback
 ```
 
-## 3) Agentic calibration
+## 2) Agentic triggering
 
 Run `chess_agent`. It can guide you through calibration and trigger the same skill sequence with you (`torque_off` -> `A8` -> `H8` -> `torque_on`) before play.
 
