@@ -2,78 +2,70 @@
 title: "Chessboard calibration (beta)"
 ---
 
-This calibration is for chess manipulation only.
+This calibration is for chess manipulation only (not depth/navigation calibration).
 
-It is different from [Stereo depth calibration](/robots/mars/calibration), which is used for navigation.
+Chess calibration uses top corners `A8` and `H8` with `recalibrate_manual`, then computes `A1` and `H1` automatically and saves all corners to `~/board_calibration.json`.
 
-## What this controls
+## 1) Calibration process
 
-Chess calibration is used to:
+<Steps>
+  <Step title="Fix board position">
+    Put the chessboard in its final position. Do not move it during calibration.
+  </Step>
+  <Step title="Torque off">
+    Turn torque off with `arm_utils(command=torque_off)` (or app **Dev settings -> Torque Off**).
+  </Step>
+  <Step title="Position for A8 and record">
+    Move the end effector to the center of `A8`, then trigger `recalibrate_manual(corner=A8)`.
+    <Frame caption="Target pose example: end effector centered on A8">
+      <img
+        src="/images/main/software/agents/chess-calibration-a8-end-effector.jpg"
+        alt="End effector centered over A8 square for calibration"
+        style={{ maxWidth: "420px", width: "100%", margin: "0 auto", display: "block" }}
+      />
+    </Frame>
+  </Step>
+  <Step title="Position for H8 and record">
+    Move the end effector to the center of `H8`, then trigger `recalibrate_manual(corner=H8)`.
+  </Step>
+  <Step title="Torque on and verify">
+    Turn torque back on with `arm_utils(command=torque_on)`. Verify `~/board_calibration.json` contains `top_left`, `top_right`, `bottom_left`, and `bottom_right`.
+  </Step>
+</Steps>
 
-- map chess squares (`A1` to `H8`) to arm coordinates
-- move pieces with `pick_up_piece_simple`
-- move to the board observation pose for `detect_opponent_move`
+## 2) Manual calibration
 
-Calibration is stored in `~/board_calibration.json`.
+Trigger the skills from the app or CLI.
 
-## Board mapping used by chess skills
+### App
 
-Current mapping is:
+- Open **Innate Controller App** -> **Skills** -> **Digital Skills**
+- Run:
+  - `arm_utils` with `command=torque_off`
+  - `recalibrate_manual` with `corner=A8`
+  - `recalibrate_manual` with `corner=H8`
+  - `arm_utils` with `command=torque_on`
 
-- `top_left` = `A8`
-- `top_right` = `H8`
-- `bottom_right` = `H1`
-- `bottom_left` = `A1`
+### CLI (ROS2 today)
 
-## Full board calibration (first setup, current beta flow)
+Use ROS2 actions for now. A simpler dedicated CLI is coming soon.
 
-In the current chess beta flow, calibration is driven from the two top corners only (`A8`, `H8`) using `recalibrate_manual`. The skill then computes `A1` and `H1` automatically and writes all 4 corners to `~/board_calibration.json`.
+```bash
+ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
+  '{primitive_type: arm_utils, inputs: "{\"command\":\"torque_off\"}"}' --feedback
 
-Use this on first setup or any time the board position changes:
+ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
+  '{primitive_type: recalibrate_manual, inputs: "{\"corner\":\"A8\"}"}' --feedback
 
-1. Put the chessboard in its final position.
-2. Run `arm_utils(command="torque_off")`.
-3. Manually place the end effector above the center of `A8`.
-4. Run `recalibrate_manual(corner="A8")`.
-5. Manually place the end effector above the center of `H8`.
-6. Run `recalibrate_manual(corner="H8")`.
-7. Run `arm_utils(command="torque_on")`.
-8. Verify `~/board_calibration.json` contains `top_left`, `top_right`, `bottom_left`, and `bottom_right`.
+ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
+  '{primitive_type: recalibrate_manual, inputs: "{\"corner\":\"H8\"}"}' --feedback
 
-You can still use `board_calibration_agent` (`record_position`) for a manual 4-corner workflow, but the chess agent calibration flow uses the top-corner method above.
-
-## Quick manual recalibration for drift
-
-Use this if board placement is the same but piece placement quality drifted.
-
-1. Run `arm_utils(command="torque_off")`.
-2. Manually place the end effector above the center of `A8`.
-3. Run `recalibrate_manual(corner="A8")`.
-4. Manually place the end effector above the center of `H8`.
-5. Run `recalibrate_manual(corner="H8")`.
-6. Run `arm_utils(command="torque_on")`.
-
-`recalibrate_manual` recomputes all four corners and updates `~/board_calibration.json`.
-
-## Validate before playing
-
-Run a physical validation move:
-
-1. Place a spare pawn on `A4`.
-2. Keep `H5` empty.
-3. Run:
-
-```python
-pick_up_piece_simple(square="A4", place_square="H5", piece="pawn", is_capture=False, speed=1.5)
+ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
+  '{primitive_type: arm_utils, inputs: "{\"command\":\"torque_on\"}"}' --feedback
 ```
 
-4. If placement is off, run manual recalibration and retest.
+## 3) Agentic calibration
 
-## Troubleshooting
+Run `chess_agent`. It can guide you through calibration and trigger the same skill sequence with you (`torque_off` -> `A8` -> `H8` -> `torque_on`) before play.
 
-- `board_calibration.json` missing or invalid:
-  - rerun the top-corner calibration flow (`A8` then `H8` with `recalibrate_manual`)
-- detection works but arm pose over board is wrong:
-  - verify all four corners exist in `~/board_calibration.json`
-- reset fails because calibration is missing:
-  - complete full calibration, then run `reset_chess_game(...)` again
+If calibration quality drifts during use, rerun the same sequence manually.

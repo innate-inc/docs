@@ -8,23 +8,10 @@ This approach works well for manipulation tasks where the variability of real-wo
 
 ## Two Types of Policies
 
-Type
-
-Definition
-
-Use Case
-
-**Learned**
-
-Neural network trained on demonstrations
-
-Tasks requiring visual adaptation
-
-**Replay**
-
-Recorded action sequence
-
-Repeatable, fixed motions
+| Type | Definition | Use Case |
+| --- | --- | --- |
+| **Learned** | Neural network trained on demonstrations | Tasks requiring visual adaptation |
+| **Replay** | Recorded action sequence | Repeatable, fixed motions |
 
 ## Learned Skills (ACT Policy)
 
@@ -152,49 +139,19 @@ Robot hardware (/mars/arm/commands, /cmd_vel)
 
 The quality of learned skills depends directly on demonstration quality:
 
-Good Demonstrations
-
-Poor Demonstrations
-
-Consistent starting positions
-
-Variable starting positions
-
-Smooth, deliberate motions
-
-Hesitant, jerky motions
-
-Varied object positions
-
-Always same position
-
-Include error recovery
-
-Only perfect executions
+| Good Demonstrations | Poor Demonstrations |
+| --- | --- |
+| Consistent starting positions | Variable starting positions |
+| Smooth, deliberate motions | Hesitant, jerky motions |
+| Varied object positions | Always same position |
+| Include error recovery | Only perfect executions |
 
 ## Skill Selection Guide
 
-Scenario
-
-Recommended Type
-
-Task requires visual adaptation
-
-Learned
-
-Object position varies
-
-Learned
-
-Motion must be identical every time
-
-Replay
-
-Simple gesture (wave, point)
-
-Replay
-
-Faster development cycle
-
-Replay
-
+| Scenario | Recommended Type |
+| --- | --- |
+| Task requires visual adaptation | **Learned** |
+| Object position varies | **Learned** |
+| Motion must be identical every time | **Replay** |
+| Simple gesture (wave, point) | **Replay** |
+| Faster development cycle | **Replay** |
