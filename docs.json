@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "OS 0.4.0",
+        "version": "OS 0.4.5",
         "default": true,
         "groups": [
           {
