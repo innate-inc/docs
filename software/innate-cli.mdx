@@ -5,59 +5,49 @@ description: "Every command you need, on one page."
 
 The `innate` CLI is your control panel. SSH into MARS and start typing.
 
-## Status
+<Tip>
+`in8` is a zsh alias for `innate`, available in any new shell.
+</Tip>
 
-```bash
-innate
-```
+## Default (no args)
 
-Prints the status dashboard: version, hardware mode, ROS state, DDS status.
-
-Example output:
-
-```
-Version: 0.5.0-rc2
-
-Mode: hardware (NVIDIA Jetson Orin Nano)
-
-ROS: running (7 windows)
-
-DDS: zenoh active
-```
+| Command | What it does |
+| --- | --- |
+| `innate` | Status dashboard — version, mode, ROS/DDS status, quick reference |
 
 ---
 
 ## Service management
 
-Start, stop, and restart all ROS nodes.
+Start, stop, rebuild, and inspect all ROS nodes.
 
 | Command | What it does |
 | --- | --- |
-| `innate service start` | Launch all ROS nodes in a tmux session |
-| `innate service stop` | Kill the tmux session and all nodes |
+| `innate service start` | Start all ROS nodes in tmux |
+| `innate service stop` | Kill the tmux session |
 | `innate service restart` | Stop + start |
+| `innate service rebuild [pkg...]` | Stop, colcon build, start |
 | `innate service view` | Attach to the tmux session |
 
-Shortcuts:
+### Top-level shortcuts
 
-| Shortcut | Same as |
+| Command | Same as |
 | --- | --- |
 | `innate view` | `innate service view` |
 | `innate restart` | `innate service restart` |
+| `innate rebuild [pkg...]` | `innate service rebuild [pkg...]` |
 
 ---
 
 ## Build
 
-Compile your ROS2 workspace after making code changes.
+Compile without restarting nodes.
 
 | Command | What it does |
 | --- | --- |
-| `innate build` | Full `colcon build` of the workspace |
-| `innate build <package>` | Build a single package |
-| `innate rebuild` | Build + restart all nodes |
-| `innate rebuild <package>` | Build one package + restart all nodes |
-| `innate clean` | Remove `build/`, `install/`, and `log/` directories |
+| `innate build` | `colcon build` full workspace |
+| `innate build pkg1 pkg2` | Build specific packages only |
+| `innate clean` | Remove `build/`, `install/`, `log/` |
 
 ### Examples
 
@@ -69,26 +59,17 @@ innate build maurice_arm       # build only, no restart
 
 ---
 
-## Diagnostics
+## Diagnostics & updates
 
 | Command | What it does |
 | --- | --- |
-| `innate diag` | Run hardware diagnostics |
-
-Checks cameras, servos, battery, network, and DDS connectivity.
-
----
-
-## Updates
-
-| Command | What it does |
-| --- | --- |
-| `innate update check` | Check if a new release is available |
-| `innate update apply` | Download and apply the latest release |
-| `innate update status` | Show current version and update state |
+| `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) |
+| `innate update check [--dev]` | Check for available updates |
+| `innate update apply [--dev]` | Apply updates |
+| `innate update status` | Show version + service info |
 
 <Note>
-These delegate to `innate-update` under the hood. See [Updates and Maintenance](/robots/mars/updates-and-maintenance) for details.
+Update commands delegate to `innate-update` under the hood. See [Updates and Maintenance](/robots/mars/updates-and-maintenance) for details.
 </Note>
 
 ---
@@ -100,18 +81,19 @@ innate                          → status dashboard
 innate service start            → launch ROS nodes
 innate service stop             → kill all nodes
 innate service restart          → stop + start
+innate service rebuild [pkg]    → stop, build, start
 innate service view             → attach to tmux
 innate view                     → shortcut for above
 innate restart                  → shortcut for above
+innate rebuild [pkg]            → shortcut for above
 innate build                    → colcon build (full)
-innate build <pkg>              → build one package
-innate rebuild                  → build + restart
-innate rebuild <pkg>            → build one package + restart
+innate build pkg1 pkg2          → build specific packages
 innate clean                    → rm build/install/log
 innate diag                     → hardware diagnostics
-innate update check             → check for updates
-innate update apply             → apply updates
-innate update status            → version info
+innate update check [--dev]     → check for updates
+innate update apply [--dev]     → apply updates
+innate update status            → version + service info
+in8 ...                         → alias for innate
 ```
 
 ---
