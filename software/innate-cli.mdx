@@ -63,7 +63,7 @@ innate clean && innate build   # full clean rebuild
 | --- | --- |
 | `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) |
 | `innate update check [--dev]` | Check for available updates |
-| `innate update apply [--dev]` | Apply updates |
+| `innate update apply [version] [--dev]` | Apply updates (optionally pin a specific version) |
 | `innate update status` | Show version + service info |
 
 <Note>
@@ -86,7 +86,7 @@ innate build [pkg ...]          → build (stops/starts nodes if running)
 innate clean                    → rm build/install/log
 innate diag                     → hardware diagnostics
 innate update check [--dev]     → check for updates
-innate update apply [--dev]     → apply updates
+innate update apply [version] [--dev] → apply updates
 innate update status            → version + service info
 in8 ...                         → alias for innate
 ```
