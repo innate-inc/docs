@@ -1,0 +1,102 @@
+---
+title: "Foxglove Setup"
+description: "Visualize ROS2 topics from any machine using Foxglove."
+---
+
+Foxglove lets you see what your robot sees — camera feeds, LiDAR scans, navigation costmaps, TF frames — all from a browser. Works on macOS, Windows, and Linux.
+
+## How it works
+
+MARS runs a **Foxglove Bridge** node that exposes ROS2 topics over WebSocket. You connect to it from [Foxglove](https://foxglove.dev/) on your laptop.
+
+```
+MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
+```
+---
+## Setup
+
+<Steps>
+  <Step title="SSH into MARS">
+    ```bash
+    ssh jetson1@<YOUR-ROBOT-IP>
+    ```
+  </Step>
+  <Step title="Install Foxglove Bridge (if not already installed)">
+    ```bash
+    sudo apt install ros-humble-foxglove-bridge
+    ```
+  </Step>
+  <Step title="Start the bridge">
+    ```bash
+    ros2 launch foxglove_bridge foxglove_bridge_launch.xml
+    ```
+
+    The bridge listens on port `8765` by default.
+  </Step>
+  <Step title="Open Foxglove in your browser">
+    Go to [app.foxglove.dev](https://app.foxglove.dev).
+
+    Click **Open connection** → **Foxglove WebSocket** → enter:
+
+    ```
+    ws://<YOUR-ROBOT-IP>:8765
+    ```
+  </Step>
+  <Step title="Add panels">
+    Once connected, add visualization panels:
+    - **Image** panel → select `/oak/rgb/image_raw` for the camera feed
+    - **3D** panel → see TF frames, LiDAR, and navigation paths
+    - **Plot** panel → graph any numeric topic over time
+    - **Raw Messages** panel → inspect any topic's raw data
+  </Step>
+</Steps>
+
+---
+
+## Useful topics to visualize
+
+| Topic | Type | What you see |
+| --- | --- | --- |
+| `/oak/rgb/image_raw` | Image | Main camera feed |
+| `/scan` | LaserScan | LiDAR sweep |
+| `/odom` | Odometry | Robot position and velocity |
+| `/cmd_vel` | Twist | Velocity commands being sent |
+| `/map` | OccupancyGrid | SLAM map |
+| `/battery_state` | BatteryState | Battery voltage and percentage |
+| `/tf` | TF | All coordinate frames |
+
+---
+
+## RViz alternative (Linux only)
+
+If you're on a Linux machine with ROS2 Humble installed, you can use RViz directly. It connects to MARS over Zenoh DDS — no bridge needed.
+
+Make sure your machine is on the same network and Zenoh discovery can reach the robot. Then:
+
+```bash
+source /opt/ros/humble/setup.bash
+rviz2
+```
+
+Add displays for the topics you care about. RViz gives you the most complete visualization experience but requires a native Linux + ROS2 setup.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't connect to WebSocket">
+    - Verify MARS and your laptop are on the same network.
+    - Check the bridge is running: `ros2 node list | grep foxglove`.
+    - Try the IP address directly instead of `.local` hostname.
+    - Make sure port `8765` isn't blocked by a firewall.
+  </Accordion>
+  <Accordion title="No topics showing up">
+    - The bridge only exposes topics that are actively published. Make sure ROS nodes are running: `innate view`.
+    - Try `ros2 topic list` on the robot to confirm topics exist.
+  </Accordion>
+  <Accordion title="High latency on camera feed">
+    - Image topics are bandwidth-heavy. Use a wired Ethernet connection for the best experience.
+    - In Foxglove, reduce the image panel's update rate or use compressed image topics if available.
+  </Accordion>
+</AccordionGroup>

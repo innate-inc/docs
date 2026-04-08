@@ -66,15 +66,15 @@ The Innate OS has two main package groups:
 
 ## Visualization
 
-You can visualize ROS2 data with either RViz or Flora. If you are on Linux, RViz is the standard option. If you are not on Linux, use **flora.fan** with the Foxglove Bridge running on MARS.
+You can visualize ROS2 data with either RViz or Foxglove. If you are on Linux, RViz is the standard option. If you are not on Linux, use **Foxglove** with the Foxglove Bridge running on MARS.
 
 ### RViz (Linux)
 
 Use RViz to inspect frames, point clouds, LiDAR, trajectories, and robot state directly from a Linux ROS2 workstation.
 
-### Flora + Foxglove Bridge (non-Linux)
+### Foxglove Bridge (non-Linux)
 
-If you do not have Linux, run Foxglove Bridge on the robot and connect from **flora.fan**: [flora.dan](https://flora.dan)
+If you do not have Linux, run Foxglove Bridge on the robot and connect from [Foxglove](https://app.foxglove.dev).
 
 Typical flow:
 
@@ -85,8 +85,8 @@ Typical flow:
   <Step title="Start Foxglove Bridge">
     Run the Foxglove Bridge node on MARS so topics are exposed over WebSocket.
   </Step>
-  <Step title="Open flora.fan and connect">
-    In your browser, open flora.fan (link above) and connect to the robot bridge endpoint.
+  <Step title="Open Foxglove and connect">
+    In your browser, open [app.foxglove.dev](https://app.foxglove.dev) and connect to the robot bridge endpoint.
   </Step>
 </Steps>
 

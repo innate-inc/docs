@@ -2,12 +2,12 @@
 title: "Connecting via SSH"
 ---
 
-This page explains how to connect to your MARS robot via SSH.
+SSH gives you a terminal directly on the robot. Everything below assumes you know two things:
 
-Default credentials:
-
-* **Username:** `jetson1`
-* **Password:** `goodbot`
+| | |
+| --- | --- |
+| **Username** | `jetson1` |
+| **Password** | `goodbot` |
 
 ## Via Wi-Fi
 
@@ -15,36 +15,27 @@ Default credentials:
   <Step title="Join the same network">
     Make sure your computer and MARS are on the same Wi-Fi network (or your phone hotspot).
   </Step>
-  <Step title="Run SSH with hostname">
-    In your terminal, run `ssh jetson1@<robot-name>.local`.
+  <Step title="Find your robot's hostname">
+    Open the Innate app → **Settings** → **WiFi** → **Current hostname**.
+
+    No custom name yet? The default is `mars`.
   </Step>
-  <Step title="Authenticate">
+  <Step title="Connect">
+    ```bash
+    ssh jetson1@<hostname>.local
+    ```
+
     Enter the password `goodbot` when prompted.
   </Step>
 </Steps>
 
-### Finding your robot hostname
-
-The hostname is based on your robot name from the app, converted to a valid host:
-
-* Letters become lowercase
-* Spaces/special characters become hyphens (`-`)
-* Multiple hyphens are collapsed
-* Leading/trailing hyphens are removed
-
-Examples:
-
-| Robot name | Hostname | SSH command |
-| --- | --- | --- |
-| `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
-| `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
-| `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
-
-If your robot has no custom name yet, use:
+<Tip>
+Set up SSH keys so you never type the password again:
 
 ```bash
-ssh jetson1@mars.local
+ssh-copy-id jetson1@<hostname>.local
 ```
+</Tip>
 
 ## Via Ethernet (preferred wired method)
 

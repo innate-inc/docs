@@ -1,0 +1,192 @@
+---
+title: "Advanced Development"
+description: "Go deeper. Modify ROS2 nodes, recompile, visualize, and take full control of MARS."
+---
+
+MARS is fully open source. Every line of code running on the robot is yours to read, modify, and redeploy. This guide is for developers who want to go beyond the Agent/Skill layer and work directly with the lower-level systems.
+
+## The edit → build → restart loop
+
+This is your core workflow. Every change follows the same cycle:
+
+<Steps>
+  <Step title="Edit code">
+    Modify any file in `~/innate-os/`. ROS2 packages live in `~/innate-os/ros2_ws/src/`.
+  </Step>
+  <Step title="Rebuild">
+    Recompile and restart in one command:
+
+    ```bash
+    innate rebuild
+    ```
+
+    Or rebuild just the package you changed:
+
+    ```bash
+    innate rebuild maurice_arm
+    ```
+  </Step>
+  <Step title="Verify">
+    Attach to the tmux session and check your node is running:
+
+    ```bash
+    innate view
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+For a full clean rebuild:
+
+```bash
+innate clean
+innate rebuild
+```
+</Tip>
+
+---
+
+## Reading the tmux windows
+
+Every ROS node runs inside a tmux session called `ros_nodes`. Each window has two panes running related nodes side by side.
+
+```bash
+innate view
+```
+
+Navigate with:
+- `Ctrl+B` then `0`-`6` — switch windows
+- `Ctrl+B` then `←` / `→` — switch panes
+- `Ctrl+B` then `D` — detach (nodes keep running)
+
+Here's what each window runs:
+
+| Window | Name | Left pane | Right pane |
+| --- | --- | --- | --- |
+| 0 | `app-bringup` | App controller | Hardware bringup (UART, battery) |
+| 1 | `arm-recorder` | Arm drivers + kinematics | Manipulation recorder |
+| 2 | `brain-nav` | Brain client (cloud connection) | Navigation stack |
+| 3 | `behaviors-inputs` | Behavior server (skills execution) | Input manager |
+| 4 | `cam-leader` | Camera pipeline | UDP leader receiver (teleoperation) |
+| 5 | `ik-logger` | Inverse kinematics solver | Telemetry logger |
+| 6 | `training-uninavid` | On-device training node | UninaVID vision model |
+
+If a node crashes, its pane shows the error. Fix the code, rebuild the package, and restart.
+
+---
+
+## What you can modify
+
+### Agents and skills (no build needed)
+
+Files in `~/agents/` and `~/skills/` are pure Python. Edit, save, restart — no compilation.
+
+```bash
+innate service restart
+```
+
+### ROS2 packages (build required)
+
+Everything in `~/innate-os/ros2_ws/src/` is a ROS2 package. After editing, rebuild:
+
+```bash
+innate rebuild <package_name>
+```
+
+Key packages to know:
+
+| Package | What it controls |
+| --- | --- |
+| `brain_client` | Cloud agent connection, agent orchestration |
+| `maurice_bringup` | Hardware init (UART, battery, LEDs) |
+| `maurice_arm` | Arm drivers, kinematics, MoveIt2 |
+| `maurice_nav` | Nav2, SLAM, path planning |
+| `maurice_cam` | Camera pipeline (OAK-D, WebRTC) |
+| `maurice_control` | App control, UDP teleoperation |
+| `manipulation` | Behavior server, policy execution |
+
+### Launch files
+
+Launch files configure how nodes start. They live inside each package's `launch/` directory. Edit them to change parameters, remap topics, or add new nodes.
+
+---
+
+## Observability
+
+You need to see what the robot sees. Two options.
+
+### RViz (Linux)
+
+If you're on a Linux machine on the same network, RViz plugs directly into the ROS2 topics and gives you the full visualization stack: TF frames, point clouds, camera feeds, navigation costmaps, arm trajectories.
+
+Make sure Zenoh DDS discovery is configured so your machine can see the robot's topics.
+
+### Foxglove (all platforms)
+
+Not on Linux? Use [Foxglove](https://foxglove.dev/). It connects over WebSocket to a Foxglove Bridge running on MARS and lets you visualize all the same data from any browser.
+
+See the dedicated [Foxglove Setup](/software/foxglove-setup) guide.
+
+---
+
+## Diagnostics
+
+Run hardware diagnostics to check system health:
+
+```bash
+innate diag
+```
+
+Check the system status dashboard:
+
+```bash
+innate
+```
+
+This prints version, mode, ROS status, and DDS state at a glance.
+
+---
+
+## Boot sequence
+
+Understanding what happens at power-on helps with debugging:
+
+1. **systemd** starts `zenoh-router.service` (DDS discovery layer)
+2. **systemd** starts `ros-app.service` which runs `launch_ros_in_tmux.sh`
+3. The script creates a tmux session with 7 windows (14 ROS nodes)
+4. After 20 seconds, the startup chime plays
+
+All services are managed by systemd. View their status:
+
+```bash
+systemctl status ros-app.service
+systemctl status zenoh-router.service
+```
+
+---
+
+## Tips
+
+- **Build only what changed.** `innate rebuild maurice_arm` is faster than `innate rebuild`.
+- **Check logs in tmux.** Each pane scrolls. `Ctrl+B` then `[` enters scroll mode, `q` exits.
+- **Use `ros2 topic echo`** to inspect live data: `ros2 topic echo /cmd_vel`.
+- **Use `ros2 node list`** to verify nodes are alive after a restart.
+
+---
+
+## Reference
+
+<CardGroup cols={2}>
+  <Card title="Innate CLI" icon="terminal" href="/software/innate-cli">
+    Every command, one page.
+  </Card>
+  <Card title="Foxglove Setup" icon="eye" href="/software/foxglove-setup">
+    Browser-based ROS visualization.
+  </Card>
+  <Card title="ROS2 Topics" icon="diagram-project" href="/software/ros2/topics">
+    All published topics on MARS.
+  </Card>
+  <Card title="ROS2 Debugging" icon="bug" href="/software/ros2/debugging">
+    Debugging workflows.
+  </Card>
+</CardGroup>
