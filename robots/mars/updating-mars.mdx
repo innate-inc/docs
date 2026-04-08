@@ -2,7 +2,7 @@
 title: "Updating MARS"
 ---
 
-This page explains how to update the software running on your MARS robot using the `innate-update` command-line tool.
+This page explains how to update the software running on your MARS robot using the `innate update` command.
 
 Updating MARS will:
 
@@ -12,7 +12,7 @@ Updating MARS will:
 
 * **Restart the robot software stack** so it runs the new version.
 
-All of this is handled for you by `innate-update`.
+All of this is handled for you by `innate update`.
 
 A new robot OS version may require you to update the [Innate Controller App](/robots/innate-controller-app) for full compatibility.
 
@@ -24,7 +24,7 @@ If your update includes stereo-depth changes, run [Stereo Depth Calibration](/ro
 
 * You can **SSH into your robot**. If WiFi isn't available, you can also [connect via the Jetson USB-C port](/robots/mars/connecting-via-ssh#via-usb-c-jetson).
 
-* The `innate-update` command is available on the robot.
+* The `innate` CLI is available on the robot.
 
 * The robot has **internet access**.
 
@@ -40,17 +40,17 @@ The MARS app will automatically indicate when an OS update is available, so you 
 
 On the robot, you use three subcommands:
 
-* `innate-update status` – see what version you're on.
+* `innate update status` – see what version you're on.
 
-* `innate-update check` – see if updates are available and what will change.
+* `innate update check` – see if updates are available and what will change.
 
-* `innate-update apply` – actually install the update.
+* `innate update apply` – actually install the update.
 
 In normal use you'll run:
 
-1. `innate-update check`
+1. `innate update check`
 
-2. If updates are available, `innate-update apply`
+2. If updates are available, `innate update apply`
 
 ***
 
@@ -59,7 +59,7 @@ In normal use you'll run:
 Run:
 
 ```bash
-innate-update status
+innate update status
 ```
 
 You should see something like:
@@ -77,7 +77,7 @@ Use this when you want to confirm what version your robot is currently running.
 Run:
 
 ```bash
-innate-update check
+innate update check
 ```
 
 Typical outcomes:
@@ -96,7 +96,7 @@ Typical outcomes:
 
   * You'll see a short summary of recent changes that would be applied.
 
-  * The command will tell you to run `innate-update apply` if you want to install them.
+  * The command will tell you to run `innate update apply` if you want to install them.
 
 Use this before doing any serious work on the robot to ensure you're on the latest version.
 
@@ -104,10 +104,10 @@ Use this before doing any serious work on the robot to ensure you're on the late
 
 ## Apply updates
 
-When `innate-update check` shows that updates are available, run:
+When `innate update check` shows that updates are available, run:
 
 ```bash
-innate-update apply
+innate update apply
 ```
 
 You can expect:
@@ -134,7 +134,7 @@ Once the command reports that the update is complete, MARS is running the new so
 
 ## What to do if something looks wrong
 
-If `innate-update check` or `innate-update apply` fails or shows an error:
+If `innate update check` or `innate update apply` fails or shows an error:
 
 * Run the command again and read the error message carefully.
 

@@ -6,7 +6,7 @@ Keep your robot stable and current with software updates, safe charging, and cor
 
 ## Updating MARS
 
-Use `innate-update` on the robot to fetch and apply MARS OS updates.
+Use `innate update` on the robot to fetch and apply MARS OS updates.
 
 Updating will:
 
@@ -19,15 +19,15 @@ If update notes include stereo-depth changes, run [Calibration](/robots/mars/cal
 ### Prerequisites
 
 * You can access the robot over SSH
-* `innate-update` is available on the robot
+* The `innate` CLI is available on the robot
 * The robot has internet access
 
 ### Basic workflow
 
 ```bash
-innate-update status
-innate-update check
-innate-update apply
+innate update status
+innate update check
+innate update apply
 ```
 
 Use `status` to verify current version, `check` to view available updates, and `apply` to install.
