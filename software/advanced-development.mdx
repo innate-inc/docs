@@ -13,17 +13,17 @@ This is your core workflow. Every change follows the same cycle:
   <Step title="Edit code">
     Modify any file in `~/innate-os/`. ROS2 packages live in `~/innate-os/ros2_ws/src/`.
   </Step>
-  <Step title="Rebuild">
-    Recompile and restart in one command:
+  <Step title="Build">
+    Build and restart in one command:
 
     ```bash
-    innate rebuild
+    innate build
     ```
 
-    Or rebuild just the package you changed:
+    Or build just the package you changed:
 
     ```bash
-    innate rebuild maurice_arm
+    innate build maurice_arm
     ```
   </Step>
   <Step title="Verify">
@@ -36,11 +36,11 @@ This is your core workflow. Every change follows the same cycle:
 </Steps>
 
 <Tip>
-For a full clean rebuild:
+For a full clean build:
 
 ```bash
 innate clean
-innate rebuild
+innate build
 ```
 </Tip>
 
@@ -71,7 +71,7 @@ Here's what each window runs:
 | 5 | `ik-logger` | Inverse kinematics solver | Telemetry logger |
 | 6 | `training-uninavid` | On-device training node | UninaVID vision model |
 
-If a node crashes, its pane shows the error. Fix the code, rebuild the package, and restart.
+If a node crashes, its pane shows the error. Fix the code and build the package.
 
 ---
 
@@ -87,10 +87,10 @@ innate service restart
 
 ### ROS2 packages (build required)
 
-Everything in `~/innate-os/ros2_ws/src/` is a ROS2 package. After editing, rebuild:
+Everything in `~/innate-os/ros2_ws/src/` is a ROS2 package. After editing, build:
 
 ```bash
-innate rebuild <package_name>
+innate build <package_name>
 ```
 
 Key packages to know:
@@ -167,7 +167,7 @@ systemctl status zenoh-router.service
 
 ## Tips
 
-- **Build only what changed.** `innate rebuild maurice_arm` is faster than `innate rebuild`.
+- **Build only what changed.** `innate build maurice_arm` is faster than `innate build`.
 - **Check logs in tmux.** Each pane scrolls. `Ctrl+B` then `[` enters scroll mode, `q` exits.
 - **Use `ros2 topic echo`** to inspect live data: `ros2 topic echo /cmd_vel`.
 - **Use `ros2 node list`** to verify nodes are alive after a restart.
