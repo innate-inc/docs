@@ -19,14 +19,13 @@ The `innate` CLI is your control panel. SSH into MARS and start typing.
 
 ## Service management
 
-Start, stop, rebuild, and inspect all ROS nodes.
+Start, stop, and inspect all ROS nodes.
 
 | Command | What it does |
 | --- | --- |
 | `innate service start` | Start all ROS nodes in tmux |
 | `innate service stop` | Kill the tmux session |
 | `innate service restart` | Stop + start |
-| `innate service rebuild [pkg...]` | Stop, colcon build, start |
 | `innate service view` | Attach to the tmux session |
 
 ### Top-level shortcuts
@@ -35,26 +34,25 @@ Start, stop, rebuild, and inspect all ROS nodes.
 | --- | --- |
 | `innate view` | `innate service view` |
 | `innate restart` | `innate service restart` |
-| `innate rebuild [pkg...]` | `innate service rebuild [pkg...]` |
 
 ---
 
 ## Build
 
-Compile without restarting nodes.
+Smart build that does the right thing automatically. If ROS nodes are running, it stops them, builds, and restarts them. If nodes aren't running, it just builds. If the build fails, nodes are not restarted.
 
 | Command | What it does |
 | --- | --- |
-| `innate build` | `colcon build` full workspace |
+| `innate build` | Build full workspace (stops/starts nodes if running) |
 | `innate build pkg1 pkg2` | Build specific packages only |
 | `innate clean` | Remove `build/`, `install/`, `log/` |
 
 ### Examples
 
 ```bash
-innate rebuild maurice_arm     # rebuild one package and restart
-innate rebuild                 # rebuild everything and restart
-innate build maurice_arm       # build only, no restart
+innate build maurice_arm       # build one package (restarts nodes if they're running)
+innate build                   # build everything
+innate clean && innate build   # full clean rebuild
 ```
 
 ---
@@ -81,13 +79,10 @@ innate                          → status dashboard
 innate service start            → launch ROS nodes
 innate service stop             → kill all nodes
 innate service restart          → stop + start
-innate service rebuild [pkg]    → stop, build, start
 innate service view             → attach to tmux
 innate view                     → shortcut for above
 innate restart                  → shortcut for above
-innate rebuild [pkg]            → shortcut for above
-innate build                    → colcon build (full)
-innate build pkg1 pkg2          → build specific packages
+innate build [pkg ...]          → build (stops/starts nodes if running)
 innate clean                    → rm build/install/log
 innate diag                     → hardware diagnostics
 innate update check [--dev]     → check for updates
