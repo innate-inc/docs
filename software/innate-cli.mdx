@@ -1,0 +1,108 @@
+---
+title: "Innate CLI Reference"
+description: "Every command you need, on one page."
+---
+
+The `innate` CLI is your control panel. SSH into MARS and start typing.
+
+<Tip>
+`in8` is a zsh alias for `innate`, available in any new shell.
+</Tip>
+
+## Default (no args)
+
+| Command | What it does |
+| --- | --- |
+| `innate` | Status dashboard — version, mode, ROS/DDS status, quick reference |
+
+---
+
+## Service management
+
+Start, stop, and inspect all ROS nodes.
+
+| Command | What it does |
+| --- | --- |
+| `innate service start` | Start all ROS nodes in tmux |
+| `innate service stop` | Kill the tmux session |
+| `innate service restart` | Stop + start |
+| `innate service view` | Attach to the tmux session |
+
+### Top-level shortcuts
+
+| Command | Same as |
+| --- | --- |
+| `innate view` | `innate service view` |
+| `innate restart` | `innate service restart` |
+
+---
+
+## Build
+
+Smart build that does the right thing automatically. If ROS nodes are running, it stops them, builds, and restarts them. If nodes aren't running, it just builds. If the build fails, nodes are not restarted.
+
+| Command | What it does |
+| --- | --- |
+| `innate build` | Build full workspace (stops/starts nodes if running) |
+| `innate build pkg1 pkg2` | Build specific packages only |
+| `innate clean` | Remove `build/`, `install/`, `log/` |
+
+### Examples
+
+```bash
+innate build maurice_arm       # build one package (restarts nodes if they're running)
+innate build                   # build everything
+innate clean && innate build   # full clean rebuild
+```
+
+---
+
+## Diagnostics & updates
+
+| Command | What it does |
+| --- | --- |
+| `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) |
+| `innate update check [--dev]` | Check for available updates |
+| `innate update apply [version] [--dev]` | Apply updates (optionally pin a specific version) |
+| `innate update status` | Show version + service info |
+
+<Note>
+See [Updates and Maintenance](/robots/mars/updates-and-maintenance) for details.
+</Note>
+
+---
+
+## Quick reference card
+
+```
+innate                          → status dashboard
+innate service start            → launch ROS nodes
+innate service stop             → kill all nodes
+innate service restart          → stop + start
+innate service view             → attach to tmux
+innate view                     → shortcut for above
+innate restart                  → shortcut for above
+innate build [pkg ...]          → build (stops/starts nodes if running)
+innate clean                    → rm build/install/log
+innate diag                     → hardware diagnostics
+innate update check [--dev]     → check for updates
+innate update apply [version] [--dev] → apply updates
+innate update status            → version + service info
+in8 ...                         → alias for innate
+```
+
+---
+
+## Tmux navigation
+
+When you run `innate view`, you're inside a tmux session. Here's how to move around:
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl+B` then `0`–`6` | Switch to window 0–6 |
+| `Ctrl+B` then `←` / `→` | Switch between left/right panes |
+| `Ctrl+B` then `[` | Enter scroll mode (navigate with arrow keys) |
+| `q` | Exit scroll mode |
+| `Ctrl+B` then `D` | Detach from tmux (nodes keep running) |
+
+See [Advanced Development](/software/advanced-development#reading-the-tmux-windows) for a breakdown of what runs in each window.

@@ -3,3 +3,5 @@ node_modules/**
 .next
 .next/**
 AGENTS.md
+innate-os
+innate-os/**

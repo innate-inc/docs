@@ -1,51 +1,148 @@
 ---
-title: "Development Setup (Canonical)"
+title: "Development Setup"
+description: "Get your dev environment connected to MARS in under 10 minutes."
 ---
 
-Different ways to develop software for MARS robots
+Everything runs on the robot. You SSH in, edit code, restart. That's it.
 
-There are several ways to develop for MARS. This page covers the different approaches and their trade-offs.
-
-## Recommended: VSCode-based IDE with SSH
-
-The recommended approach is to use a **VSCode-based IDE** with remote SSH so you can edit directly on the robot with full IDE features, use AI-assisted tooling, access the robot file system seamlessly, and run/debug in the real robot environment; compatible options include **Cursor**, **Windsurf**, **Antigravity**, and **VSCode**, and all support **Remote - SSH** (built-in or extension) so developing on MARS feels local.
-
-### Connecting via SSH
+## Connect to MARS
 
 <Steps>
-  <Step title="Install Remote - SSH">
-    If you use vanilla VSCode, install the `Remote - SSH` extension first.
+  <Step title="Find your robot's IP">
+    Open the Innate app. Go to **Settings** → **WiFi**. Note the IP address.
   </Step>
-  <Step title="Open Command Palette">
-    Use `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux).
+  <Step title="SSH in">
+    ```bash
+    ssh jetson1@<YOUR-ROBOT-IP>
+    ```
+    Default password: `goodbot`. See [Connecting via SSH](/robots/mars/connecting-via-ssh) for hostname, Ethernet, and USB-C options.
   </Step>
-  <Step title="Connect to host">
-    Run `Remote-SSH: Connect to Host...`.
-  </Step>
-  <Step title="Enter SSH target">
-    Use the robot IP/hostname and credentials from [Connecting via SSH](/robots/mars/connecting-via-ssh).
-  </Step>
-  <Step title="Open workspace">
-    Once connected, open your robot workspace folder (for example `/home/jetson1/innate-ws/`).
+  <Step title="Open your IDE over SSH">
+    Use **Cursor**, **Windsurf**, **VSCode**, or any editor with Remote SSH support.
+
+    1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`).
+    2. Run **Remote-SSH: Connect to Host...**.
+    3. Enter `jetson1@<YOUR-ROBOT-IP>`.
+    4. Open the folder `/home/jetson1/innate-os/`.
   </Step>
 </Steps>
 
-For default credentials, IP addresses, and connection methods (WiFi vs USB-C), see [Connecting via SSH](/robots/mars/connecting-via-ssh).
+<Tip>
+Set up SSH keys to skip the password prompt every time:
 
-### Tips for SSH Development
+```bash
+ssh-copy-id jetson1@<YOUR-ROBOT-IP>
+```
+</Tip>
 
-Set up SSH keys to avoid repeated password prompts, keep the connection stable with `ServerAliveInterval` in your `~/.ssh/config`, and use the integrated terminal to run ROS2 commands and test agents directly on the robot.
+---
 
-***
+## Optional: Fork the open-source repo
 
-## Alternative: Local Development with Deployment
+<Info>
+You don't need to fork to start developing. Agents and skills in `~/agents/` and `~/skills/` work out of the box. Fork when you want to save, version-control, and share your work — or modify the OS itself (ROS2 nodes, drivers, launch files).
+</Info>
 
-You can also develop locally and deploy to MARS by writing and testing on your machine, copying files with `scp` or `rsync`, then SSHing into the robot to run and validate. This works well when network connectivity is limited, when you prefer your local environment, or when you are working on code that does not need robot hardware for initial iteration.
+MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open source. Forking gives you your own remote repo to push changes to:
 
-***
+<Steps>
+  <Step title="Fork on GitHub">
+    Go to [github.com/innate-robotics/innate-os](https://github.com/innate-robotics/innate-os) and click **Fork**.
+  </Step>
+  <Step title="Clone your fork onto the robot">
+    SSH into MARS and replace the default repo:
 
-## Direct SSH Terminal
+    ```bash
+    cd ~
+    mv innate-os innate-os-backup
+    git clone https://github.com/<YOUR-USERNAME>/innate-os.git
+    ```
+  </Step>
+  <Step title="Make your fork launch on startup">
+    The systemd service points to `~/innate-os/`. Since you cloned into the same path, it just works. Verify:
 
-For quick edits or debugging, you can SSH directly into MARS using terminal-based editors like `nano` or `vim`. See [Connecting via SSH](/robots/mars/connecting-via-ssh) for connection details.
+    ```bash
+    innate service restart
+    ```
+  </Step>
+</Steps>
 
-This is best for quick configuration changes, viewing logs, and running diagnostic commands.
+---
+
+## Launch and restart
+
+MARS auto-launches all ROS2 nodes on boot via systemd. **When you make changes, you need to restart.**
+
+
+```bash
+innate service restart
+```
+
+Or use the shorthand:
+
+```bash
+in8 restart
+```
+
+### Watch the nodes boot
+
+```bash
+innate service view
+```
+
+This attaches you to the tmux session where every ROS node runs.
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl+B` then `0`–`6` | Switch to a window |
+| `Ctrl+B` then `←` / `→` | Switch between left/right panes |
+| `Ctrl+B` then `O` | Cycle to the next pane |
+| `Ctrl+B` then `Z` | Zoom a pane to full screen (press again to unzoom) |
+| `Ctrl+B` then `D` | Detach from tmux (nodes keep running) |
+
+See the [Innate CLI Reference](/software/innate-cli) for all available commands.
+
+---
+
+## Shutting down gracefully
+
+Always shut down properly before unplugging power. A hard power cut can corrupt the filesystem.
+
+```bash
+sudo shutdown now
+```
+
+Wait for the LED to turn off, then disconnect power.
+
+---
+
+## Project structure
+
+When you SSH in, the key directories are:
+
+| Path | What's there |
+| --- | --- |
+| `~/agents/` | Your agent definitions (hot-reloaded) |
+| `~/skills/` | Your custom skills |
+| `~/innate-os/` | The full OS repo |
+| `~/innate-os/ros2_ws/` | ROS2 workspace (all packages) |
+| `~/innate-os/scripts/` | Launch scripts, diagnostics, update system |
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Development" icon="rocket" href="/software/mars-quick-development">
+    Build your first agent in 5 minutes.
+  </Card>
+  <Card title="Advanced Development" icon="wrench" href="/software/advanced-development">
+    Modify ROS2 nodes, recompile, visualize topics.
+  </Card>
+  <Card title="Innate CLI" icon="terminal" href="/software/innate-cli">
+    Every command at your fingertips.
+  </Card>
+  <Card title="Foxglove Setup" icon="eye" href="/software/foxglove-setup">
+    Visualize what your robot sees in real time.
+  </Card>
+</CardGroup>

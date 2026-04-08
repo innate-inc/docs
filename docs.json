@@ -51,8 +51,6 @@
             "group": "Agent SDK",
             "pages": [
               "software/overview",
-              "software/development-setup",
-              "software/mars-quick-development",
               {
                 "group": "Agents",
                 "pages": [
@@ -90,6 +88,16 @@
               },
               "software/inputs",
               "software/basic"
+            ]
+          },
+          {
+            "group": "Hacking on MARS",
+            "pages": [
+              "software/development-setup",
+              "software/mars-quick-development",
+              "software/advanced-development",
+              "software/innate-cli",
+              "software/foxglove-setup"
             ]
           },
           {
