@@ -58,14 +58,6 @@ MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open 
     git clone https://github.com/<YOUR-USERNAME>/innate-os.git
     ```
   </Step>
-  <Step title="Move your service key">
-    The cloud service key lives in the original repo. Copy it over:
-
-    ```bash
-    cp ~/innate-os-backup/ros2_ws/src/cloud/clients/auth-client/auth_client/service_key.json \
-       ~/innate-os/ros2_ws/src/cloud/clients/auth-client/auth_client/service_key.json
-    ```
-  </Step>
   <Step title="Make your fork launch on startup">
     The systemd service points to `~/innate-os/`. Since you cloned into the same path, it just works. Verify:
 
@@ -74,10 +66,6 @@ MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open 
     ```
   </Step>
 </Steps>
-
-<Warning>
-Keep your `service_key.json` private. Do not commit it to a public fork.
-</Warning>
 
 ---
 
