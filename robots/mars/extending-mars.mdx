@@ -4,13 +4,16 @@ title: "Extending MARS"
 
 MARS was designed for hardware extensibility through several features:
 
-* Most GPIO pins are available on the onboard Jetson Orin Nano.
+* Most GPIO pins are available on the onboard Jetson Orin Nano. You can connect I2C, SPI, UART sensors this way.
+  - We have noticed using the UART peripheral causes audio artifacts because of the way the Jetson's interfaces are designed, but it still works.
 
-* Unused GPIO from the microcontroller is broken out on the PCB
+* Unused GPIO from the microcontroller is broken out on the PCB. 
+  The microcontroller communicates with the Jetson through I2C and you can see that on its [firmware repo](https://github.com/innate-inc/mars-firmware).
 
 * Four USB-A extension ports are available: two directly on the Jetson and two powered ports on the top USB hub.
+  - You can use sensors like additional USB cameras, NFC readers, mics, or even microcontrollers to interface other sensors.
 
-* There are screw terminals for both 12V and 5V power
+* There are screw terminals for both 12V and 5V power.
 
 * The hardware is [open-sourced](https://github.com/innate-inc/mars) in order to be easier to modify, in particular the end-effector.
 
