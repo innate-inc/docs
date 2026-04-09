@@ -4,11 +4,18 @@ title: "Extending MARS"
 
 MARS was designed for hardware extensibility through several features:
 
-* Most GPIO pins are available on the onboard computer.
+* Most GPIO pins are available on the onboard Jetson Orin Nano. You can connect I2C, SPI, UART sensors this way.
+  - We have noticed using the UART peripheral causes audio artifacts because of the way the Jetson's interfaces are designed, but it still works.
+
+* Unused GPIO from the microcontroller is broken out on the PCB. 
+  The microcontroller communicates with the Jetson through I2C and you can see that on its [firmware repo](https://github.com/innate-inc/mars-firmware).
 
 * Four USB-A extension ports are available: two directly on the Jetson and two powered ports on the top USB hub.
+  - You can use sensors like additional USB cameras, NFC readers, mics, or even microcontrollers to interface other sensors.
 
-* The hardware is [open-sourced](https://innate.bot/tbd) in order to be easier to modify, in particular the end-effector.
+* There are screw terminals for both 12V and 5V power.
+
+* The hardware is [open-sourced](https://github.com/innate-inc/mars) in order to be easier to modify, in particular the end-effector.
 
 We describe below how we recommend to extend MARS on the hardware side.
 
@@ -35,7 +42,7 @@ Users can integrate additional sensors on the available ports. For any added dev
 
 Some sensors we have already tried and work plug-and-play on MARS:
 
-* TONOR directional microphone ([$29 on Amazon](https://www.amazon.com/dp/B0CSCT63BL?ref=fed_asin_title)) - MARS already has a built-in microphone. This optional add-on improves directional pickup. Plug it in and use `TONORMicrophoneInput` (TBD).
+* TONOR directional microphone ([$29 on Amazon](https://www.amazon.com/dp/B0CSCT63BL?ref=fed_asin_title)) - MARS already has a built-in microphone inside the arm. This optional add-on improves directional pickup. Just plug it in and make sure it's selected in the inputs tab of tmux when you start an agent.
 
 * Blackiot [Polverine Air Quality Sensor](https://blackiot.swiss/polverine).
 
