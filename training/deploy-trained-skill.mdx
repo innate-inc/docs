@@ -1,5 +1,105 @@
 ---
-title: "Deploy Trained Skill"
+title: "Deploy a trained skill"
+description: "Download your trained model, activate it, and run it on the robot."
 ---
 
-TBD. This section is being written and will be published soon.
+Once a training run is marked **Done**, the model is ready to download to your robot and use as a skill.
+
+## Download the model
+
+When a run completes, it appears in the **Completed** tab (or shows a download button in the **Runs** tab).
+
+<Steps>
+  <Step title="Open the completed run">
+    Navigate to the skill page and open the **Completed** tab. Find the run you want to deploy.
+  </Step>
+  <Step title="Tap Download">
+    Tap the download button on the run card. The app downloads the trained checkpoint and dataset statistics file to the robot.
+  </Step>
+  <Step title="Wait for activation">
+    A progress bar shows the download and verification stages. When it completes, the model is automatically activated — the skill's `metadata.json` is updated with the checkpoint path.
+  </Step>
+</Steps>
+
+The robot's brain reloads automatically after activation. Your skill is now live.
+
+<Info>
+Auto-download is also enabled. If the robot is on and connected when a training run finishes, the model downloads and activates without any manual action.
+</Info>
+
+## Run the skill from the app
+
+The simplest way to test your trained skill is from **Manual Control**.
+
+<Steps>
+  <Step title="Open Manual Control">
+    Go to the **Manual Control** screen from the app's main navigation.
+  </Step>
+  <Step title="Select the skill">
+    Open the skill dropdown and select your newly trained skill. Only activated (non-training) skills appear in this list.
+  </Step>
+  <Step title="Execute">
+    Tap the play button. The robot moves to the start pose and begins running the policy at 25 Hz — reading cameras, processing images, and outputting arm and base commands in real time.
+  </Step>
+  <Step title="Stop if needed">
+    Tap the stop button at any time to interrupt execution. The robot halts immediately.
+  </Step>
+</Steps>
+
+## Run the skill from code
+
+Trained skills are available to agents and code-defined skills just like any other skill. Reference the skill by its ID in your agent's skill list:
+
+```python
+from brain_client.agent_types import Agent
+from typing import List
+
+class TidyUpAgent(Agent):
+    @property
+    def id(self) -> str:
+        return "tidy_up"
+
+    @property
+    def display_name(self) -> str:
+        return "Tidy Up"
+
+    def get_skills(self) -> List[str]:
+        return ["pick_up_cup", "navigate_to_position"]
+
+    def get_prompt(self) -> str:
+        return """You are a tidying robot. Use pick_up_cup to grab cups
+        you see, then navigate to the kitchen to put them away."""
+```
+
+BASIC calls your trained skill the same way it calls any other skill — the execution pipeline handles loading the checkpoint, running inference, and sending commands to the hardware.
+
+## What happens during execution
+
+When the skill runs, the BehaviorServer:
+
+1. Loads the ACT checkpoint into GPU memory
+2. Moves the arm to the learned start pose
+3. Enters a **25 Hz inference loop** where each cycle:
+   - Captures frames from the main camera and wrist camera
+   - Reads the current 6-DOF joint state
+   - Resizes images to 224×224 and normalizes them
+   - Runs a forward pass through the policy
+   - Sends the first 6 outputs as joint commands to `/mars/arm/commands`
+   - Sends outputs 7–8 as base velocity to `/cmd_vel`
+4. Optionally moves the arm to an end pose when the task completes
+
+## Multiple training runs
+
+You can train multiple runs with different hyperparameters for the same skill. Each run produces an independent checkpoint stored in its own subdirectory. When you download and activate a run, it becomes the active checkpoint for that skill.
+
+To switch between runs, download a different completed run — activation overwrites the checkpoint path in `metadata.json`.
+
+## Iterating on a skill
+
+If the skill doesn't perform as expected:
+
+- **Add more episodes** to your dataset, sync again, and retrain. More data almost always helps.
+- **Adjust hyperparameters** — see the [training guide](/training/train-act-policy#when-to-change-the-defaults) for tuning advice.
+- **Review your demonstrations** — replay episodes to spot inconsistencies, then re-record the weak ones.
+
+Training is fast and cheap to iterate on. Don't hesitate to run multiple rounds.
