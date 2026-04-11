@@ -1,5 +1,73 @@
 ---
-title: "Evaluate"
+title: "Evaluate and iterate"
+description: "Test your trained policy, diagnose problems, and improve it."
 ---
 
-TBD. This section is being written and will be published soon.
+Training a policy is rarely one-and-done. This page covers how to evaluate your skill, identify common failure modes, and iterate toward reliable performance.
+
+## First test
+
+After [deploying your trained skill](/training/deploy-trained-skill), run it from **Manual Control** with the same setup you used for recording.
+
+<Steps>
+  <Step title="Reproduce the training scene">
+    Place the robot, objects, and lighting as close as possible to the conditions you recorded in. The first test should be easy for the policy — if it fails on its own training distribution, something is wrong.
+  </Step>
+  <Step title="Run the skill">
+    Select the skill in Manual Control and tap play. Watch the full execution without intervening.
+  </Step>
+  <Step title="Note the result">
+    Did the robot complete the task? Where did it hesitate, overshoot, or fail? Mental notes are fine — you'll iterate fast.
+  </Step>
+</Steps>
+
+## Common failure modes
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Robot doesn't move or barely moves | Too few episodes, or episodes have inconsistent starts | Record more episodes with consistent start poses |
+| Arm overshoots the target | Jerky demonstrations or high variance in approach angles | Re-record smoother demonstrations; try a larger chunk size |
+| Robot starts well but drifts | Not enough variation in demonstrations | Add more episodes with slight object position changes |
+| Works on first run, fails on repeat | Object or robot position shifted | Record with more position variation; aim for 2–5 cm spread |
+| Gripper doesn't close at the right time | Inconsistent grasp timing across episodes | Focus on consistent timing when closing the gripper |
+| Robot ignores the object entirely | Lighting or background changed significantly | Record in the current conditions, or control lighting more carefully |
+
+## How to improve a policy
+
+### Add more data
+
+The most reliable way to improve a policy. Add 20–30 episodes that specifically cover the failure case, sync, and retrain. You don't need to start from scratch — the new episodes are added to the existing dataset.
+
+### Tune hyperparameters
+
+If the behavior is qualitatively close but not quite right:
+
+- **Chunk size** controls the smoothness/reactivity tradeoff. Increase it if the robot hesitates; decrease it if the robot overshoots.
+- **Max steps** may need increasing for larger datasets. A good heuristic: the model should see each episode hundreds of times during training.
+- **Learning rate** — lower it (1e-5) if training seems unstable; raise it (1e-4) if the model isn't learning fast enough.
+
+See the [hyperparameter reference](/training/train-act-policy#configure-hyperparameters) for details.
+
+### Improve demonstration quality
+
+Review your recorded episodes. Look for:
+
+- Episodes where you hesitated or corrected course excessively
+- Episodes that are much longer or shorter than average
+- Episodes where the start pose is significantly different
+
+Replace low-quality episodes with clean ones, re-sync, and retrain.
+
+## Scaling up
+
+Once your policy works in the original setup, gradually introduce variation:
+
+1. **Move the object** a few centimeters between runs
+2. **Change the object** slightly (same cup in a different color)
+3. **Adjust lighting** modestly
+
+If the policy breaks, record 10–20 more episodes under the new conditions and retrain. Each round of data makes the policy more robust.
+
+<Tip>
+Policies trained on 150+ diverse episodes can generalize surprisingly well. Invest in data variety and you'll spend less time debugging.
+</Tip>

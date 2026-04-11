@@ -1,61 +1,105 @@
 ---
-title: "Recording Data"
+title: "Record a dataset"
+description: "Collect high-quality demonstration episodes for training a manipulation policy."
 ---
 
-This page documents what is already available in the Innate Controller App for collecting manipulation data.  
-The rest of the Manipulation docs are still in progress.
+Training a manipulation policy starts with data. You teleoperate the robot through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
 
-## Where to record data
+## Create a physical skill
 
-In the app, open **Skills**, go to the *Datasets* tab, and open the skill you want to collect data for.  
-
-Inside that skill page (Record tab), you will see an episodes counter (`N episodes`), the current episode list, and a **Record Episode** button.
-
-## Record a new episode
+Before you can record, you need a skill entry to hold your dataset.
 
 <Steps>
-  <Step title="Open record screen">
-    At the bottom of the skill&apos;s page (Record tab), tap **Record Episode**.
+  <Step title="Open the Skills screen">
+    In the app, tap **Skills** and switch to the **Physical** tab.
   </Step>
-  <Step title="Enable arm streaming">
-    On the recorder screen, toggle **Arm** on.  
-    The **Record** button is enabled only when arm updates are flowing (you will see an MPS value).
-  </Step>
-  <Step title="Capture the demonstration">
-    Press **Record**, teleoperate the robot, then press **Stop** when done.
-  </Step>
-  <Step title="Save or discard">
-    After stopping, choose **Save** to keep the episode, or **Discard** to drop it.
+  <Step title="Create the skill">
+    Tap the **+** button, enter a name in **Enter Action name here**, and tap **Create Physical Skill**. The app opens the episode recorder directly.
   </Step>
 </Steps>
+
+If the skill already exists, open **Skills**, go to the **Datasets** tab, and select it.
+
+## Record episodes
+
+Inside the skill page's **Record** tab you'll see an episode counter, the current episode list, and a **Record Episode** button.
+
+<Steps>
+  <Step title="Open the recorder">
+    Tap **Record Episode** at the bottom of the Record tab.
+  </Step>
+  <Step title="Enable arm streaming">
+    On the recorder screen, toggle **Arm** on. The **Record** button is enabled only when arm updates are flowing (you'll see an MPS value appear).
+  </Step>
+  <Step title="Capture the demonstration">
+    Press **Record**, teleoperate the robot through the task, then press **Stop** when done.
+  </Step>
+  <Step title="Save or discard">
+    After stopping, choose **Save** to keep the episode or **Discard** to drop it.
+  </Step>
+</Steps>
+
+Repeat until you have enough episodes. See the tips below for guidance on how many you need.
+
+## Tips for high-quality data
+
+<AccordionGroup>
+  <Accordion title="How many episodes do I need?">
+    **50–80 episodes** is a good starting point for a simple task (pick up one object from a fixed area). For tasks that require generalization across object positions, lighting, or object types, aim for **150+ episodes**. More diverse data almost always improves robustness.
+  </Accordion>
+  <Accordion title="Be consistent with start poses">
+    Begin each episode with the arm in roughly the same position. Large variation in start poses confuses the policy — it spends capacity learning where to begin instead of how to complete the task.
+  </Accordion>
+  <Accordion title="Demonstrate smoothly and deliberately">
+    Avoid jerky movements, hesitations, or mid-episode corrections. The policy learns to imitate exactly what you do, including mistakes. If you fumble, discard the episode and re-record.
+  </Accordion>
+  <Accordion title="Vary object placement slightly">
+    Move the target object by 2–5 cm between episodes. This teaches the policy to use vision instead of memorizing a single position.
+  </Accordion>
+  <Accordion title="Control lighting and background">
+    Keep lighting and background consistent across your recording session. Dramatic changes between episodes (e.g., a bright window that appears only in some episodes) add noise the policy can't resolve.
+  </Accordion>
+  <Accordion title="Recording with base movement">
+    If your task involves driving the robot while manipulating, enable base movement in the recorder. The episode will additionally capture `cmd_vel` and odometry data. See [Dataset format](/training/dataset-format#additional-fields-for-mobile-tasks) for details on the extra fields.
+  </Accordion>
+</AccordionGroup>
 
 ## Review your dataset
 
-After saving, return to the skill&apos;s **Datasets** tab to inspect your episodes.  
-Each episode card shows an episode index plus timestamp metadata.
+After saving, return to the skill's **Record** tab to inspect your episodes. Each episode card shows an index and timestamp.
 
-To replay an episode, tap the card (or the play icon) to open **Episode Replay**.
+Tap any episode to open **Episode Replay**, where you can play back the recorded actions and camera feeds to verify quality. Delete any episodes that look wrong — inconsistent demonstrations hurt more than a smaller dataset helps.
 
-In replay, you can play/pause, stop, and view progress with elapsed time.
+## Upload to the cloud
 
-## Create a new physical skill dataset
-
-If you need a new dataset/skill entry first:
+Once you're satisfied with your dataset, upload it so it's available for training.
 
 <Steps>
-  <Step title="Create skill entry">
-    In **Skills** (Physical tab), tap the **+** button.
+  <Step title="Open the Record tab">
+    Navigate to the skill's **Record** tab. You'll see an **Upload** button and a sync status indicator.
   </Step>
-  <Step title="Name it">
-    Enter a name in **Enter Action name here**.
+  <Step title="Start the upload">
+    Tap **Upload**. The app compresses your episodes and uploads them to Innate's training servers. A progress indicator shows the current stage.
   </Step>
-  <Step title="Start collecting">
-    Tap **Create Physical Skill**. The app opens the episode recorder directly.
+  <Step title="Confirm sync status">
+    When the upload finishes, the sync badge turns green. You can verify this on the **Train** tab — the dataset card should show the correct episode count and a green sync status.
   </Step>
 </Steps>
 
-## Note on training
+<Tip>
+If you add more episodes later, upload again. Only new episodes are transferred — you don't need to re-upload the entire dataset.
+</Tip>
 
-The **Train** tab currently shows **Coming Soon** in the app and is planned for version **1.1.0**.  
-Using Innate&apos;s fast training service requires a valid **Innate service key** on your robot/account.  
-Training workflow docs will be added here as they are finalized.
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Train a policy" icon="brain" href="/training/train-act-policy">
+    Configure hyperparameters and launch training on Innate's cloud.
+  </Card>
+  <Card title="Dataset format" icon="database" href="/training/dataset-format">
+    Understand what's inside each episode file.
+  </Card>
+  <Card title="Training Manager" icon="wrench" href="/training/training-manager">
+    Power-user web UI for merging datasets, deleting episodes, and more.
+  </Card>
+</CardGroup>

@@ -1,5 +1,87 @@
 ---
-title: "Train ACT Policy"
+title: "Train an ACT policy"
+description: "Configure hyperparameters and launch training on Innate's cloud GPUs."
 ---
 
-TBD. This section is being written and will be published soon.
+Once your dataset is [uploaded](/training/data-collection), you can train an ACT policy from the **Train** tab inside the skill page.
+
+ACT ([Action Chunking with Transformers](https://arxiv.org/abs/2304.13705)) is a visuomotor policy architecture that takes camera images and joint positions as input and predicts a chunk of future actions at once. The "chunking" makes the output temporally smooth and reduces compounding errors compared to single-step prediction.
+
+## Configure hyperparameters
+
+The **Train** tab shows your dataset summary and a set of tunable hyperparameters. The defaults work well for most tasks — adjust them only if you have a reason to.
+
+| Parameter | Default | What it controls |
+| --- | --- | --- |
+| **Chunk size** | 30 | Number of future actions predicted per inference step. Larger values produce smoother but less reactive motion. |
+| **Batch size** | 96 | Training examples per gradient step. Larger batches are more stable but use more GPU memory. |
+| **Max steps** | 120,000 | Total training iterations. More steps can improve quality but eventually overfit on small datasets. |
+| **Learning rate** | 5e-5 | Step size for updating the transformer weights. |
+| **LR backbone** | 5e-5 | Step size for the vision backbone (ResNet18). Lower values fine-tune vision features more gently. |
+
+<Tip>
+Tap the **?** icon next to the hyperparameters for an in-app explanation of each one.
+</Tip>
+
+### When to change the defaults
+
+- **Small dataset (50–80 episodes):** Lower max steps to ~80,000 to avoid overfitting.
+- **Long episodes or complex task:** Increase max steps to 150,000–200,000.
+- **Robot seems to hesitate during execution:** Try a larger chunk size (50–80) for smoother output.
+- **Robot overshoots or ignores corrections:** Try a smaller chunk size (15–20) for more reactive behavior.
+
+## Start a training run
+
+<Steps>
+  <Step title="Verify sync status">
+    The **Train** tab shows a dataset card. Confirm the sync badge is green and the episode count looks correct. If it says "Not synced," go back to the **Record** tab and upload first.
+  </Step>
+  <Step title="Adjust parameters (optional)">
+    Edit any hyperparameters you want to change, or leave the defaults.
+  </Step>
+  <Step title="Launch training">
+    Tap **Start Training Run**. Confirm in the dialog. The app creates a run on Innate's cloud and switches to the **Runs** tab.
+  </Step>
+</Steps>
+
+Training runs on Innate's GPU servers. A typical run with default settings takes **1–3 hours** depending on dataset size.
+
+<Info>
+Each robot can have one active training run at a time by default. If you need concurrent runs, reach out on [Discord](https://discord.gg/innate) for approval.
+</Info>
+
+## Monitor a run
+
+The **Runs** tab shows all active (non-completed) training jobs for this skill. Each run card displays:
+
+- **Run ID** — a unique identifier
+- **Status** — the current stage in the pipeline
+- A progress indicator
+
+### Training run lifecycle
+
+| Status | Meaning |
+| --- | --- |
+| Waiting for approval | Run is queued and pending GPU allocation |
+| Approved | Resources allocated, about to start |
+| Booting | Training instance is spinning up |
+| Running | Training is in progress |
+| Done | Training finished, model is ready to download |
+
+You can safely close the app or turn off your robot's screen while training runs. The job continues on the cloud. Status updates resume when you reopen the skill page.
+
+## What happens during training
+
+Behind the scenes, the training server:
+
+1. Loads your episodes (images, joint positions, velocities) into a normalized dataset
+2. Trains an ACT model with a ResNet18 vision backbone and a transformer encoder-decoder
+3. Uses a variational autoencoder (VAE) to learn a latent action distribution
+4. Saves checkpoints periodically throughout training
+5. Produces a final checkpoint (`.pth`) and dataset statistics file (`.pt`)
+
+The model learns to map what the robot sees and feels to the actions you demonstrated — effectively learning to imitate your behavior.
+
+## Next steps
+
+When the run status reaches **Done**, head to the [deploy page](/training/deploy-trained-skill) to download and activate your trained skill.

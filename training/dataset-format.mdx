@@ -1,5 +1,96 @@
 ---
-title: "Dataset Format"
+title: "Dataset format"
+description: "What's inside each recorded episode and how the data is structured."
 ---
 
-TBD. This section is being written and will be published soon.
+Understanding the dataset format is useful if you want to inspect your recordings, debug training issues, or build custom tooling around the training pipeline.
+
+## File structure
+
+Each physical skill lives in a directory under `~/skills/` on the robot:
+
+```text
+~/skills/pick_up_cup/
+├── metadata.json           # Skill config (name, type, execution params)
+├── data/
+│   ├── episode_0.h5        # First recorded episode
+│   ├── episode_1.h5        # Second recorded episode
+│   └── ...
+└── <run_id>/               # Created after training completes
+    ├── act_policy_step_135000.pth   # Trained model checkpoint
+    └── dataset_stats.pt             # Normalization statistics
+```
+
+## Episode format (HDF5)
+
+Each episode is stored as an HDF5 file with the following structure:
+
+| Dataset | Shape | Description |
+| --- | --- | --- |
+| `action` | `(T, action_dim)` | Leader arm commands recorded at each timestep |
+| `qpos` | `(T, num_joints)` | Follower arm joint positions |
+| `qvel` | `(T, num_joints)` | Follower arm joint velocities |
+| `images/main_camera` | `(T, 480, 640, 3)` | Main camera RGB frames |
+| `images/arm_camera` | `(T, 480, 640, 3)` | Wrist camera RGB frames |
+
+Where `T` is the number of timesteps in the episode and `action_dim` is typically 6 (joint positions) or 10 (6 joints + 2 base velocity + 2 reserved).
+
+### Additional fields for mobile tasks
+
+When recording with base movement enabled, the episode also includes:
+
+| Dataset | Shape | Description |
+| --- | --- | --- |
+| `cmd_vel` | `(T, 2)` | Base velocity commands (linear x, angular z) |
+| `odom` | `(T, ...)` | Odometry readings from `/odom` |
+
+## Recording parameters
+
+The recorder captures data at **30 Hz** by default with these settings (from `recorder.yaml`):
+
+| Parameter | Value |
+| --- | --- |
+| Data frequency | 30 Hz |
+| Image resolution | 640 × 480 |
+| Max timesteps per episode | 1800 (60 seconds at 30 Hz) |
+| Camera topics | `/mars/main_camera/left/image_raw`, `/mars/arm/image_raw` |
+| Arm state topic | `/mars/arm/state` |
+| Leader command topic | `/mars/arm/commands` |
+
+## Metadata file
+
+Each skill directory contains a `metadata.json` that evolves as you progress through the pipeline:
+
+**After creating the skill:**
+
+```json
+{
+  "name": "pick_up_cup",
+  "type": "learned"
+}
+```
+
+**After training and activation:**
+
+```json
+{
+  "name": "pick_up_cup",
+  "type": "learned",
+  "guidelines": "Use when you need to pick up a cup from the table",
+  "execution": {
+    "model_type": "act_policy",
+    "checkpoint": "run_abc123/act_policy_step_135000.pth",
+    "stats_file": "run_abc123/dataset_stats.pt",
+    "action_dim": 10,
+    "duration": 45.0,
+    "start_pose": [-0.015, -0.399, 1.456, -1.135, -0.023, 0.833],
+    "end_pose": []
+  }
+}
+```
+
+The `execution` block tells the BehaviorServer everything it needs to load and run the policy: which checkpoint to use, the action dimensionality, the maximum execution duration, and the arm pose to move to before starting inference.
+
+## Normalization statistics
+
+The training pipeline computes per-feature normalization statistics (mean and standard deviation) from your dataset and saves them in `dataset_stats.pt`. During inference, the policy uses these stats to normalize observations and unnormalize action outputs, ensuring consistency between what the model saw during training and what it sees at runtime.

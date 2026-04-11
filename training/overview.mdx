@@ -1,19 +1,62 @@
 ---
-title: "Overview"
+title: "Training overview"
+description: "Teach your robot new manipulation skills by demonstrating them."
 ---
 
-This part of the documentation is **not complete yet** and is currently being written.
+Innate lets you train end-to-end manipulation policies directly from the app. You demonstrate a task with the leader arm, upload the data, train a model on Innate's cloud GPUs, and deploy the result as a skill your robot can execute autonomously.
 
-The only part we are documenting in detail right now is the in-app dataset workflow: recording episodes from the phone app, reviewing recorded data, and replaying episodes in-app.
+The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions.
 
-Go to [Recording Data](/training/data-collection) for the current workflow.
+## The pipeline at a glance
 
-## Current state in the product
+```text
+Record episodes  →  Upload dataset  →  Train on cloud  →  Download model  →  Run as a skill
+     (app)            (~10s/min)        (1-3 hours)         (automatic)        (app or code)
+```
 
-Manipulation skills powered by end-to-end models appear in the app under **Skills** -> **Physical** once they are available on your robot.
+Everything happens through four tabs inside a physical skill page in the app:
 
-At this stage, these learned skills are **mobile manipulation skills**: they combine movement in the environment with arm actions.
+| Tab | What you do |
+| --- | --- |
+| **Record** | Collect demonstration episodes with the leader arm |
+| **Train** | Configure hyperparameters and launch a training run |
+| **Runs** | Monitor active training jobs |
+| **Completed** | Download finished models and activate them |
 
-## What will be documented here
+Once a trained model is activated, the skill appears in **Manual Control** and is available to agents and code.
 
-This section will be expanded with complete docs for dataset format, training, evaluation, and deployment.
+## What goes in, what comes out
+
+**Input:** A dataset of teleoperated demonstrations — each episode captures synchronized camera images (main + wrist), joint positions, joint velocities, and optionally wheel odometry at 30 Hz.
+
+**Output:** A PyTorch checkpoint that runs inference at 25 Hz, outputting 6 arm joint commands and 2 base velocity commands every 40 ms.
+
+## When to use trained skills
+
+Trained policies shine when:
+
+- The task involves **visuomotor coordination** (reach for, grasp, place)
+- Object positions **vary between runs** and the robot needs to adapt visually
+- Writing explicit motion code would be brittle or impractical
+
+For fixed, repeatable motions (a wave, a gesture), a **replay skill** is simpler — record once, play back. See [Policy-Defined Skills](/software/skills/policy-defined-skills) for the comparison.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Record a dataset" icon="video" href="/training/data-collection">
+    Collect high-quality demonstrations.
+  </Card>
+  <Card title="Train a policy" icon="brain" href="/training/train-act-policy">
+    Configure and launch training on Innate's cloud.
+  </Card>
+  <Card title="Deploy your skill" icon="rocket" href="/training/deploy-trained-skill">
+    Download, activate, and run your trained model.
+  </Card>
+  <Card title="Dataset format" icon="database" href="/training/dataset-format">
+    Understand what's inside each episode file.
+  </Card>
+  <Card title="Training Manager" icon="wrench" href="/training/training-manager">
+    Browser-based power-user UI for dataset management.
+  </Card>
+</CardGroup>

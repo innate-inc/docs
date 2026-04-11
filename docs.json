@@ -104,7 +104,12 @@
             "group": "Manipulation",
             "pages": [
               "training/overview",
-              "training/data-collection"
+              "training/data-collection",
+              "training/train-act-policy",
+              "training/deploy-trained-skill",
+              "training/evaluate",
+              "training/dataset-format",
+              "training/training-manager"
             ]
           },
           {
