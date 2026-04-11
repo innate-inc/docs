@@ -10,7 +10,9 @@ Welcome to **RoboHacks**, the Innate hackathon! This page collects the resources
 All robots have been pre-configured to connect to the WiFi network called **"Robot"** at YC. Your laptop and phone must be on the same network to connect to your MARS.
 
 <Info>
-  The WiFi password is pinned in [Discord](https://discord.com/invite/KtkyT97kc7). Make sure you are connected before attempting to SSH or use the Innate Controller App.
+  The WiFi password is pinned in
+  [Discord](https://discord.com/invite/KtkyT97kc7). Make sure you are connected
+  before attempting to SSH or use the Innate Controller App.
 </Info>
 
 ## Update your robot first
@@ -25,8 +27,9 @@ All robots have been pre-configured to connect to the WiFi network called **"Rob
     Once the stable update finishes, apply the hackathon-specific release candidate:
 
     ```bash
-    innate update --dev apply 0.5.0-rc9
+    innate update --dev apply 0.5.0-rc10
     ```
+
   </Step>
 </Steps>
 
@@ -42,7 +45,7 @@ Inside you will find:
 
 - **HDF5 → LeRobot converter** (`hdf5_lerobot.py`) — convert recorded HDF5 datasets into the [LeRobot](https://github.com/huggingface/lerobot) format for policy training. Install dependencies with `pip install -r requirements.txt`.
 - **STEP files** (`STEP/`) — CAD models of the MARS robot for hardware modifications or custom attachments.
-- **Latest Android APK** — download from the [latest release](https://github.com/innate-inc/robohacks-utils/releases/tag/android-app-rc1). The iOS app is available on [TestFlight](https://testflight.apple.com/join/YeChe4A7).
+- **Latest Android APK** — attached to the [repo releases](https://github.com/innate-inc/robohacks-utils/releases/download/android-app-rc1/android-app.apk). The iOS app is available on [TestFlight](https://testflight.apple.com/join/YeChe4A7). Leader Arm operation only works on Android. We have some Android phones to share if no one on your team has one.
 
 ## Innate OS authentication
 
@@ -50,7 +53,7 @@ To run Innate OS or the simulator on your own machine with access to the voice, 
 
 | Track           | How to get your key                                                                                                                  |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Robot track** | Look at `~/innate-os/.env` on your robot and copy `INNATE_SERVICE_KEY`. One key per team.                                                         |
+| **Robot track** | Look at `~/innate-os/.env` on your robot and copy `INNATE_SERVICE_KEY`. One key per team.                                            |
 | **Sim track**   | Ask in the **#innate-cloud-infra** channel on [Discord](https://discord.com/invite/KtkyT97kc7). One key per team — you can share it. |
 
 ## Sim track — MARS URDF
