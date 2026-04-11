@@ -132,6 +132,12 @@
               "robots/mars/faq",
               "support/contact-discord"
             ]
+          },
+          {
+            "group": "Hackathon",
+            "pages": [
+              "hackathon/robohacks"
+            ]
           }
         ]
       }

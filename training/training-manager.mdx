@@ -4,7 +4,9 @@ description: "A browser-based interface for managing datasets, editing skills, a
 ---
 
 <Info>
-The Training Manager is an **experimental** tool — built in an evening by the team to scratch an itch. It works, it's useful, and it ships with the OS. But it's rough around the edges. Contributions welcome.
+  The Training Manager is an **experimental** tool — built in an evening by the
+  team to scratch an itch. It works, it's useful, and it ships with the OS. But
+  it's rough around the edges. Contributions welcome.
 </Info>
 
 The Training Manager is a local web server that runs on your robot and gives you a browser-based dashboard for the entire training pipeline. It's the power-user complement to the app's training UI — useful when you need to merge datasets, remove bad episodes, or point a training run at a custom ACT fork.
@@ -14,7 +16,7 @@ The Training Manager is a local web server that runs on your robot and gives you
 The Training Manager is bundled with the `training-client` CLI. Run it from inside the robot (via SSH) or inside the Docker container:
 
 ```bash
-innate-training ui
+python -m training_client.cli ui
 ```
 
 This starts a local web server and prints two URLs:
@@ -29,13 +31,13 @@ Open the **Network** URL from any device on the same WiFi — your laptop, phone
 
 ### CLI options
 
-| Flag | Default | Description |
-| --- | --- | --- |
-| `--port` | `8080` | HTTP port |
-| `--skills-dir` | `~/skills` | Root skills directory |
-| `-s`, `--server` | env `TRAINING_SERVER_URL` | Orchestrator URL |
-| `-t`, `--token` | env `INNATE_SERVICE_KEY` | Service key |
-| `--issuer` | env `INNATE_AUTH_ISSUER_URL` | Auth issuer URL |
+| Flag             | Default                      | Description           |
+| ---------------- | ---------------------------- | --------------------- |
+| `--port`         | `8080`                       | HTTP port             |
+| `--skills-dir`   | `~/skills`                   | Root skills directory |
+| `-s`, `--server` | env `TRAINING_SERVER_URL`    | Orchestrator URL      |
+| `-t`, `--token`  | env `INNATE_SERVICE_KEY`     | Service key           |
+| `--issuer`       | env `INNATE_AUTH_ISSUER_URL` | Auth issuer URL       |
 
 ## The three tabs
 
@@ -61,7 +63,10 @@ This is where the Training Manager really earns its keep. For each skill, you ca
 - **Upload to cloud** — submit a skill and upload its data to Innate's training servers, with a progress bar showing compression and upload stages
 
 <Tip>
-**Merge workflow example:** You recorded 30 episodes of "pick up cup" last week and 25 more today with a slightly different cup. Instead of retraining separately, merge both into a 55-episode "pick up cup v2" dataset and train once on the combined data.
+  **Merge workflow example:** You recorded 30 episodes of "pick up cup" last
+  week and 25 more today with a slightly different cup. Instead of retraining
+  separately, merge both into a 55-episode "pick up cup v2" dataset and train
+  once on the combined data.
 </Tip>
 
 ### Training tab
@@ -72,22 +77,22 @@ When creating a new run, you get full control over:
 
 **Hyperparameters** — all the same parameters from the app, plus more:
 
-| Parameter | Default | Description |
-| --- | --- | --- |
-| `LEARNING_RATE` | 5e-5 | Transformer learning rate |
-| `LEARNING_RATE_BACKBONE` | 5e-5 | Vision backbone (ResNet18) learning rate |
-| `BATCH_SIZE` | 96 | Training batch size |
-| `MAX_STEPS` | 120,000 | Total training iterations |
-| `CHUNK_SIZE` | 30 | Action chunk length |
-| `NUM_WORKERS` | 4 | Data loader workers |
-| `WORLD_SIZE` | 4 | Number of GPUs |
+| Parameter                | Default | Description                              |
+| ------------------------ | ------- | ---------------------------------------- |
+| `LEARNING_RATE`          | 5e-5    | Transformer learning rate                |
+| `LEARNING_RATE_BACKBONE` | 5e-5    | Vision backbone (ResNet18) learning rate |
+| `BATCH_SIZE`             | 96      | Training batch size                      |
+| `MAX_STEPS`              | 120,000 | Total training iterations                |
+| `CHUNK_SIZE`             | 30      | Action chunk length                      |
+| `NUM_WORKERS`            | 4       | Data loader workers                      |
+| `WORLD_SIZE`             | 4       | Number of GPUs                           |
 
 **Repository and branch** — point the training server at a custom ACT repository and branch. This is the key feature for researchers: fork the ACT training code, modify the architecture or loss function, and run training against your fork without any server-side changes.
 
-| Field | Description |
-| --- | --- |
+| Field          | Description                                           |
+| -------------- | ----------------------------------------------------- |
 | **Repository** | GitHub `owner/repo` path (e.g. `your-org/act-custom`) |
-| **Ref** | Branch name, tag, or commit SHA to check out |
+| **Ref**        | Branch name, tag, or commit SHA to check out          |
 
 **Infrastructure** — configure GPU type, GPU count, time budget, and cost budget.
 

@@ -1,0 +1,156 @@
+---
+title: "RoboHacks Hackathon"
+description: "Everything you need to get started at the Innate RoboHacks hackathon."
+---
+
+Welcome to **RoboHacks**, the Innate hackathon! This page collects the resources, repos, and setup instructions you need to hit the ground running.
+
+## Update your robot first
+
+<Warning>
+  Run this **before** you start hacking. Your robot must be on the latest OS to
+  work with the hackathon tooling.
+</Warning>
+
+<Steps>
+  <Step title="Apply the latest update">
+    SSH into your MARS and run:
+    This pulls and applies the latest stable Innate OS release.
+  </Step>
+  <Step title="Apply the hackathon dev release">
+    Once the base update finishes, apply the hackathon-specific release candidate:
+
+    ```bash
+    innate update --dev apply 0.5.0-rc9
+    ```
+
+  </Step>
+</Steps>
+
+## Hackathon resources repository
+
+The **[robohacks-utils](https://github.com/innate-inc/robohacks-utils)** repo is the central hub for hackathon-specific tooling and assets. Clone it to get started:
+
+```bash
+git clone https://github.com/innate-inc/robohacks-utils.git
+```
+
+Inside you will find:
+
+- **HDF5 → LeRobot converter** (`hdf5_lerobot.py`) — convert recorded HDF5 datasets into the [LeRobot](https://github.com/huggingface/lerobot) format for policy training. Install dependencies with `pip install -r requirements.txt`.
+- **STEP files** (`STEP/`) — CAD models of the MARS robot for hardware modifications or custom attachments.
+- **Latest Android APK** — attached to the repo releases. The iOS app is available on [TestFlight](https://testflight.apple.com/join/YeChe4A7).
+
+## Innate OS authentication
+
+To run Innate OS or the simulator on your own machine with access to the voice, agent, and training servers, you need an **Innate service key**.
+
+| Track           | How to get your key                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Robot track** | Look at `~/innate-os/.env` on your robot and copy the key. One key per team.                                                         |
+| **Sim track**   | Ask in the **#innate-cloud-infra** channel on [Discord](https://discord.com/invite/KtkyT97kc7). One key per team — you can share it. |
+
+## Sim track — MARS URDF
+
+If you are on the simulation track, you must integrate the MARS URDF into your submissions. You can find it here:
+
+<Card
+  title="MARS URDF (maurice_sim)"
+  icon="cube"
+  href="https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/maurice_bot/maurice_sim"
+>
+  The simulation description package for the MARS robot, including URDF, meshes,
+  and launch files.
+</Card>
+
+## Training runs
+
+Track your cloud training runs on Weights & Biases:
+
+<Card
+  title="W&B Dashboard"
+  icon="chart-line"
+  href="https://wandb.ai/vignesh-anand/act-simple/table"
+>
+  View training metrics, loss curves, and run comparisons for the ACT policy.
+</Card>
+
+---
+
+## Open-source repos & example projects
+
+Innate OS is fully open source. Use these repos and example projects as a starting point for your hack.
+
+### Innate OS
+
+The full operating system that runs on MARS. Explore it to understand how the robot works under the hood — ROS2 nodes, launch files, drivers, and more.
+
+<Card
+  title="innate-os"
+  icon="github"
+  href="https://github.com/innate-inc/innate-os"
+>
+  The open-source ROS2-based operating system for MARS.
+</Card>
+
+### GraspGen — arbitrary object grasping
+
+GraspGen is a project built on top of Innate OS that uses the depth camera and NVIDIA's GraspGen model to grasp arbitrary objects. It is a great reference for how to:
+
+- Access core robot interfaces through **ROS Bridge**
+- Control the robot over **WebSockets**
+
+<Card
+  title="GraspGen"
+  icon="hand"
+  href="https://github.com/innate-inc/GraspGen"
+>
+  Depth-camera-based arbitrary object grasper built on Innate OS and NVIDIA
+  GraspGen.
+</Card>
+
+### Vision-Language Navigation (UniNaVid)
+
+A remote inference server using the **UniNaVid** model for vision-language navigation. The server processes navigation commands with a large VLM, and the client inside Innate OS executes the resulting movements.
+
+- **Server** — remote inference endpoint for navigation commands.
+- **Client** — integrated into Innate OS, calls the server and executes movement primitives.
+
+---
+
+## Useful docs pages
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/get-started/mars-quick-start">
+    Power up, connect, and control your MARS in minutes.
+  </Card>
+  <Card
+    title="Development Setup"
+    icon="terminal"
+    href="/software/development-setup"
+  >
+    SSH in, edit code, restart — the full dev loop.
+  </Card>
+  <Card title="Agent SDK" icon="robot" href="/software/overview">
+    Build agents, skills, and inputs on top of Innate OS.
+  </Card>
+  <Card
+    title="Manipulation & Training"
+    icon="dumbbell"
+    href="/training/overview"
+  >
+    Collect data, train policies, and deploy arm skills.
+  </Card>
+</CardGroup>
+
+## Need help?
+
+Join the Innate Discord for real-time support from the team and other hackers:
+
+<Card
+  title="Discord"
+  icon="discord"
+  href="https://discord.com/invite/KtkyT97kc7"
+>
+  Ask questions, share progress, and get debugging help.
+</Card>
