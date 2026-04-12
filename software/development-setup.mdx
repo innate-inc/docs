@@ -58,6 +58,13 @@ MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open 
     git clone https://github.com/<YOUR-USERNAME>/innate-os.git
     ```
   </Step>
+  <Step title="Copy your .env file">
+    The `.env` file contains your `INNATE_SERVICE_KEY` and is not checked into git. Copy it from the backup into your fresh clone:
+
+    ```bash
+    cp ~/innate-os-backup/.env ~/innate-os/.env
+    ```
+  </Step>
   <Step title="Make your fork launch on startup">
     The systemd service points to `~/innate-os/`. Since you cloned into the same path, it just works. Verify:
 
