@@ -68,6 +68,10 @@ The Innate OS has two main package groups:
 
 You can visualize ROS2 data with either RViz or Foxglove. If you are on Linux, RViz is the standard option. If you are not on Linux, use **Foxglove** with the Foxglove Bridge running on MARS.
 
+<Note>
+  When visualizing remotely, subscribe to the throttled topics under `/mars/main_camera/remote/…` instead of the full-rate `/mars/main_camera/…` topics. The remote variants are rate-limited to avoid saturating the network link. See [Foxglove Setup](/software/foxglove-setup) for details.
+</Note>
+
 ### RViz (Linux)
 
 Use RViz to inspect frames, point clouds, LiDAR, trajectories, and robot state directly from a Linux ROS2 workstation.

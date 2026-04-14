@@ -44,10 +44,14 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
   </Step>
   <Step title="Add panels">
     Once connected, add visualization panels:
-    - **Image** panel → select `/mars/main_camera/left/image_raw` for the camera feed
+    - **Image** panel → select `/mars/main_camera/remote/left/image_raw` for the camera feed
     - **3D** panel → see TF frames, LiDAR, and navigation paths
     - **Plot** panel → graph any numeric topic over time
     - **Raw Messages** panel → inspect any topic's raw data
+
+    <Tip>
+      Use the `/mars/main_camera/remote/…` topics for visualization. These are bandwidth-throttled versions of the full-rate camera streams, designed for remote viewing without saturating the network link.
+    </Tip>
   </Step>
 </Steps>
 
@@ -57,13 +61,20 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
 
 | Topic | Type | What you see |
 | --- | --- | --- |
-| `/mars/main_camera/left/image_raw` | Image | Main camera feed |
+| `/mars/main_camera/remote/left/image_raw` | Image | Left camera (throttled) |
+| `/mars/main_camera/remote/depth/image_rect_raw` | Image | Depth image (throttled) |
+| `/mars/main_camera/remote/disparity` | DisparityImage | Stereo disparity (throttled) |
+| `/mars/main_camera/remote/points` | PointCloud2 | Point cloud (throttled) |
 | `/scan` | LaserScan | LiDAR sweep |
 | `/odom` | Odometry | Robot position and velocity |
 | `/cmd_vel` | Twist | Velocity commands being sent |
 | `/map` | OccupancyGrid | SLAM map |
 | `/battery_state` | BatteryState | Battery voltage and percentage |
 | `/tf` | TF | All coordinate frames |
+
+<Note>
+  Topics under `/mars/main_camera/remote/` are rate-limited copies of the full-rate streams under `/mars/main_camera/`. Always prefer the `remote` variants when visualizing over Wi-Fi to avoid saturating the link.
+</Note>
 
 ---
 
@@ -96,7 +107,8 @@ Add displays for the topics you care about. RViz gives you the most complete vis
     - Try `ros2 topic list` on the robot to confirm topics exist.
   </Accordion>
   <Accordion title="High latency on camera feed">
-    - Image topics are bandwidth-heavy. Use a wired Ethernet connection for the best experience.
-    - In Foxglove, reduce the image panel's update rate or use compressed image topics if available.
+    - Make sure you are subscribing to the throttled `/mars/main_camera/remote/…` topics instead of the full-rate `/mars/main_camera/…` topics.
+    - Use a wired Ethernet connection for the best experience.
+    - In Foxglove, reduce the image panel's update rate or use compressed image topics if available (e.g. `/mars/main_camera/remote/left/image_rect_color/compressed`).
   </Accordion>
 </AccordionGroup>
