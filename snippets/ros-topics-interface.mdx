@@ -41,10 +41,10 @@ export const RosTopicsInterface = () => {
       title: "Cameras",
       rows: [
         {
-          topic: "/mars/main_camera/image",
+          topic: "/mars/main_camera/left/image_raw",
           dir: "PUB",
           msgType: "sensor_msgs/Image",
-          desc: "Main front-facing RGB stream.",
+          desc: "Left stereo camera, raw RGB stream (front-facing).",
         },
         {
           topic: "/mars/arm/image_raw",
@@ -53,10 +53,10 @@ export const RosTopicsInterface = () => {
           desc: "Gripper-mounted RGB camera feed for manipulation.",
         },
         {
-          topic: "/oak/rgb/image_raw",
+          topic: "/mars/main_camera/depth/image_rect_raw",
           dir: "PUB",
           msgType: "sensor_msgs/Image",
-          desc: "Alternative camera topic from stereo camera pipeline.",
+          desc: "Rectified depth image from stereo camera (16SC1, millimeters).",
         },
       ],
     },

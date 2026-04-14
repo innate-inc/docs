@@ -44,7 +44,7 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
   </Step>
   <Step title="Add panels">
     Once connected, add visualization panels:
-    - **Image** panel → select `/oak/rgb/image_raw` for the camera feed
+    - **Image** panel → select `/mars/main_camera/left/image_raw` for the camera feed
     - **3D** panel → see TF frames, LiDAR, and navigation paths
     - **Plot** panel → graph any numeric topic over time
     - **Raw Messages** panel → inspect any topic's raw data
@@ -57,7 +57,7 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
 
 | Topic | Type | What you see |
 | --- | --- | --- |
-| `/oak/rgb/image_raw` | Image | Main camera feed |
+| `/mars/main_camera/left/image_raw` | Image | Main camera feed |
 | `/scan` | LaserScan | LiDAR sweep |
 | `/odom` | Odometry | Robot position and velocity |
 | `/cmd_vel` | Twist | Velocity commands being sent |

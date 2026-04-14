@@ -38,11 +38,11 @@ Type
 
 Description
 
-`/mars/main_camera/image`
+`/mars/main_camera/left/image_raw`
 
 `sensor_msgs/Image`
 
-Main RGB camera (front-facing)
+Left stereo camera, raw RGB (front-facing)
 
 `/mars/arm/image_raw`
 
@@ -50,11 +50,11 @@ Main RGB camera (front-facing)
 
 Gripper camera (wrist-mounted)
 
-`/oak/rgb/image_raw`
+`/mars/main_camera/depth/image_rect_raw`
 
 `sensor_msgs/Image`
 
-Alternative topic for main camera
+Rectified depth image from stereo camera (16SC1, millimeters)
 
 ### Arm
 
