@@ -36,8 +36,10 @@ ros2 service call /light_command maurice_msgs/srv/LightCommand \
 ### Move arm in joint space
 
 ```bash
+# NOTE: `time` is the motion duration in SECONDS (float), not milliseconds.
+# 2.0 means 2 seconds — passing 2000 would command a 2000-second move.
 ros2 service call /mars/arm/goto_js maurice_msgs/srv/GotoJS \
-  "{data: {data: [0.0, -0.8, 1.2, -0.6, 0.0, 0.0]}, time: 2000}"
+  "{data: {data: [0.0, -0.8, 1.2, -0.6, 0.0, 0.0]}, time: 2.0}"
 ```
 
 ### Switch navigation mode

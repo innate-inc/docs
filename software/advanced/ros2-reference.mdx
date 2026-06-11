@@ -144,7 +144,7 @@ Description
 
 `maurice_msgs/GotoJS`
 
-Move arm to joint positions over specified time
+Move arm to joint positions over a specified duration (seconds)
 
 `/mars/head/set_ai_position`
 
@@ -156,7 +156,7 @@ Move head to default AI viewing position
 
 ```text
 std_msgs/Float64MultiArray data  # Target joint positions
-int32 time                        # Duration in milliseconds
+float64 time                      # Duration in SECONDS (e.g. 2.0 = 2 s, not 2000)
 ---
 bool success
 ```
@@ -472,7 +472,7 @@ client = node.create_client(GotoJS, '/mars/arm/goto_js')
 request = GotoJS.Request()
 request.data = Float64MultiArray()
 request.data.data = [0.0, -1.0, 1.5, 0.0, 0.5, 0.0]  # 6 joint positions
-request.time = 2000  # 2 seconds
+request.time = 2.0  # duration in SECONDS (2.0 = 2 s)
 
 # Call service
 future = client.call_async(request)
