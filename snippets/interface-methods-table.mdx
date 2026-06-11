@@ -10,17 +10,17 @@ export const NavigationInterfaceMethods = () => {
       params: [
         { name: "linear_x", type: "float" },
         { name: "angular_z", type: "float" },
-        { name: "duration", type: "float" },
+        { name: "duration", type: "float (seconds)" },
       ],
-      desc: "Publish velocity commands (non-blocking).",
+      desc: "Publish velocity commands for duration seconds (non-blocking).",
     },
     {
       method: "rotate_in_place()",
       params: [
         { name: "angular_speed", type: "float" },
-        { name: "duration", type: "float" },
+        { name: "duration", type: "float (seconds)" },
       ],
-      desc: "Rotate at a fixed angular speed for a set duration.",
+      desc: "Rotate at a fixed angular speed for a set duration in seconds.",
     },
   ];
 
@@ -76,9 +76,9 @@ export const ManipulationInterfaceMethods = () => {
         { name: "roll", type: "float" },
         { name: "pitch", type: "float" },
         { name: "yaw", type: "float" },
-        { name: "duration", type: "float" },
+        { name: "duration", type: "float (seconds)" },
       ],
-      desc: "Move the end-effector to a target Cartesian pose.",
+      desc: "Move the end-effector to a target Cartesian pose. duration is in seconds.",
     },
     {
       method: "goto_joint_state()",

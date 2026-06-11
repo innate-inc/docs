@@ -34,7 +34,7 @@ Move the end-effector to a specific position and orientation:
 self.manipulation.move_to_cartesian_pose(
     x=0.2, y=0.0, z=0.3,
     roll=0.0, pitch=0.0, yaw=0.0,
-    duration=2.0
+    duration=2.0  # motion duration in seconds (not milliseconds)
 )
 ```
 
