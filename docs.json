@@ -45,7 +45,6 @@
               "robots/mars/updates-and-maintenance",
               "robots/mars/charging-battery",
               "robots/mars/calibration",
-              "robots/mars/stereo-depth-calibration",
               "robots/mars/changing-voice",
               "robots/mars/extending-mars"
             ]
@@ -209,6 +208,10 @@
     {
       "source": "/robots/mars/onboard-computer",
       "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/robots/mars/stereo-depth-calibration",
+      "destination": "/robots/mars/calibration"
     },
     {
       "source": "/software/advanced",
