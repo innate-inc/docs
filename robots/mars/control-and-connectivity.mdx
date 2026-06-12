@@ -101,59 +101,8 @@ Once connected, you can view the current robot IP in **Configuration** -> **WiFi
 
 ## Connecting via SSH
 
-Default credentials:
+SSH gives you a terminal directly on the robot (username `jetson1`, password `goodbot`) over Wi-Fi, Ethernet, or USB-C. Full instructions for all three methods, including hostname rules and static-IP setup per OS:
 
-* **Username:** `jetson1`
-* **Password:** `goodbot`
-
-### Via Wi-Fi
-
-If your robot is on the same network as your computer:
-
-```bash
-ssh jetson1@<robot-name>.local
-```
-
-Hostname conversion rules:
-
-* Uppercase letters become lowercase
-* Spaces/special characters become `-`
-* Duplicate hyphens are collapsed
-* Leading/trailing hyphens are removed
-
-Examples:
-
-| Robot name | Hostname | SSH command |
-| --- | --- | --- |
-| `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
-| `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
-| `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
-
-If unnamed, default hostname is:
-
-```bash
-ssh jetson1@mars.local
-```
-
-### Via Ethernet (preferred wired method)
-
-Connect Ethernet between computer and robot, then SSH:
-
-```bash
-ssh jetson1@192.168.50.2
-```
-
-Set your computer Ethernet interface to static IPv4:
-
-* IP: `192.168.50.1`
-* Netmask: `255.255.255.0`
-* Gateway: empty
-* DNS: empty
-
-### Via USB-C (last resort)
-
-USB-C is not recommended and should only be used when Wi-Fi and Ethernet are unavailable.
-
-```bash
-ssh jetson1@192.168.55.1
-```
+<Card title="Connecting via SSH" icon="terminal" href="/robots/mars/connecting-via-ssh">
+  The complete SSH reference — Wi-Fi, Ethernet, and USB-C recovery.
+</Card>

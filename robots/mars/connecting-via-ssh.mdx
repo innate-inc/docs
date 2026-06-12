@@ -18,7 +18,7 @@ SSH gives you a terminal directly on the robot. Everything below assumes you kno
   <Step title="Find your robot's hostname">
     Open the Innate app → **Configuration** → **WiFi** → **Current hostname**.
 
-    No custom name yet? The default is `mars`.
+    No custom name yet? The default is `mars`, i.e. `mars.local`.
   </Step>
   <Step title="Connect">
     ```bash
@@ -28,6 +28,20 @@ SSH gives you a terminal directly on the robot. Everything below assumes you kno
     Enter the password `goodbot` when prompted.
   </Step>
 </Steps>
+
+<Accordion title="How robot names map to hostnames">
+  The hostname is derived from the robot's display name:
+
+  * Uppercase letters become lowercase
+  * Spaces and special characters become `-`
+  * Duplicate hyphens are collapsed; leading/trailing hyphens are removed
+
+  | Robot name | Hostname | SSH command |
+  | --- | --- | --- |
+  | `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
+  | `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
+  | `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
+</Accordion>
 
 <Tip>
 Set up SSH keys so you never type the password again:

@@ -42,6 +42,7 @@
             "pages": [
               "robots/mars",
               "robots/mars/control-and-connectivity",
+              "robots/mars/connecting-via-ssh",
               "robots/mars/capabilities",
               "robots/mars/updates-and-maintenance",
               "robots/mars/charging-battery",
@@ -110,7 +111,6 @@
           {
             "group": "Hacking on MARS",
             "pages": [
-              "robots/mars/connecting-via-ssh",
               "software/mars-quick-development",
               "software/advanced-development",
               "software/innate-cli",
