@@ -75,10 +75,10 @@ class HelloWorld(Agent):
         return "assets/hello_world.png"
 
     def get_skills(self) -> List[str]:
-        return ["navigate_to_position", "wave"]
+        return ["innate-os/navigate_to_position", "innate-os/wave"]
 
     def get_inputs(self) -> List[str]:
-        return ["micro"]
+        return ["micro"]  # enables the microphone — see below
 
     def get_prompt(self) -> str:
         return """
@@ -95,6 +95,19 @@ You are a friendly robot who greets people.
 ```
 
 This agent combines navigation and waving skills, microphone input, a friendly prompt, and gaze tracking for more natural interaction.
+
+## Enabling the Microphone
+
+If you want to **talk to your agent**, you must enable the microphone input — it is not on by default. Add `"micro"` to the list returned by `get_inputs()`:
+
+```python
+def get_inputs(self) -> List[str]:
+    return ["micro"]
+```
+
+That's all: when the agent starts, the runtime opens MARS's built-in microphone and everything you say is streamed into the agent's context as chat input. Without this, the agent only reacts to what it sees and to messages typed in the app.
+
+The same mechanism works for any [input device](/software/inputs) (added sensors, network events, ...) — `"micro"` is just the built-in one. See [Example: Microphone](/software/inputs/example-microphone) for how it works under the hood.
 
 ## Writing Effective Prompts
 
