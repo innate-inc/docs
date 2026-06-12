@@ -32,6 +32,7 @@
             "pages": [
               "index",
               "get-started/mars-quick-start",
+              "software/development-setup",
               "get-started/mars-example-use-cases",
               "welcome/community-tutorials"
             ]
@@ -109,7 +110,6 @@
           {
             "group": "Hacking on MARS",
             "pages": [
-              "software/development-setup",
               "robots/mars/connecting-via-ssh",
               "software/mars-quick-development",
               "software/advanced-development",
