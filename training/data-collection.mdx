@@ -45,7 +45,7 @@ Repeat until you have enough episodes. See the tips below for guidance on how ma
 
 <AccordionGroup>
   <Accordion title="How many episodes do I need?">
-    **50–80 episodes** is a good starting point for a simple task (pick up one object from a fixed area). For tasks that require generalization across object positions, lighting, or object types, aim for **150+ episodes**. More diverse data almost always improves robustness.
+    We recommend **at least 30 episodes of good quality** as the minimum for a simple task (pick up one object from a fixed area); **50–80** is a comfortable starting point. For tasks that require generalization across object positions, lighting, or object types, aim for **150+ episodes**. More diverse data almost always improves robustness — and quality beats quantity: 30 clean episodes train better than 80 sloppy ones.
   </Accordion>
   <Accordion title="Be consistent with start poses">
     Begin each episode with the arm in roughly the same position. Large variation in start poses confuses the policy — it spends capacity learning where to begin instead of how to complete the task.
