@@ -13,7 +13,7 @@ Every agent follows the same structure. Once you understand it, you can create a
 
 Your agents are stored in `~/innate-os/workspace/custom_agents/` on the robot (shipped agents live next door in `workspace/innate_agents/`). The system automatically discovers Python files in these directories—no registration or configuration required.
 
-New files are picked up when `brain_client` restarts (`innate service restart`); edits to existing files hot-reload while the robot is running.
+The directory is watched while the robot runs: new files and edits hot-reload automatically within a second or two — no restart required. (`innate service restart` remains the fallback if something doesn't get picked up.)
 
 ## Core Interface
 
@@ -151,11 +151,11 @@ Be explicit about personality, goals, strategy, and constraints.
   <Step title="Save the file in the right place">
     Save your agent as `my_agent.py` in **`~/innate-os/workspace/custom_agents/`** on the robot. This is the one directory the system scans for your agents — anywhere else and it won't load.
   </Step>
-  <Step title="Restart the runtime">
+  <Step title="Let hot reload pick it up">
+    The runtime watches `custom_agents/` — your new agent loads automatically within a second or two of saving, and so does every later edit. If it ever fails to appear, restart the runtime as a fallback:
     ```bash
     innate service restart
     ```
-    New files are only picked up on restart. (Once loaded, further edits to the file hot-reload automatically.)
   </Step>
   <Step title="Check it appears in the app">
     Your agent shows up as a card on the app **Home** screen — pull down to refresh if needed. From there, tap to start it.

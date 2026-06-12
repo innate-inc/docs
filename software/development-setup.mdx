@@ -84,7 +84,7 @@ MARS runs [innate-os](https://github.com/innate-inc/innate-os), fully open sourc
 
 ## Launch and restart
 
-MARS auto-launches all ROS2 nodes on boot via systemd. Edits to existing agent, skill, and input files in `workspace/` hot-reload while the robot is running. **You need to restart when you add new files or change anything outside `workspace/`** (ROS2 nodes, drivers, launch files):
+MARS auto-launches all ROS2 nodes on boot via systemd. Agent and skill files in `workspace/` hot-reload while the robot is running — both new files and edits are picked up automatically within seconds. **You only need to restart when you change anything outside `workspace/`** (ROS2 nodes, drivers, launch files), or as a fallback if a change doesn't get picked up:
 
 ```bash
 innate service restart
