@@ -71,9 +71,28 @@ class LookAround(Skill):
 * **Code-defined skill** → a single Python file: `~/innate-os/workspace/custom_skills/my_skill.py`
 * **Policy-defined (physical) skill** → a directory with its metadata and checkpoint: `~/innate-os/workspace/custom_skills/my_skill/metadata.json`
 
-No registration required. Drop the file in place and it hot-reloads within seconds — the directory is watched while the robot runs, for new files and edits alike. When an agent references your skill, use the `local/` prefix: `local/my_skill`.
+No registration required. Drop the file in place and it hot-reloads within seconds — the directory is watched while the robot runs, for new files and edits alike.
 
-For reference, the full layout:
+## Skill IDs: `local/` vs `innate-os/`
+
+<Info>
+**Skill IDs are namespaced by origin, and agents must use the full ID:**
+
+* `local/<name>` — **your skills** (anything in `custom_skills/`)
+* `innate-os/<name>` — shipped skills (in `innate_skills/`)
+
+So in an agent, write `"local/my_skill"`, not `"my_skill"`:
+
+```python
+def get_skills(self) -> List[str]:
+    return [
+        "local/my_skill",              # your skill
+        "innate-os/navigate_to_position",  # shipped skill
+    ]
+```
+
+A bare name without the prefix won't resolve — this is the second most common reason a skill "doesn't work" after putting the file in the wrong directory.
+</Info>
 
 | Directory | Purpose | Skill ID prefix |
 | --- | --- | --- |
