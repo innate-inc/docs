@@ -2,23 +2,75 @@
 title: "Debugging"
 ---
 
-Use SSH + tmux + ROS2 CLI to debug quickly on robot.
+When something misbehaves, SSH into MARS and work through the layers: overall status → hardware → logs → skills → raw ROS2. The `innate` CLI covers the first four without touching ROS2 directly.
 
-## Basic workflow
+## 1) Get the lay of the land
 
-1. SSH into MARS.
-2. Attach to runtime session with `tmux attach`.
-3. Inspect active nodes, topics, and logs.
+```bash
+innate
+```
 
-## Useful commands
+Running `innate` with no arguments prints the status dashboard: OS version, mode, ROS/DDS status, and a quick command reference. Start here — it often answers "is the stack even running?" immediately.
+
+## 2) Check the hardware
+
+```bash
+innate diag
+```
+
+Runs hardware diagnostics across servos, PCB, lidar, cameras, and speaker. If a component fails here, no amount of software debugging will help — fix the hardware issue first (see [Troubleshooting](/robots/mars/troubleshooting)).
+
+## 3) Read the logs
+
+```bash
+innate view        # shortcut for: innate service view
+```
+
+Attaches to the tmux session where every ROS node runs, one pane per node. Look for red error text, stack traces, or panes stuck in a restart loop.
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl+B` then `0`–`6` | Switch to a window |
+| `Ctrl+B` then `←` / `→` | Switch between panes |
+| `Ctrl+B` then `Z` | Zoom a pane to full screen (again to unzoom) |
+| `Ctrl+B` then `[` | Scroll mode (`q` to exit) |
+| `Ctrl+B` then `D` | Detach (nodes keep running) |
+
+## 4) Test skills in isolation
+
+When an agent misbehaves, bypass it and trigger the skill directly:
+
+```bash
+innate skill list                                    # what's loaded right now
+innate skill type innate-os/arm_utils                # show a skill's input contract
+innate skill run innate-os/arm_utils @command=torque_on
+```
+
+If the skill works when run directly, the problem is in the agent (prompt, skill list, inputs) — not the skill.
+
+## 5) Drop down to ROS2
+
+For anything the CLI doesn't surface, use the ROS2 CLI directly:
 
 ```bash
 ros2 node list
 ros2 topic list
+ros2 topic echo /battery_state
 ros2 service list
 ros2 doctor
 ```
 
-For hardware/runtime issue patterns, see [Troubleshooting](/robots/mars/troubleshooting).
+See [Topics](/software/ros2/topics), [Services](/software/ros2/services), and [Actions](/software/ros2/actions) for the full interface reference.
 
-For visualization workflows (RViz and Foxglove Bridge), see [ROS2 Overview](/software/ros2-core#visualization).
+## 6) Restart and rebuild
+
+```bash
+innate restart     # restart all ROS nodes (shortcut for: innate service restart)
+innate build       # stop nodes, rebuild the workspace, restart nodes
+```
+
+`innate build` is smart: if nodes aren't running it just builds, and if the build fails it leaves nodes stopped rather than restarting a broken stack.
+
+---
+
+For every command and flag, see the [Innate CLI Reference](/software/innate-cli). For hardware/runtime issue patterns, see [Troubleshooting](/robots/mars/troubleshooting). For visualization workflows (RViz and Foxglove Bridge), see [ROS2 Overview](/software/ros2-core#visualization).
