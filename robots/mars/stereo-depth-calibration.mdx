@@ -1,10 +1,8 @@
 ---
-title: "Calibration"
+title: "Stereo Depth Calibration"
 ---
 
-Calibrate stereo depth to ensure stable obstacle avoidance and navigation behavior.
-
-MARS uses stereo depth for navigation and obstacle avoidance. Because cameras vary slightly across units, each robot must be calibrated.
+MARS now has stereo depth vision for navigation and obstacle avoidance. Since cameras can vary slightly from unit to unit, each robot must be calibrated.
 
 <Frame caption="How MARS auto-calibrates stereo depth">
   <iframe width="100%" height="420" src="https://www.youtube.com/embed/V-20kHm7PHw" title="Self-calibrating depth camera" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
@@ -12,28 +10,39 @@ MARS uses stereo depth for navigation and obstacle avoidance. Because cameras va
 
 If depth calibration is missing (or removed), navigation automatically falls back to non-depth mode. This can help if you suspect depth calibration is hurting navigation quality.
 
-Run calibration:
+Run this calibration:
 
-* After first setup
-* After major OS updates that include depth changes
-* Any time depth readings appear unstable
+* After your first setup.
+
+* After major OS updates that include depth changes.
+
+* Any time depth readings look wrong or unstable.
+
+***
 
 ## 1) Prepare the calibration board
 
-Download and print:
+Download and print the official board:
 
-* [Calibration board PDF](https://github.com/innate-inc/web-docs/blob/main/.gitbook/assets/mars-calibration-board.pdf)
+* [Download calibration board (PDF)](https://github.com/innate-inc/web-docs/blob/main/.gitbook/assets/mars-calibration-board.pdf)
 
 <Frame caption="Print this board at 100% scale.">
   <img src="/images/main/robots/mars/mars-stereo-calibration-board.png" />
 </Frame>
 
-Setup notes:
+Important setup notes:
 
-* Print at **100% scale** (no fit-to-page scaling)
-* Mount it flat on a letter-sized cardboard backing
-* Do not cover checker squares or markers
-* Flatness matters more than perfect edge trimming
+* Print at **100% scale** (no "fit to page" scaling).
+
+* Cut a letter-sized piece of cardboard.
+
+* Stick the printed board flat on the cardboard.
+
+* Do not cover any checker squares or markers.
+
+* The outside edges do not need to be perfect; the board being flat is what matters.
+
+***
 
 ## 2) Start calibration from the app
 
@@ -53,14 +62,18 @@ Setup notes:
     </div>
   </Step>
   <Step title="Place the board when MARS raises its hand">
-    Place the board in front of the hand with the pattern facing the robot head, then hold steady until MARS grabs it.
+    Place the board in front of the hand with the calibration pattern facing the robot's head, then hold it steady until MARS grabs it.
   </Step>
 </Steps>
 
-## 3) Let calibration complete
+***
 
-* Stay clear while MARS runs the sequence
-* Wait for completion status in the app
-* If it fails, repeat with better board flatness and stability
+## 3) Let calibration finish
 
-After completion, run **Configuration** -> **Depth** -> **Check depth** before normal navigation.
+* Keep clear while MARS runs the calibration sequence.
+
+* Wait for the app to report completion.
+
+* If calibration fails, repeat the process with better board flatness and stability.
+
+After completion, run **Configuration -> Depth -> Check depth** to validate readings before normal navigation.
