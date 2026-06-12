@@ -87,7 +87,7 @@
                 ]
               },
               "software/inputs",
-              "software/basic"
+              "software/agent"
             ]
           },
           {
@@ -146,5 +146,15 @@
   "logo": {
     "light": "/images/logo-light.png",
     "dark": "/images/logo-dark.png"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/software/basic",
+      "destination": "/software/agent"
+    },
+    {
+      "source": "/software/basic/connecting-to-basic",
+      "destination": "/software/agent/connecting-to-the-agent"
+    }
+  ]
 }

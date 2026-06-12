@@ -2,9 +2,9 @@
 title: "Introduction"
 ---
 
-Skills are atomic robot capabilities that BASIC chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—physical (manipulation, navigation) or digital (emails, API calls)—that can be combined with others to form coherent action sequences.
+Skills are atomic robot capabilities that the Innate agent chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—physical (manipulation, navigation) or digital (emails, API calls)—that can be combined with others to form coherent action sequences.
 
-When BASIC receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → send picture via email → speak reassurance. Four skills, one coherent behavior.
+When the Innate agent receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → send picture via email → speak reassurance. Four skills, one coherent behavior.
 
 ## Two Types of Skills
 
@@ -12,7 +12,7 @@ Skills are defined in one of two ways.
 
 <AccordionGroup>
   <Accordion title="Code-Defined Skills" defaultOpen={true}>
-    Code-defined skills are Python classes with explicit logic. The runtime injects declared interfaces, and BASIC reads your signature/docstrings to call the skill correctly.
+    Code-defined skills are Python classes with explicit logic. The runtime injects declared interfaces, and the Innate agent reads your signature/docstrings to call the skill correctly.
 
 ```python
 import math
