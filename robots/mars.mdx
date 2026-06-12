@@ -64,11 +64,23 @@ MARS provides two powered USB 3.0 ports for additional sensors/peripherals.
 
 #### Actuators
 
-| Qty | Actuator | Model | Link |
+Seven Dynamixel servos (Robotis) drive MARS, numbered 1–7: **motors 1–6 form the arm** (motor 1 at the base, motor 6 driving the gripper) and **motor 7 moves the head**.
+
+| Motors | Drives | Model | Link |
 | --- | --- | --- | --- |
-| 2 | Dynamixel XL430 (Robotis) | `XL430-W250-T` | [Product Page](https://www.robotis.us/dynamixel-xl430-w250-t/) |
-| 1 | Dynamixel XC430 (Robotis) | `XC430-T240BB-T` | [Product Page](https://www.robotis.us/dynamixel-xc430-t240bb-t/) |
-| 4 | Dynamixel XL330 (Robotis) | `XL330-M288` | [Product Page](https://www.robotis.us/dynamixel-xl330-m288-t/) |
+| 1, 3 | Arm (lower joints) | `XL430-W250-T` | [Product Page](https://www.robotis.us/dynamixel-xl430-w250-t/) |
+| 2 | Arm (lower joint) | `XC430-T240BB-T` | [Product Page](https://www.robotis.us/dynamixel-xc430-t240bb-t/) |
+| 4–7 | Arm wrist + gripper, and head | `XL330-M288-T` | [Product Page](https://www.robotis.us/dynamixel-xl330-m288-t/) |
+
+<Accordion title="Detailed motor specs">
+  | Spec | `XL430-W250-T` | `XC430-T240BB-T` | `XL330-M288-T` |
+  | --- | --- | --- | --- |
+  | Used by | Motors 1, 3 | Motor 2 | Motors 4–7 |
+  | Gear ratio | 258.5 : 1 | 245.22 : 1 | 288.4 : 1 |
+  | Resolution | 4096 pulse/rev | 4096 pulse/rev | 4096 pulse/rev |
+
+  All three models share the same 4096 pulse/rev encoder resolution — about 0.088° per step at the output shaft. The full electrical and mechanical specs are on the Robotis product pages linked above.
+</Accordion>
 
 These actuators were chosen for robustness and repeatability. The arm can reliably perform tasks such as chess manipulation (see [Examples](/get-started/mars-example-use-cases)).
 
@@ -84,7 +96,7 @@ MARS ships with a [Jetson Orin Nano Super 8GB Development Kit](https://www.nvidi
 | GPU | NVIDIA Ampere architecture with 1024 CUDA cores and 32 Tensor cores |
 | CPU | 6-core ARM Cortex-A78AE v8 (64-bit) |
 | Memory | 8 GB LPDDR5 |
-| Storage | 1 TB SSD (integrated by Innate) + 32 GB microSD (for OS) |
+| Storage | 1 TB SSD (integrated by Innate) |
 | Dev kit base | Jetson Orin Nano Super module and reference carrier board |
 
 Innate also exposes two additional USB ports for user extensions after core system wiring.
