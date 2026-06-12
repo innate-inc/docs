@@ -3,7 +3,7 @@ title: "Record a dataset"
 description: "Collect high-quality demonstration episodes for training a manipulation policy."
 ---
 
-Training a manipulation policy starts with data. You teleoperate the robot through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
+Training a manipulation policy starts with data. You **teleoperate** the robot — control its arm remotely with the leader arm — through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
 
 ## Create a physical skill
 
@@ -91,6 +91,8 @@ If you add more episodes later, upload again. Only new episodes are transferred 
 </Tip>
 
 ## Next steps
+
+Your dataset is now on Innate's servers and ready to train. Head to the skill's **Train** tab to configure and launch a run:
 
 <CardGroup cols={2}>
   <Card title="Train a policy" icon="brain" href="/training/train-act-policy">

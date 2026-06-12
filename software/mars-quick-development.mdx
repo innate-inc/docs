@@ -6,7 +6,7 @@ Learn to create your first agent, train your first manipulation model, give MARS
 
 ## Create your first agent
 
-Now that you know the basics, you can create your first agent for Mars using the SDK. On the app, go to Settings -> Wifi and read the IP of the robot.
+Now that you know the basics, you can create your first agent for MARS using the SDK. On the app, go to Configuration -> WiFi and read the IP of the robot.
 
 Now, on your PC, ssh in the robot with
 
@@ -14,7 +14,7 @@ Now, on your PC, ssh in the robot with
 ssh jetson1@<YOUR-ROBOT-IP>
 ```
 
-Go to `~/agents/` and create a `hello_world.py` agent file:
+Go to `~/innate-os/workspace/custom_agents/` and create a `hello_world.py` agent file:
 
 ```python
 from typing import List
@@ -52,7 +52,7 @@ Instructions:
 
 "*wave*" and "*navigate\_to\_position*" are basic skills that come already created for the robot. This agent makes use of them to act autonomously.
 
-Save the file, then restart the robot (unplug and plug again), open the app and start your agent. Sit in front of the robot, and observe!
+Save the file, then restart the runtime with `innate service restart` — new files are picked up on restart, and later edits to them hot-reload without restarting. Open the app, and your agent appears on the Home screen: start it, sit in front of the robot, and observe!
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/b7cNKEcER24" title="Run your first agent demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
@@ -64,13 +64,13 @@ To dive more in the details of how to develop agents:
 
 ## Train your first manipulation model for a skill
 
-Innate Robots arms can be trained using state-of-the-art manipulation AI models, running straight on the onboard computer. For MARS, we developed an improved version of ACT with a reward model - see [more details here](https://innate.bot/tbd)
+Innate Robots arms can be trained using state-of-the-art manipulation AI models, running straight on the onboard computer. For MARS, we developed an improved version of ACT (Action Chunking with Transformers) with a reward model — see the [training overview](/training/overview) for details.
 
 To train it, you can use the app to collect episodes of data for imitation learning. I.E. you will be repeatedly performing the task with the robot for a given amount of repetitions to make sure it learns it the way you want.
 
 In the app, go to Skills -> Physical, create a new skill, name it, and press "Add Episodes".
 
-Then, arm the arm and press record to collect an episode. Ideally, all episodes should start in a similar position and end in a similar position, following roughly the same movement. Start with very similar trajectories to accomplish the goal while making sure that the arm camera has the objective of motion relatively in sight. More guidelines on training can be found [here](https://innate.bot/tbd).
+Then, arm the arm and press record to collect an episode. Ideally, all episodes should start in a similar position and end in a similar position, following roughly the same movement. Start with very similar trajectories to accomplish the goal while making sure that the arm camera has the objective of motion relatively in sight. More guidelines on training can be found in [Data Collection](/training/data-collection).
 
 Below, an example of training the arm to pick up a cherry.
 
@@ -84,18 +84,21 @@ Once the model is trained (which takes up to 4 hours), you can get it back on yo
 
 Innate robots can also run any kind of code in the embodied Innate agent, which can be used to query APIs online or run custom routines onboard.
 
-Below is an example of how to create a skill that queries gmail to read the last emails.
+Below is an example of how to create a skill that queries gmail to read the last emails. Create it as `~/innate-os/workspace/custom_skills/retrieve_emails.py`:
 
 ```python
 import imaplib
 import email
 from brain_client.skill_types import Skill, SkillResult
 
-class RetrieveEmails(Primitive):
+class RetrieveEmails(Skill):
     def __init__(self, logger):
-        self.logger = logger
+        super().__init__(logger)
         self.imap_server = "imap.gmail.com"
         self.email = "your_email@gmail.com"
+        # Use a Gmail App Password (https://myaccount.google.com/apppasswords),
+        # not your main account password.
+        self.password = "your_app_password"
 
     @property
     def name(self):
@@ -112,9 +115,14 @@ class RetrieveEmails(Primitive):
             # ... fetch and process emails ...
             email_data = "Email 1: Subject, From, Content..."
             self._send_feedback(email_data)
-            return f"Retrieved {count} emails with subjects and content", PrimitiveResult.SUCCESS
+            return f"Retrieved {count} emails with subjects and content", SkillResult.SUCCESS
         except Exception as e:
-            return f"Failed to retrieve emails: {str(e)}", PrimitiveResult.FAILURE
+            return f"Failed to retrieve emails: {str(e)}", SkillResult.FAILURE
+
+    def cancel(self):
+        # Every skill must implement cancel(); nothing long-running to
+        # interrupt here, so just report it.
+        return "Email retrieval cancelled"
 ```
 
 You can run this skill in an agent that can query it:
@@ -133,8 +141,9 @@ class EmailAssistant(Agent):
         return "Email Assistant"
 
     def get_skills(self) -> List[str]:
+        # Custom skills are namespaced "local/", shipped skills "innate-os/"
         return [
-            "retrieve_emails"
+            "local/retrieve_emails"
         ]
 
     def get_prompt(self) -> str:
@@ -143,8 +152,6 @@ You are an email assistant.
 When the user sits in front of you, you should tell them what their last email is
 """
 ```
-
-Below is the result of running it:
 
 To learn more about the Skills SDK and go further:
 

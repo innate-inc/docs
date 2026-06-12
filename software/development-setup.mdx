@@ -9,7 +9,7 @@ Everything runs on the robot. You SSH in, edit code, restart. That's it.
 
 <Steps>
   <Step title="Find your robot's IP">
-    Open the Innate app. Go to **Settings** → **WiFi**. Note the IP address.
+    Open the Innate app. Go to **Configuration** → **WiFi**. Note the IP address.
   </Step>
   <Step title="SSH in">
     ```bash
@@ -40,14 +40,14 @@ ssh-copy-id jetson1@<YOUR-ROBOT-IP>
 ## Optional: Fork the open-source repo
 
 <Info>
-You don't need to fork to start developing. Agents and skills in `~/agents/` and `~/skills/` work out of the box. Fork when you want to save, version-control, and share your work — or modify the OS itself (ROS2 nodes, drivers, launch files).
+You don't need to fork to start developing. Agents and skills in `~/innate-os/workspace/custom_agents/` and `~/innate-os/workspace/custom_skills/` work out of the box (both directories are gitignored, so your work survives OS updates). Fork when you want to save, version-control, and share your work — or modify the OS itself (ROS2 nodes, drivers, launch files).
 </Info>
 
-MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open source. Forking gives you your own remote repo to push changes to:
+MARS runs [innate-os](https://github.com/innate-inc/innate-os), fully open source. Forking gives you your own remote repo to push changes to:
 
 <Steps>
   <Step title="Fork on GitHub">
-    Go to [github.com/innate-robotics/innate-os](https://github.com/innate-robotics/innate-os) and click **Fork**.
+    Go to [github.com/innate-inc/innate-os](https://github.com/innate-inc/innate-os) and click **Fork**.
   </Step>
   <Step title="Clone your fork onto the robot">
     SSH into MARS and replace the default repo:
@@ -78,8 +78,7 @@ MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open 
 
 ## Launch and restart
 
-MARS auto-launches all ROS2 nodes on boot via systemd. **When you make changes, you need to restart.**
-
+MARS auto-launches all ROS2 nodes on boot via systemd. Edits to existing agent, skill, and input files in `workspace/` hot-reload while the robot is running. **You need to restart when you add new files or change anything outside `workspace/`** (ROS2 nodes, drivers, launch files):
 
 ```bash
 innate service restart
@@ -97,7 +96,7 @@ in8 restart
 innate service view
 ```
 
-This attaches you to the tmux session where every ROS node runs.
+This attaches you to the tmux session where every ROS node runs. After a restart, give the nodes ~30 seconds to come up: each pane should settle into steady log output with no red error text or repeating restart loops. If a pane keeps crashing, that's where to look first.
 
 | Keys | Action |
 | --- | --- |
@@ -129,9 +128,11 @@ When you SSH in, the key directories are:
 
 | Path | What's there |
 | --- | --- |
-| `~/agents/` | Your agent definitions (hot-reloaded) |
-| `~/skills/` | Your custom skills |
 | `~/innate-os/` | The full OS repo |
+| `~/innate-os/workspace/custom_agents/` | Your agent definitions (gitignored, hot-reloaded) |
+| `~/innate-os/workspace/custom_skills/` | Your custom skills (gitignored, hot-reloaded) |
+| `~/innate-os/workspace/inputs/` | Input devices |
+| `~/innate-os/config/os.toml` | Optional runtime overrides (extra scan dirs, voice, endpoints) |
 | `~/innate-os/ros2_ws/` | ROS2 workspace (all packages) |
 | `~/innate-os/scripts/` | Launch scripts, diagnostics, update system |
 

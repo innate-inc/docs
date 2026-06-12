@@ -32,7 +32,8 @@
             "pages": [
               "index",
               "get-started/mars-quick-start",
-              "get-started/mars-example-use-cases"
+              "get-started/mars-example-use-cases",
+              "welcome/community-tutorials"
             ]
           },
           {
@@ -44,7 +45,16 @@
               "robots/mars/updates-and-maintenance",
               "robots/mars/charging-battery",
               "robots/mars/calibration",
+              "robots/mars/stereo-depth-calibration",
+              "robots/mars/changing-voice",
               "robots/mars/extending-mars"
+            ]
+          },
+          {
+            "group": "Controller App",
+            "pages": [
+              "robots/innate-controller-app",
+              "robots/innate-controller-app/connecting-to-a-robot"
             ]
           },
           {
@@ -86,7 +96,14 @@
                   "software/skills/manual-triggering"
                 ]
               },
-              "software/inputs",
+              {
+                "group": "Inputs",
+                "pages": [
+                  "software/inputs",
+                  "software/inputs/definition",
+                  "software/inputs/example-microphone"
+                ]
+              },
               "software/agent"
             ]
           },
@@ -94,6 +111,7 @@
             "group": "Hacking on MARS",
             "pages": [
               "software/development-setup",
+              "robots/mars/connecting-via-ssh",
               "software/mars-quick-development",
               "software/advanced-development",
               "software/innate-cli",
@@ -154,7 +172,59 @@
     },
     {
       "source": "/software/basic/connecting-to-basic",
-      "destination": "/software/agent/connecting-to-the-agent"
+      "destination": "/software/agent"
+    },
+    {
+      "source": "/software/agent/connecting-to-the-agent",
+      "destination": "/software/agent"
+    },
+    {
+      "source": "/robots/mars/troubleshooting-and-faq",
+      "destination": "/robots/mars/troubleshooting"
+    },
+    {
+      "source": "/robots/mars/updating-mars",
+      "destination": "/robots/mars/updates-and-maintenance"
+    },
+    {
+      "source": "/robots/mars/control-via-app-and-leader-arm",
+      "destination": "/robots/mars/control-and-connectivity"
+    },
+    {
+      "source": "/robots/mars/arm",
+      "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/robots/mars/sensors",
+      "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/robots/mars/manipulation",
+      "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/robots/mars/navigation",
+      "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/robots/mars/onboard-computer",
+      "destination": "/robots/mars/capabilities"
+    },
+    {
+      "source": "/software/advanced",
+      "destination": "/software/advanced-development"
+    },
+    {
+      "source": "/software/advanced/ros2-reference",
+      "destination": "/software/ros2-core"
+    },
+    {
+      "source": "/welcome/developer-setup-10-min",
+      "destination": "/software/development-setup"
+    },
+    {
+      "source": "/welcome/frequently-asked-questions",
+      "destination": "/robots/mars/faq"
     }
   ]
 }

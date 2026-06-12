@@ -2,9 +2,11 @@
 title: "Critical Fix (MARS IDs 1-11)"
 ---
 
-**This guide is only for** [**MARS IDs**](/robots/mars/faq#how-do-i-find-my-mars-id) **1-11** (received before January 16, 2026). If your [MARS ID](/robots/mars/faq#how-do-i-find-my-mars-id) is 12 or higher, this fix has already been applied and you can skip this page.
+<Info>
+This page documents a one-time fix for early MARS units with [MARS IDs](/robots/mars/faq#how-do-i-find-my-mars-id) **1-11** (shipped before January 16, 2026). If your MARS ID is 12 or higher — or you've already applied this fix — it does not apply to you, and this page is kept for reference only.
+</Info>
 
-MARS units with IDs 1-11 (shipped before January 16, 2026) require a critical update before normal operation. This update must be applied via a Wi-Fi hotspot connection before using the standard app-based setup.
+Early MARS units (IDs 1-11) require a one-time update before normal operation. This update must be applied via a Wi-Fi hotspot connection before using the standard app-based setup.
 
 ***
 
@@ -56,16 +58,6 @@ On your phone, create a Wi-Fi hotspot with the following credentials:
   </Tab>
 </Tabs>
 
-1. Go to **Settings** → **Connections** → **Mobile Hotspot and Tethering**
-
-2. Tap **Mobile Hotspot**
-
-3. Set **Network name** to `FBI_VAN_6`
-
-4. Set **Password** to `12345678`
-
-5. Toggle the hotspot ON
-
 ***
 
 ## Step 2: Turn on your robot
@@ -82,7 +74,7 @@ The robot will automatically detect and connect to the `FBI_VAN_6` hotspot.
 
 2. On the Connection screen, you should see your robot available in the list under "Bluetooth" connections (or refresh until you do).
 
-3. Top on it and just stay on the next screen.
+3. Tap on it and just stay on the next screen.
 
 4. Note the **IP address** shown for your robot (it could be something like `172.20.10.x` but depends on your phone)
 
@@ -144,7 +136,7 @@ Your robot is now ready for normal operation!
 
 If you encounter issues:
 
-* **Robot doesn't connect to hotspot:** Make sure the hotspot name is exactly `FBI_VAN_6` (lowercase) and the password is exactly `12345678`
+* **Robot doesn't connect to hotspot:** Make sure the hotspot name is exactly `FBI_VAN_6` (matching upper/lower case) and the password is exactly `12345678`
 
 * **Can't see IP in app:** Wait a minute for the robot to fully boot and connect, then refresh the Bluetooth screen
 

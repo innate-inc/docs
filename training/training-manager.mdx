@@ -34,7 +34,7 @@ Open the **Network** URL from any device on the same WiFi — your laptop, phone
 | Flag             | Default                      | Description           |
 | ---------------- | ---------------------------- | --------------------- |
 | `--port`         | `8080`                       | HTTP port             |
-| `--skills-dir`   | `~/skills`                   | Root skills directory |
+| `--skills-dir`   | `~/innate-os/workspace/custom_skills` | Root skills directory (`~/skills` is also read if present) |
 | `-s`, `--server` | env `TRAINING_SERVER_URL`    | Orchestrator URL      |
 | `-t`, `--token`  | env `INNATE_SERVICE_KEY`     | Service key           |
 | `--issuer`       | env `INNATE_AUTH_ISSUER_URL` | Auth issuer URL       |
@@ -110,7 +110,7 @@ The Training Manager is a FastAPI backend serving a React + Tailwind SPA. The ba
 
 ```text
 Browser ──→ FastAPI server (port 8080)
-               ├── /api/skills     → reads/writes ~/skills/*/metadata.json
+               ├── /api/skills     → reads/writes <skills-dir>/*/metadata.json
                ├── /api/datasets   → episode browsing, video streaming, merge, delete
                ├── /api/training   → list runs, create runs, watch status (via SSE)
                ├── /api/logs       → real-time log stream (SSE)

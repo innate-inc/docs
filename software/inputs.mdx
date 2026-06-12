@@ -28,8 +28,9 @@ class AlertsInput(InputDevice):
             while not self._stop.is_set():
                 events = self._poll_events()  # your sensor/API hook
                 for event_text in events:
-                    # Async feedback to the Innate agent during agent execution
-                    self.send_data(event_text, data_type="chat_in")
+                    # Async feedback to the Innate agent during agent execution.
+                    # send_data expects a dict; "chat_in" payloads carry a "text" key.
+                    self.send_data({"text": event_text}, data_type="chat_in")
                 self._stop.wait(1.0)
 
         threading.Thread(target=loop, daemon=True).start()

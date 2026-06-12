@@ -23,13 +23,15 @@ All robots have been pre-configured to connect to the WiFi network called **"Rob
 </Warning>
 
 <Steps>
-  <Step title="Apply the hackathon dev release">
-    Once the stable update finishes, apply the hackathon-specific release candidate:
+  <Step title="Update to the latest stable OS">
+    SSH into your robot and apply the latest update:
 
     ```bash
-    innate update --dev apply 0.5.0-rc12
+    innate update check
+    innate update apply
     ```
 
+    OS `0.5.1` and later include the hackathon tooling (previously distributed as the `0.5.0-rc12` dev release — no longer needed).
   </Step>
 </Steps>
 
@@ -120,7 +122,7 @@ GraspGen is a project built on top of Innate OS that uses the depth camera and N
 A remote inference server using the **UniNaVid** model for vision-language navigation. The server processes navigation commands with a large VLM, and the client inside Innate OS executes the resulting movements.
 
 - **Server** — remote inference endpoint for navigation commands.
-- **Client** — the ROS2 package inside Innate OS that calls the server and executes movement primitives. You can find it at [`ros2_ws/src/cloud/innate_uninavid/`](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/cloud/innate_uninavid), along with a corresponding skill at [`skills/navigate_with_vision.py`](https://github.com/innate-inc/innate-os/tree/main/skills/navigate_with_vision.py).
+- **Client** — the ROS2 package inside Innate OS that calls the server and executes movement skills. You can find it at [`ros2_ws/src/cloud/innate_uninavid/`](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/cloud/innate_uninavid), along with a corresponding skill at [`workspace/innate_skills/navigate_with_vision.py`](https://github.com/innate-inc/innate-os/blob/main/workspace/innate_skills/navigate_with_vision.py).
 
 ---
 

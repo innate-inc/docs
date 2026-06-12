@@ -11,9 +11,9 @@ Every agent follows the same structure. Once you understand it, you can create a
 
 ## File Location
 
-Agents are stored in `~/agents` on your robot. The system automatically discovers Python files in this directory—no registration or configuration required.
+Your agents are stored in `~/innate-os/workspace/custom_agents/` on the robot (shipped agents live next door in `workspace/innate_agents/`). The system automatically discovers Python files in these directories—no registration or configuration required.
 
-Add a file, and the agent appears. Remove it, and the agent disappears.
+New files are picked up when `brain_client` restarts (`innate service restart`); edits to existing files hot-reload while the robot is running.
 
 ## Core Interface
 
@@ -145,4 +145,4 @@ Be explicit about personality, goals, strategy, and constraints.
         return True
 ```
 
-Save this as `my_agent.py` in `~/agents`, and the system will load it automatically.
+Save this as `my_agent.py` in `~/innate-os/workspace/custom_agents/`, restart the runtime with `innate service restart`, and the system will load it automatically.

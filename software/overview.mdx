@@ -2,7 +2,7 @@
 title: "Overview"
 ---
 
-How to create Agent Apps for Innate Robots using the SDK - or ROS2 straight
+How to create agent apps for Innate robots using the SDK — or ROS2 directly.
 
 ## Core concepts
 
@@ -12,7 +12,7 @@ How to create Agent Apps for Innate Robots using the SDK - or ROS2 straight
 
 #### An agentic OS
 
-Innate robots run an agentic OS built on top of ROS2. It is powered by the Innate agent, our cloud agent.
+Innate robots run an agentic OS built on top of ROS2. It is powered by **the Innate agent** — our cloud-hosted AI that watches what the robot sees, reasons about what to do, and triggers skills to do it (more on it [below](#the-innate-agent)).
 
 This abstraction layer allows to create powerful agentic applications quickly without having to care about the usual suspects of classic robotics (unless you want to).
 
@@ -38,7 +38,7 @@ class HelloWorld(Agent):
         return "Hello World"
 
     def get_skills(self) -> List[str]:
-        return [""]
+        return []
 
     def get_prompt(self) -> str:
         return """You are just a robot saying hello_world once you start."""
@@ -52,19 +52,19 @@ See more in [Agents](/software/agents)
 
 **Skills** are the second core concept of the Innate OS.
 
-A skill can be defined with code, a model checkpoint (such as a **VLA**) or other specific interfaces we define for you. Adding a skill to an agent is like giving additional capabilities to your robot.
+A skill can be defined with code, a model checkpoint (such as a **VLA** — a vision-language-action model trained from demonstrations) or other specific interfaces we define for you. Adding a skill to an agent is like giving additional capabilities to your robot.
 
-Similarly to agentic frameworks, **skills** can be thought as **tool calls**, with extra sauce.
+Similarly to agentic frameworks, **skills** can be thought of as **tool calls**, with extra sauce.
 
-Skills can be interrupted by the robot during execution if required, and send feedback in the context of to the running agent.
+Skills can be interrupted by the robot during execution if required, and they send live feedback into the running agent's context.
 
 See how to create skills in [Skills](/software/skills)
 
 #### The Innate agent
 
-The Innate agent is the embodied AI agent that controls Mars. It can run agents and skills, and gives Mars the ability to reason, memorize, plan and make decisions as it runs.
+The Innate agent is the embodied AI agent that controls MARS. It runs your agents and their skills, and gives MARS the ability to reason, memorize, plan and make decisions as it runs.
 
-Understand more how the Innate agent runs in [Innate Capabilities](/software/agent)
+Understand more how the Innate agent runs in [The Innate Agent](/software/agent)
 
 #### ROS2 core
 

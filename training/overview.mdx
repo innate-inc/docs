@@ -5,7 +5,7 @@ description: "Teach your robot new manipulation skills by demonstrating them."
 
 Innate lets you train end-to-end manipulation policies directly from the app. You demonstrate a task with the leader arm, upload the data, train a model on Innate's cloud GPUs, and deploy the result as a skill your robot can execute autonomously.
 
-The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions.
+The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions. In practice this means the robot learns the manipulation by watching you do it, instead of you hand-coding every motion.
 
 ## The pipeline at a glance
 

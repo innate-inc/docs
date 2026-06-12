@@ -102,7 +102,7 @@ Both skill types are executed by the **BehaviorServer**:
 Innate agent calls skill
        |
        v
-PrimitiveExecutionActionServer
+SkillsActionServer
        |
        v (physical skill detected)
 BehaviorServer.ExecuteBehavior
@@ -125,7 +125,7 @@ Robot hardware (/mars/arm/commands, /cmd_vel)
 
 3. **Create Metadata**: Add `metadata.json` with execution parameters
 
-4. **Deploy**: Place in `skills/<name>/` directory
+4. **Deploy**: Place in `~/innate-os/workspace/custom_skills/<name>/`
 
 ### Replay Skill Workflow
 
@@ -133,7 +133,7 @@ Robot hardware (/mars/arm/commands, /cmd_vel)
 
 2. **Create Metadata**: Add `metadata.json` with replay parameters
 
-3. **Deploy**: Place in `skills/<name>/` directory
+3. **Deploy**: Place in `~/innate-os/workspace/custom_skills/<name>/`
 
 ## Demonstration Quality
 

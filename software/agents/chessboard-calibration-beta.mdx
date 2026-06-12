@@ -51,17 +51,17 @@ Trigger the skills from the app or CLI.
 Use ROS2 actions for now. A simpler dedicated CLI is coming soon.
 
 ```bash
-ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
-  '{primitive_type: arm_utils, inputs: "{\"command\":\"torque_off\"}"}' --feedback
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  '{skill_type: arm_utils, inputs: "{\"command\":\"torque_off\"}"}' --feedback
 
-ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
-  '{primitive_type: recalibrate_manual, inputs: "{\"corner\":\"A8\"}"}' --feedback
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  '{skill_type: recalibrate_manual, inputs: "{\"corner\":\"A8\"}"}' --feedback
 
-ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
-  '{primitive_type: recalibrate_manual, inputs: "{\"corner\":\"H8\"}"}' --feedback
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  '{skill_type: recalibrate_manual, inputs: "{\"corner\":\"H8\"}"}' --feedback
 
-ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
-  '{primitive_type: arm_utils, inputs: "{\"command\":\"torque_on\"}"}' --feedback
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  '{skill_type: arm_utils, inputs: "{\"command\":\"torque_on\"}"}' --feedback
 ```
 
 ## 2) Agentic triggering

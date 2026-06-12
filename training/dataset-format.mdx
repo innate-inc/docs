@@ -7,10 +7,10 @@ Understanding the dataset format is useful if you want to inspect your recording
 
 ## File structure
 
-Each physical skill lives in a directory under `~/skills/` on the robot:
+Each physical skill lives in a directory under `~/innate-os/workspace/custom_skills/` on the robot (skills recorded on releases before the workspace layout may still be in `~/skills/`, which is also scanned):
 
 ```text
-~/skills/pick_up_cup/
+~/innate-os/workspace/custom_skills/pick_up_cup/
 ├── metadata.json           # Skill config (name, type, execution params)
 ├── data/
 │   ├── episode_0.h5        # First recorded episode

@@ -6,7 +6,7 @@ export const RosServicesInterface = () => {
       rows: [
         {
           service: "/mars/arm/goto_js",
-          type: "maurice_msgs/GotoJS",
+          type: "mars_msgs/GotoJS",
           desc: "Move arm joints to target positions over a specified duration (time in seconds).",
         },
         {
@@ -21,27 +21,27 @@ export const RosServicesInterface = () => {
       title: "Navigation and Maps",
       rows: [
         {
-          service: "/grid_localize",
-          type: "maurice_msgs/GridLocalize",
-          desc: "Estimate robot pose on map from current scan.",
+          service: "/localize",
+          type: "std_srvs/Trigger",
+          desc: "Trigger grid localization to estimate robot pose on the current map.",
         },
         {
-          service: "/change_map",
+          service: "/nav/change_navigation_map",
           type: "brain_messages/ChangeMap",
           desc: "Switch the active saved map.",
         },
         {
-          service: "/save_map",
+          service: "/nav/save_map",
           type: "brain_messages/SaveMap",
           desc: "Save the current mapping session.",
         },
         {
-          service: "/delete_map",
+          service: "/nav/delete_map",
           type: "brain_messages/DeleteMap",
           desc: "Delete a saved map.",
         },
         {
-          service: "/change_navigation_mode",
+          service: "/nav/change_mode",
           type: "brain_messages/ChangeNavigationMode",
           desc: "Switch between mapfree, mapping, and navigation modes.",
         },
@@ -53,22 +53,22 @@ export const RosServicesInterface = () => {
       rows: [
         {
           service: "/light_command",
-          type: "maurice_msgs/LightCommand",
+          type: "mars_msgs/LightCommand",
           desc: "Control LED mode, interval, and RGB color.",
         },
         {
           service: "/shutdown",
-          type: "maurice_msgs/Shutdown",
+          type: "mars_msgs/Shutdown",
           desc: "Trigger robot shutdown sequence.",
         },
         {
           service: "/set_robot_name",
-          type: "maurice_msgs/SetRobotName",
+          type: "mars_msgs/SetRobotName",
           desc: "Set display name used by app and hostname conversion.",
         },
         {
           service: "/trigger_update",
-          type: "maurice_msgs/TriggerUpdate",
+          type: "mars_msgs/TriggerUpdate",
           desc: "Trigger update flow on the robot.",
         },
       ],
@@ -78,32 +78,22 @@ export const RosServicesInterface = () => {
       title: "Brain and Agent Runtime",
       rows: [
         {
-          service: "/get_available_primitives",
-          type: "brain_messages/GetAvailablePrimitives",
-          desc: "List available skills (primitives).",
-        },
-        {
-          service: "/get_available_directives",
+          service: "/brain/get_available_directives",
           type: "brain_messages/GetAvailableDirectives",
-          desc: "List available agents (directives).",
+          desc: "List available agents. (Agents were formerly called directives; the ROS name is kept for compatibility.)",
         },
         {
-          service: "/get_available_behaviors",
-          type: "brain_messages/GetAvailableBehaviors",
-          desc: "List available learned manipulation behaviors.",
+          service: "/brain/reload_skills_agents",
+          type: "brain_messages/ReloadSkillsAgents",
+          desc: "Reload agents and skills from the workspace directories.",
         },
         {
-          service: "/reset_brain",
+          service: "/brain/reset_brain",
           type: "brain_messages/ResetBrain",
           desc: "Reset brain runtime state.",
         },
         {
-          service: "/set_directive_on_startup",
-          type: "brain_messages/SetDirectiveOnStartup",
-          desc: "Choose which agent should auto-load at boot.",
-        },
-        {
-          service: "/get_chat_history",
+          service: "/brain/get_chat_history",
           type: "brain_messages/GetChatHistory",
           desc: "Retrieve the Innate agent's conversation history.",
         },
@@ -114,39 +104,34 @@ export const RosServicesInterface = () => {
       title: "Data Recording",
       rows: [
         {
-          service: "/new_task",
-          type: "brain_messages/ManipulationTask",
+          service: "/brain/recorder/activate_physical_primitive",
+          type: "brain_messages/ActivateManipulationTask",
           desc: "Start recording a new manipulation task.",
         },
         {
-          service: "/new_episode",
+          service: "/brain/recorder/new_episode",
           type: "std_srvs/Trigger",
           desc: "Start a new episode inside current task.",
         },
         {
-          service: "/save_episode",
+          service: "/brain/recorder/save_episode",
           type: "std_srvs/Trigger",
           desc: "Save current episode.",
         },
         {
-          service: "/cancel_episode",
+          service: "/brain/recorder/cancel_episode",
           type: "std_srvs/Trigger",
           desc: "Discard current episode.",
         },
         {
-          service: "/end_task",
+          service: "/brain/recorder/end_task",
           type: "std_srvs/Trigger",
           desc: "Finalize current task recording.",
         },
         {
-          service: "/get_task_metadata",
+          service: "/brain/recorder/get_task_metadata",
           type: "brain_messages/GetTaskMetadata",
           desc: "Read metadata for a recording task.",
-        },
-        {
-          service: "/get_dataset_info",
-          type: "brain_messages/GetDatasetInfo",
-          desc: "Read dataset summary and statistics.",
         },
       ],
     },

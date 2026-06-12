@@ -41,22 +41,22 @@ export const RosTopicsInterface = () => {
       title: "Cameras",
       rows: [
         {
-          topic: "/mars/main_camera/image",
+          topic: "/mars/main_camera/left/image_raw",
           dir: "PUB",
           msgType: "sensor_msgs/Image",
-          desc: "Main front-facing RGB stream.",
+          desc: "Main front-facing RGB stream (left stereo camera).",
+        },
+        {
+          topic: "/mars/main_camera/depth/image_rect_raw",
+          dir: "PUB",
+          msgType: "sensor_msgs/Image",
+          desc: "Depth image computed by the stereo pipeline.",
         },
         {
           topic: "/mars/arm/image_raw",
           dir: "PUB",
           msgType: "sensor_msgs/Image",
           desc: "Gripper-mounted RGB camera feed for manipulation.",
-        },
-        {
-          topic: "/oak/rgb/image_raw",
-          dir: "PUB",
-          msgType: "sensor_msgs/Image",
-          desc: "Alternative camera topic from OAK-D pipeline.",
         },
       ],
     },
@@ -95,16 +95,22 @@ export const RosTopicsInterface = () => {
       title: "Brain",
       rows: [
         {
-          topic: "/ws_messages",
-          dir: "SUB",
-          msgType: "std_msgs/String",
-          desc: "Incoming WebSocket payloads from cloud-side orchestration.",
-        },
-        {
-          topic: "/ws_outgoing",
+          topic: "/brain/chat_out",
           dir: "PUB",
           msgType: "std_msgs/String",
-          desc: "Outgoing WebSocket payloads emitted by robot-side brain client.",
+          desc: "Chat responses from the Innate agent (spoken and shown in the app).",
+        },
+        {
+          topic: "/brain/available_skills",
+          dir: "PUB",
+          msgType: "std_msgs/String",
+          desc: "JSON list of skills currently loaded by the skills server.",
+        },
+        {
+          topic: "/brain/skill_status_update",
+          dir: "PUB",
+          msgType: "std_msgs/String",
+          desc: "Live status of the skill currently being executed.",
         },
       ],
     },

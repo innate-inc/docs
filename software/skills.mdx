@@ -64,16 +64,18 @@ class LookAround(Skill):
 
 ## Skill Directories
 
-Skills are auto-discovered from two directories:
+Skills are auto-discovered from the `workspace/` directory of `~/innate-os` on the robot:
 
 | Directory | Purpose |
 | --- | --- |
-| `~/skills/` | Your custom skills |
-| `innate-os/skills/` | Built-in templates and examples |
+| `~/innate-os/workspace/custom_skills/` | Your skills (gitignored, stays on your machine) |
+| `~/innate-os/workspace/innate_skills/` | Shipped skills (tracked in git, updated by `git pull`) |
+
+Skill IDs reflect their origin: `innate-os/<name>` for shipped skills, `local/<name>` for yours. Legacy locations (`~/skills/`, `~/innate-os/skills/`) from releases before the workspace layout are still scanned, and you can add extra directories via the `[paths]` section of `config/os.toml`.
 
 | Skill Type | Format |
 | --- | --- |
 | Code-defined | `*.py` Python class extending `Skill` |
 | Policy-defined | `<name>/metadata.json` + model checkpoint |
 
-No registration required. Drop a file in the right place and the robot loads it on startup.
+No registration required. Drop a file in the right place and it loads on the next `brain_client` restart; edits to existing files hot-reload.
