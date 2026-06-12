@@ -54,7 +54,8 @@ class ScanAndWave(Skill):
         return "No person found", SkillResult.SUCCESS
 
     def _detect_person(self, image):
-        # Placeholder - integrate with vision API
+        # Intentionally stubbed for this example — swap in your own detector
+        # (a local model or a cloud vision API call on the base64 image).
         return False
 
     def _wave(self):

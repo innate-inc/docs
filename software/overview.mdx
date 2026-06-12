@@ -14,39 +14,17 @@ How to create agent apps for Innate robots using the SDK — or ROS2 directly.
 
 Innate robots run an agentic OS built on top of ROS2. It is powered by **the Innate agent** — our cloud-hosted AI that watches what the robot sees, reasons about what to do, and triggers skills to do it (more on it [below](#the-innate-agent)).
 
-This abstraction layer allows to create powerful agentic applications quickly without having to care about the usual suspects of classic robotics (unless you want to).
+You write agents and skills in plain Python; the OS handles the classic robotics stack underneath (unless you want to go down there — see [ROS2 Core](/software/ros2-core)).
 
 #### Agents
 
-The central concept of the Innate OS is the `agent` , which is our name for a **physical app for robots.** They are defined by a **system prompt** and a set of **skills** they can use.
+The central concept of the Innate OS is the `agent`, which is our name for a **physical app for robots**. An agent is defined by a **system prompt** and a set of **skills** it can use.
 
-**Agents** are like **physical apps** for Innate robots.
+A complete agent fits in one short Python file: subclass `Agent`, give it an id and a display name, list its skills, and write its prompt. Drop the file on the robot and it loads automatically — no registration step.
 
-The most simple agent is:
-
-```python
-from brain_client.agent_types import Agent
-from typing import List
-
-class HelloWorld(Agent):
-    @property
-    def id(self) -> str:
-        return "hello_world"
-
-    @property
-    def display_name(self) -> str:
-        return "Hello World"
-
-    def get_skills(self) -> List[str]:
-        return []
-
-    def get_prompt(self) -> str:
-        return """You are just a robot saying hello_world once you start."""
-```
-
-This will start the robot and make it say hello world on the speakers once.
-
-See more in [Agents](/software/agents)
+<Card title="Anatomy of an Agent" icon="robot" href="/software/agents/definitions">
+  The full structure, a complete working example, and a copy-paste template.
+</Card>
 
 #### Skills
 

@@ -10,16 +10,16 @@ MARS is a compact mobile manipulator with onboard AI compute, designed as a comp
 
 ### Sensors
 
-MARS combines complementary perception sources: a forward-facing RGBD camera for scene depth, a gripper-mounted RGB camera for close manipulation, and a 2D LiDAR for localization.
+MARS combines complementary perception sources: a forward-facing stereo RGB camera that computes scene depth, a gripper-mounted RGB camera for close manipulation, and a 2D LiDAR for localization.
 
 #### Camera matrix
 
-| Spec | Forward-Facing RGBD Camera | Gripper-Mounted RGB Camera |
+| Spec | Forward-Facing Stereo Camera | Gripper-Mounted RGB Camera |
 | --- | --- | --- |
-| Camera type | Stereo RGBD | RGB |
+| Camera type | Stereo RGB | RGB |
 | Diagonal field of view | 150° | 160° |
 | Effective range | 40 cm to 6 m | Close-range manipulation |
-| Depth support | Yes | No |
+| Depth support | Yes — computed from stereo disparity | No |
 | Depth accuracy | &lt;2% up to 3.5 m, &lt;4% to 6.5 m, &lt;6% to 9 m | N/A |
 | Resolution | N/A | 2MP (1920x1080) |
 | Frame rate | N/A | 30 FPS |
@@ -33,7 +33,7 @@ MARS combines complementary perception sources: a forward-facing RGBD camera for
 | Range | 0.15 m to 6 m |
 | Angular resolution | &lt;=1° |
 | Distance resolution | &lt;0.5 mm |
-| Scan rate | 10 Hz |
+| Scan rate | 6 Hz (up to 10 Hz) |
 | Primary use | SLAM and navigation |
 
 <Card title="ROS2 Topics Reference" href="/software/ros2/topics">
@@ -111,7 +111,7 @@ You can buy an assembled MARS and access the open hardware/software repository:
   <Card title="Innate Website" href="https://innate.bot/">
     Buy assembled MARS units and find product information.
   </Card>
-  <Card title="MARS Repository" href="https://innate.bot/mars_repo">
+  <Card title="MARS Repository" href="https://github.com/innate-inc">
     Open-source hardware and software repository.
   </Card>
 </CardGroup>

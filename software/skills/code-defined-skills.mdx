@@ -7,15 +7,9 @@ import {
   SkillResultsTable,
 } from '/snippets/interface-methods-table.mdx';
 
-Code-defined skills are Python classes that implement robot behaviors with explicit logic. The AI agent reads your code's function signature and docstrings to understand what the skill does and how to call it.
+Code-defined skills are Python classes that implement robot behaviors with explicit logic. Three things make them easy to write:
 
-## Design Principles
-
-The skill SDK is designed to be **pythonic**—you should be able to read a skill and immediately understand what it does.
-
-### 1. The Agent Reads Your Code
-
-The AI agent understands your skill through its Python signature:
+**The agent reads your code.** Your `execute()` signature and docstring are the API contract — the AI sees `execute(target: str, speed: float = 0.5)` plus the docstring and knows exactly how to call your skill. Type hints matter.
 
 ```python
 def execute(self, target: str, speed: float = 0.5):
@@ -27,34 +21,21 @@ def execute(self, target: str, speed: float = 0.5):
     """
 ```
 
-The agent sees `execute(target: str, speed: float = 0.5)` and knows exactly how to call your skill. Type hints matter—they're your API contract with the AI.
-
-### 2. One-Line Declarations
-
-Dependencies are declared as class attributes, not boilerplate in `__init__`:
+**Dependencies are one-line class attributes.** Declare what you need and the system injects it — no wiring in `__init__`:
 
 ```python
 class MySkill(Skill):
-    # Hardware access - one line
-    mobility = Interface(InterfaceType.MOBILITY)
-
-    # Sensor data - one line
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+    mobility = Interface(InterfaceType.MOBILITY)                    # hardware access
+    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)   # sensor data
 ```
 
-The system automatically injects what you declare. No manual wiring.
-
-### 3. Direct Access
-
-Once declared, use your dependencies as normal Python attributes:
+**Then just use them.** No callbacks, no message passing:
 
 ```python
 def execute(self):
     if self.image:                    # Latest camera frame, updated at 50Hz
         self.mobility.rotate(0.5)     # Rotate 0.5 radians
 ```
-
-No callbacks, no message passing, no ROS complexity. Just Python.
 
 ## The Skill Class
 

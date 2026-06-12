@@ -1,34 +1,32 @@
-> **Customize this file**: Tailor this template to your project by noting specific contribution types you're looking for, adding a Code of Conduct, or adjusting the writing guidelines to match your style.
+# Contributing to the Innate docs
 
-# Contribute to the documentation
-
-Thank you for your interest in contributing to our documentation! This guide will help you get started.
+Thanks for helping make these docs better! Whether you're fixing a typo or writing a new guide, we're glad you're here.
 
 ## How to contribute
 
-### Option 1: Edit directly on GitHub
+### Small fixes (typos, broken links, wrong commands)
 
-1. Navigate to the page you want to edit
-2. Click the "Edit this file" button (the pencil icon)
-3. Make your changes and submit a pull request
+1. Find the page on GitHub and click the pencil icon ("Edit this file")
+2. Make your change and open a pull request
 
-### Option 2: Local development
+That's it — no local setup needed.
+
+### Bigger changes (new pages, restructures)
 
 1. Fork and clone this repository
 2. Install the Mintlify CLI: `npm i -g mint`
-3. Create a branch for your changes
-4. Make changes
-5. Navigate to the docs directory and run `mint dev`
-6. Preview your changes at `http://localhost:3000`
-7. Commit your changes and submit a pull request
+3. Create a branch
+4. Run `mint dev` from the repo root and preview at `http://localhost:3000`
+5. Run `mint broken-links` before you push
+6. Open a pull request
 
-For more details on local development, see our [development guide](development.mdx).
+Not sure whether a change makes sense? Ask on [Discord](https://discord.com/invite/KtkyT97kc7) first — it can save you a rewrite.
 
 ## Writing guidelines
 
-- **Use active voice**: "Run the command" not "The command should be run"
-- **Address the reader directly**: Use "you" instead of "the user"
-- **Keep sentences concise**: Aim for one idea per sentence
-- **Lead with the goal**: Start instructions with what the user wants to accomplish
-- **Use consistent terminology**: Don't alternate between synonyms for the same concept
-- **Include examples**: Show, don't just tell
+- **Lead with the action.** The first thing on a page should be what the reader does, not why the product is great.
+- **Use active voice and "you".** "Run the command", not "the command should be run".
+- **Show, don't just tell.** Every concept gets a code example or a screenshot.
+- **One source of truth.** If a fact lives on two pages (version numbers, download links, setup steps), move it to `snippets/` and import it. Duplicated facts drift.
+- **No "coming soon".** Only document what exists today. Roadmap promises go stale silently.
+- **Test your commands.** If you write a shell command, run it on a robot (or in the simulator) first.

@@ -2,6 +2,8 @@
 title: "Troubleshooting"
 ---
 
+import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
+
 This page explains how to diagnose issues on your MARS robot by inspecting the running processes.
 
 ***
@@ -116,7 +118,7 @@ MARS monitors the arm's servo load in real-time. If the arm is overloaded (e.g.,
 
 ### iOS Arm Control
 
-**iOS Users:** The leader arm connects via USB-C and is not compatible with iOS devices (for now). If you have an iPhone, please reach out to Innate on [Discord](https://discord.com/invite/KtkyT97kc7) to get access to a free Android phone for leader arm teleoperation.
+<IosLeaderArmWarning />
 
 ***
 
@@ -131,6 +133,12 @@ The app displays a pulsing **Battery Low** warning when the robot's battery volt
 3. Connect the charger
 
 Avoid running system updates or intensive operations when the battery is low.
+
+***
+
+## Early units (MARS IDs 1-11)
+
+If you have one of the first eleven MARS units, it needed a [one-time setup fix](/robots/mars/troubleshooting/critical-fix-before-jan-16) before first use. Every robot from MARS ID 12 onwards shipped with this fix already applied, so chances are you can ignore this entirely.
 
 ***
 

@@ -1,33 +1,32 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
 # Documentation project instructions
 
-## About this project
+This is the Mintlify docs site for the Innate robotics platform (MARS robot, Innate OS, Agent SDK), deployed at docs.innate.bot.
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
 - Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Run `mint dev` to preview locally
-- Run `mint broken-links` to check links
+- Navigation and redirects live in `docs.json` — every new page must be added there
+- Run `mint dev` to preview locally, `mint broken-links` to check links
+- Shared content (version numbers, download links, repeated warnings) lives in `snippets/` and is imported with `import ... from "/snippets/..."` — never duplicate these facts inline
 
 ## Terminology
 
-Add product-specific terms and preferred usage here.
-Example: use "workspace" not "project", and "member" not "user".
+- "MARS" (all caps) — the robot. Not "Mars".
+- "Innate OS" — the robot's operating system
+- "agent" — a high-level behavior program (a Python class extending `Agent`)
+- "skill" — a robot capability; either **code-defined** (Python) or **policy-defined** (trained ACT checkpoint)
+- "input" / "input device" — a data source feeding the agent (e.g. microphone)
+- "leader arm" — the small teleoperation controller arm that ships with MARS
+- "controller app" — the Innate Controller App (Android/iOS)
 
 ## Style preferences
 
-Add any project-specific style rules below.
-
 - Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
+- Lead with the action; keep marketing language out of doc pages
 - Use sentence case for headings
-- Bold for UI elements: Click **Settings**
+- Bold for UI elements: tap **Configuration** -> **Mapping**
 - Code formatting for file names, commands, paths, and code references
+- No "coming soon" or undated roadmap promises — document only what ships today
 
 ## Content boundaries
 
-Define what should and should not be documented here.
-Example: do not document internal admin features.
+- Don't document internal Innate infrastructure (cloud deployment, CI)
+- Hardware fixes for specific robot batches go under `robots/mars/troubleshooting/`, linked from the Troubleshooting page — not in the main navigation

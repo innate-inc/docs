@@ -40,13 +40,7 @@ The most reliable way to improve a policy. Add 20–30 episodes that specificall
 
 ### Tune hyperparameters
 
-If the behavior is qualitatively close but not quite right:
-
-- **Chunk size** controls the smoothness/reactivity tradeoff. Increase it if the robot hesitates; decrease it if the robot overshoots.
-- **Max steps** may need increasing for larger datasets. A good heuristic: the model should see each episode hundreds of times during training.
-- **Learning rate** — lower it (1e-5) if training seems unstable; raise it (1e-4) if the model isn't learning fast enough.
-
-See the [hyperparameter reference](/training/train-act-policy#configure-hyperparameters) for details.
+If the behavior is qualitatively close but not quite right, adjust the run configuration — chunk size for the smoothness/reactivity tradeoff, max steps for dataset size, learning rate for training stability. [When to change the defaults](/training/train-act-policy#when-to-change-the-defaults) maps each symptom to the right knob.
 
 ### Improve demonstration quality
 
@@ -69,5 +63,5 @@ Once your policy works in the original setup, gradually introduce variation:
 If the policy breaks, record 10–20 more episodes under the new conditions and retrain. Each round of data makes the policy more robust.
 
 <Tip>
-Policies trained on 150+ diverse episodes can generalize surprisingly well. Invest in data variety and you'll spend less time debugging.
+Invest in data variety and you'll spend less time debugging — see [how many episodes you need](/training/data-collection#tips-for-high-quality-data) for concrete numbers.
 </Tip>

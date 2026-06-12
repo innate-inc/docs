@@ -33,8 +33,7 @@
               "index",
               "get-started/mars-quick-start",
               "software/development-setup",
-              "get-started/mars-example-use-cases",
-              "welcome/community-tutorials"
+              "get-started/mars-example-use-cases"
             ]
           },
           {
@@ -136,8 +135,6 @@
               "software/ros2/topics",
               "software/ros2/services",
               "software/ros2/actions",
-              "software/ros2/navigation-stack",
-              "software/ros2/manipulation-stack",
               "software/ros2/debugging"
             ]
           },
@@ -145,7 +142,6 @@
             "group": "Troubleshooting & Support",
             "pages": [
               "robots/mars/troubleshooting",
-              "robots/mars/critical-fixes",
               "robots/mars/faq",
               "support/contact-discord"
             ]
@@ -165,6 +161,22 @@
     "dark": "/images/logo-dark.png"
   },
   "redirects": [
+    {
+      "source": "/software/ros2/navigation-stack",
+      "destination": "/software/ros2-core"
+    },
+    {
+      "source": "/software/ros2/manipulation-stack",
+      "destination": "/software/ros2-core"
+    },
+    {
+      "source": "/robots/mars/critical-fixes",
+      "destination": "/robots/mars/troubleshooting"
+    },
+    {
+      "source": "/welcome/community-tutorials",
+      "destination": "/support/contact-discord"
+    },
     {
       "source": "/software/basic",
       "destination": "/software/agent"

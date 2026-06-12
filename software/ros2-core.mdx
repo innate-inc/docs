@@ -4,9 +4,7 @@ title: "ROS2 Overview"
 
 ## Do I need to know ROS2?
 
-**For most developers: no.** The Agent and Skill abstractions handle all the ROS2 complexity for you. You can build powerful robot applications without ever touching a ROS2 topic or service directly.
-
-However, if you're a roboticist who wants low-level access to sensor data, custom motion control, or integration with other ROS2 systems, MARS gives you full access to the underlying ROS2 layer.
+Probably not — the [Agent and Skill SDK](/software/overview) covers most projects without you ever touching a topic or service. Come down to this layer when you want raw sensor data, custom motion control, or to plug MARS into an existing ROS2 system. Everything underneath is standard ROS2, open and yours to hack on.
 
 ***
 
@@ -64,6 +62,42 @@ The Innate OS has two main package groups:
 
 ***
 
+## Navigation stack
+
+MARS navigation is built on Nav2 plus MARS-specific wrappers.
+
+* `/cmd_vel` drives base motion
+* `/odom` and `/scan` are core for localization and obstacle avoidance
+* App navigation modes map to ROS2-level behavior mode changes
+
+To check that navigation signals are flowing:
+
+```bash
+ros2 topic echo /odom
+ros2 topic echo /scan
+```
+
+For how these modes look from the app side, see [Capabilities](/robots/mars/capabilities).
+
+***
+
+## Manipulation stack
+
+MARS manipulation combines arm interfaces, controllers, and learned policy execution.
+
+* Arm state is exposed through joint-state topics
+* Motion commands can be sent through arm services/interfaces
+* Learned manipulation policies are deployed as [skills](/software/skills/policy-defined-skills) in the higher-level stack
+
+To check arm state:
+
+```bash
+ros2 topic echo /joint_states
+ros2 topic echo /mars/arm/state
+```
+
+***
+
 ## Visualization
 
 You can visualize ROS2 data with either RViz or Foxglove. If you are on Linux, RViz is the standard option. If you are not on Linux, use **Foxglove** with the Foxglove Bridge running on MARS.
@@ -99,6 +133,4 @@ Use these ROS2 sections:
 * [Topics](/software/ros2/topics)
 * [Services](/software/ros2/services)
 * [Actions](/software/ros2/actions)
-* [Navigation Stack](/software/ros2/navigation-stack)
-* [Manipulation Stack](/software/ros2/manipulation-stack)
 * [Debugging](/software/ros2/debugging)

@@ -99,4 +99,4 @@ A bare name without the prefix won't resolve — this is the second most common 
 | `~/innate-os/workspace/custom_skills/` | **Your skills** (gitignored, survives OS updates) | `local/<name>` |
 | `~/innate-os/workspace/innate_skills/` | Shipped skills (tracked in git, updated by `git pull`) | `innate-os/<name>` |
 
-Legacy locations (`~/skills/`, `~/innate-os/skills/`) from releases before the workspace layout are still scanned, and you can add extra directories via the `[paths]` section of `config/os.toml`.
+Legacy locations (`~/skills/`, `~/innate-os/skills/`) from releases before the workspace layout are still scanned, and you can add extra directories via the `[paths]` section of `config/os.toml`. Skills from any of these also get the `local/` prefix — only `innate_skills/` produces `innate-os/` IDs.
