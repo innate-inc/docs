@@ -127,9 +127,9 @@ class MyCustomAgent(Agent):
 
     def get_skills(self) -> List[str]:
         return [
-            "navigate_to_position",
-            "wave",
-            "turn_and_move",
+            "innate-os/navigate_to_position",
+            "innate-os/wave",
+            "innate-os/turn_and_move",
         ]
 
     def get_inputs(self) -> List[str]:
@@ -145,4 +145,19 @@ Be explicit about personality, goals, strategy, and constraints.
         return True
 ```
 
-Save this as `my_agent.py` in `~/innate-os/workspace/custom_agents/`, restart the runtime with `innate service restart`, and the system will load it automatically.
+## Deploy your agent
+
+<Steps>
+  <Step title="Save the file in the right place">
+    Save your agent as `my_agent.py` in **`~/innate-os/workspace/custom_agents/`** on the robot. This is the one directory the system scans for your agents — anywhere else and it won't load.
+  </Step>
+  <Step title="Restart the runtime">
+    ```bash
+    innate service restart
+    ```
+    New files are only picked up on restart. (Once loaded, further edits to the file hot-reload automatically.)
+  </Step>
+  <Step title="Check it appears in the app">
+    Your agent shows up as a card on the app **Home** screen — pull down to refresh if needed. From there, tap to start it.
+  </Step>
+</Steps>
