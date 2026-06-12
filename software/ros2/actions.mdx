@@ -35,24 +35,24 @@ ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
 ### Execute a learned manipulation behavior
 
 ```bash
-ros2 action send_goal /execute_behavior brain_messages/action/ExecuteBehavior \
-  "{behavior_name: pick_socks, behavior_config: \"{}\"}" \
+ros2 action send_goal /behavior/execute brain_messages/action/ExecuteBehavior \
+  "{skill_dir: /home/jetson1/innate-os/workspace/custom_skills/pick_socks, behavior_config: \"{}\"}" \
   --feedback
 ```
 
-### Execute a skill (primitive)
+### Execute a skill
 
 ```bash
-ros2 action send_goal /execute_primitive brain_messages/action/ExecutePrimitive \
-  "{primitive_type: wave, inputs: \"{}\"}" \
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  "{skill_type: wave, inputs: \"{}\"}" \
   --feedback
 ```
 
 <CardGroup cols={2}>
-  <Card title="Navigation Stack" href="/software/ros2/navigation-stack">
+  <Card title="Navigation Stack" href="/software/ros2-core#navigation-stack">
     Planner/controller details and navigation runtime behavior.
   </Card>
-  <Card title="Manipulation Stack" href="/software/ros2/manipulation-stack">
+  <Card title="Manipulation Stack" href="/software/ros2-core#manipulation-stack">
     Behavior execution and manipulation runtime details.
   </Card>
 </CardGroup>

@@ -20,7 +20,7 @@ Use a service when you need a single request/response interaction (for example "
 ros2 service list
 ros2 service list -t
 ros2 service type /mars/arm/goto_js
-ros2 interface show maurice_msgs/srv/GotoJS
+ros2 interface show mars_msgs/srv/GotoJS
 ros2 service call /mars/head/set_ai_position std_srvs/srv/Trigger {}
 ```
 
@@ -29,7 +29,7 @@ ros2 service call /mars/head/set_ai_position std_srvs/srv/Trigger {}
 ### Set LED color
 
 ```bash
-ros2 service call /light_command maurice_msgs/srv/LightCommand \
+ros2 service call /light_command mars_msgs/srv/LightCommand \
   "{mode: 1, interval: 0, r: 64, g: 31, b: 251}"
 ```
 
@@ -38,14 +38,14 @@ ros2 service call /light_command maurice_msgs/srv/LightCommand \
 ```bash
 # NOTE: `time` is the motion duration in SECONDS (float), not milliseconds.
 # 2.0 means 2 seconds — passing 2000 would command a 2000-second move.
-ros2 service call /mars/arm/goto_js maurice_msgs/srv/GotoJS \
+ros2 service call /mars/arm/goto_js mars_msgs/srv/GotoJS \
   "{data: {data: [0.0, -0.8, 1.2, -0.6, 0.0, 0.0]}, time: 2.0}"
 ```
 
 ### Switch navigation mode
 
 ```bash
-ros2 service call /change_navigation_mode brain_messages/srv/ChangeNavigationMode \
+ros2 service call /nav/change_mode brain_messages/srv/ChangeNavigationMode \
   "{mode: navigation}"
 ```
 

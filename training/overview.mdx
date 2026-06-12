@@ -3,9 +3,9 @@ title: "Training overview"
 description: "Teach your robot new manipulation skills by demonstrating them."
 ---
 
-Innate lets you train end-to-end manipulation policies directly from the app. You demonstrate a task with the leader arm, upload the data, train a model on Innate's cloud GPUs, and deploy the result as a skill your robot can execute autonomously.
+Innate lets you train end-to-end manipulation policies directly from the app. You demonstrate a task with the leader arm, upload the data, and deploy the result as a skill your robot can execute autonomously. **Training runs on Innate's infrastructure** — our cloud GPUs do the heavy lifting, so you don't need a GPU or any ML setup of your own.
 
-The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions.
+The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions. In practice this means the robot learns the manipulation by watching you do it, instead of you hand-coding every motion.
 
 ## The pipeline at a glance
 
@@ -27,19 +27,13 @@ Once a trained model is activated, the skill appears in **Manual Control** and i
 
 ## What goes in, what comes out
 
-**Input:** A dataset of teleoperated demonstrations — each episode captures synchronized camera images (main + wrist), joint positions, joint velocities, and optionally wheel odometry at 30 Hz.
+**Input:** A dataset of teleoperated demonstrations — each episode captures synchronized camera images (main + wrist), joint positions, joint velocities, and optionally wheel odometry at 30 Hz. We recommend **at least 30 episodes of good quality** — consistent start poses, smooth motions — and more diverse data almost always improves robustness (see the [recording tips](/training/data-collection#tips-for-high-quality-data)). (Curious what's inside an episode file? See [Dataset format](/training/dataset-format).)
 
 **Output:** A PyTorch checkpoint that runs inference at 25 Hz, outputting 6 arm joint commands and 2 base velocity commands every 40 ms.
 
 ## When to use trained skills
 
-Trained policies shine when:
-
-- The task involves **visuomotor coordination** (reach for, grasp, place)
-- Object positions **vary between runs** and the robot needs to adapt visually
-- Writing explicit motion code would be brittle or impractical
-
-For fixed, repeatable motions (a wave, a gesture), a **replay skill** is simpler — record once, play back. See [Policy-Defined Skills](/software/skills/policy-defined-skills) for the comparison.
+Trained policies shine when the task needs **visuomotor coordination** — reaching, grasping, placing — especially when object positions vary between runs. For fixed, repeatable motions (a wave, a gesture), a **replay skill** is simpler: record once, play back. The full comparison lives in the [skill selection guide](/software/skills/policy-defined-skills#skill-selection-guide).
 
 ## Next steps
 

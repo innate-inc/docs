@@ -2,7 +2,9 @@
 title: "Starting an Agent"
 ---
 
-Once you've created an agent, you can activate it through the Controller App or directly on the robot.
+Once you've created an agent in `~/innate-os/workspace/custom_agents/`, it is picked up automatically — the runtime watches that directory and hot-reloads new files and edits within a second or two. No restart needed; if it ever doesn't show up, `innate service restart` is the reliable fallback.
+
+You can then activate it through the Controller App or directly on the robot.
 
 ## Using the Controller App
 
@@ -18,7 +20,7 @@ In the Controller App, go to **Home**, long-press an agent card, and select **Se
 
 ## Activation Sequence
 
-When you activate an agent, the runtime loads its skills, opens its inputs, uploads the prompt, enables gaze if configured, and starts the perception/decision loop. This typically completes in about one second.
+When you activate an agent, the runtime loads its skills, opens its inputs, uploads the prompt, enables gaze if configured, and starts the perception/decision loop. This typically completes in about one second — the agent's card is highlighted as active in the app, and the robot starts reacting (thoughts and chat output appear on the Agentic screen). If the card doesn't become active after a few seconds, see Troubleshooting below.
 
 ## Switching Between Agents
 
@@ -28,7 +30,7 @@ Switching is immediate: the current agent is torn down, the new one is loaded, a
 
 ### Agent doesn't appear in the app
 
-Check that the file is in `~/agents`, then on the app **Home** screen swipe down (pull-to-refresh) to reload the agent list. If it still does not appear, verify the file imports without Python errors and inspect runtime logs using the [Troubleshooting guide](/robots/mars/troubleshooting#navigate-tmux-to-find-issues).
+Check that the file is in `~/innate-os/workspace/custom_agents/`, then on the app **Home** screen swipe down (pull-to-refresh) to reload the agent list. New files normally hot-reload within seconds; if yours still doesn't appear, run `innate service restart`. If it still does not appear, verify the file imports without Python errors and inspect runtime logs using the [Troubleshooting guide](/robots/mars/troubleshooting#navigate-tmux-to-find-issues).
 
 ### Agent won't start
 

@@ -4,27 +4,30 @@ title: "Changing the Voice"
 
 MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech. You can customize the robot's voice by changing the Cartesia voice ID.
 
-## Method 1: Using Environment Variables (Recommended)
+## Method 1: Using `config/os.toml` (Recommended)
 
-The simplest way to change the voice is through the `.env` file. No rebuild required.
+The simplest way to change the voice is through the OS config file. No rebuild required.
 
 ### Steps
 
-1. SSH into your robot (see [Connecting via SSH](/robots/mars/connecting-via-ssh))
+1. Connect to your robot — either [open it in your IDE over Remote SSH](/software/development-setup) (recommended) or [SSH in from a terminal](/robots/mars/connecting-via-ssh)
 
-2. Edit the `.env` file:
+2. Edit `config/os.toml` — open it in your IDE, or directly from the terminal:
 
 ```bash
-nano ~/innate-os/.env
+nano ~/innate-os/config/os.toml
 ```
 
-1. Add or modify the `CARTESIA_VOICE_ID` variable:
+3. Set the voice ID in the `[voice]` section:
 
-```text
-CARTESIA_VOICE_ID=your-voice-id-here
+```toml
+[voice]
+cartesia_voice_id = "your-voice-id-here"
 ```
 
-1. Save the file and restart the robot for changes to take effect.
+4. Save the file and restart the robot services (`innate service restart`) for changes to take effect.
+
+You can also set `CARTESIA_VOICE_ID` in `~/innate-os/.env`; the `os.toml` value takes precedence.
 
 ## Method 2: Editing the Launch File (Advanced)
 

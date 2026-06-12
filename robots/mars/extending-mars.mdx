@@ -38,7 +38,7 @@ Examples of two different types of end effectors we used without changing the co
 
 ## Adding sensors and effectors on the USB and GPIOs
 
-Users can integrate additional sensors on the available ports. For any added device, make sure it is mounted and installed properly on the robot. You can then feed data into the Innate agent by creating a `Sensor` object in the SDK (TBD).
+Users can integrate additional sensors on the available ports. For any added device, make sure it is mounted and installed properly on the robot. You can then feed its data into the Innate agent by writing an [input device](/software/inputs) — a small Python class dropped into `~/innate-os/workspace/inputs/`.
 
 Some sensors we have already tried and work plug-and-play on MARS:
 

@@ -4,17 +4,21 @@ title: "Introduction"
 
 An agent defines who your robot is and what it can do. Without an agent, a robot is just hardware waiting for instructions. With an agent, it becomes a security guard, a tour guide, a friendly greeter etc.
 
+<Tip>
+**Before you build:** set up your [development environment](/software/development-setup) first — your IDE (VSCode, Cursor, ...) connected to the robot over Remote SSH. All agent files live and run on the robot, so this is the foundation for everything that follows.
+</Tip>
+
 ## What is an Agent?
 
 An agent is a Python class that defines three things together: the **skills** the robot can execute, the **inputs** it listens to, and the **prompt** that defines behavior and tone. When you activate an agent, the robot adopts that identity. The same hardware can run very different agents with distinct personalities and capabilities.
 
 ## Agents as Portable Applications
 
-Agents are designed to be shareable. Write an agent once, and anyone with an Innate robot can use it—just drop the Python file into the agents folder.
+Agents are designed to be shareable. Write an agent once, and anyone with an Innate robot can use it—just drop the Python file into `~/innate-os/workspace/custom_agents/`.
 
 No configuration files. No complex setup. Just Python.
 
-For OS 0.5.1, the built-in agents come from `innate-os/agents` and appear on the **Home** screen in the Innate Controller App.
+The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear on the **Home** screen in the Innate Controller App.
 
 <CardGroup cols={2}>
   <Card title="No Prompt (`basic_agent`)">

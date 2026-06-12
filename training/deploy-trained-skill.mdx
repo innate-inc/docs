@@ -75,18 +75,7 @@ The Innate agent calls your trained skill the same way it calls any other skill 
 
 ## What happens during execution
 
-When the skill runs, the BehaviorServer:
-
-1. Loads the ACT checkpoint into GPU memory
-2. Moves the arm to the learned start pose
-3. Enters a **25 Hz inference loop** where each cycle:
-   - Captures frames from the main camera and wrist camera
-   - Reads the current 6-DOF joint state
-   - Resizes images to 224×224 and normalizes them
-   - Runs a forward pass through the policy
-   - Sends the first 6 outputs as joint commands to `/mars/arm/commands`
-   - Sends outputs 7–8 as base velocity to `/cmd_vel`
-4. Optionally moves the arm to an end pose when the task completes
+When the skill runs, the BehaviorServer loads the checkpoint, moves the arm to the learned start pose, then enters a **25 Hz inference loop**: it reads both cameras and the joint state, runs the policy, and streams arm and base commands until the task completes. The step-by-step breakdown lives in [Policy-Defined Skills](/software/skills/policy-defined-skills#execution-flow).
 
 ## Multiple training runs
 

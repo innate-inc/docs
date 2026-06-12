@@ -35,25 +35,33 @@ Learned skills use **Action Chunking with Transformers (ACT)**—a neural networ
 }
 ```
 
+You normally never write this file by hand — the training pipeline generates and updates it. See [Dataset format](/training/dataset-format#metadata-file) for how it evolves from skill creation to activation.
+
 ### Execution Flow
 
-1. **Load Policy**: Neural network checkpoint loaded into GPU memory
+When a learned skill runs, the BehaviorServer:
 
-2. **Move to Start Pose**: Arm moves to consistent initial configuration
+1. **Load Policy**: Loads the ACT checkpoint into GPU memory
+
+2. **Move to Start Pose**: Moves the arm to the consistent initial configuration from `metadata.json`
 
 3. **Inference Loop (25Hz)**: Every 40ms:
 
-   * Capture images from both cameras
+   * Captures frames from the main camera and wrist camera
 
-   * Read current joint positions
+   * Reads the current 6-DOF joint state
 
-   * Run policy forward pass
+   * Resizes images to 224×224 and normalizes them
 
-   * Output: 6 joint commands + 2 base velocity commands
+   * Runs a forward pass through the policy
 
-4. **Progress Monitoring**: Early termination when progress > 95%
+   * Sends the first 6 outputs as joint commands to `/mars/arm/commands`
 
-5. **End Pose**: Optionally return to safe configuration
+   * Sends outputs 7–8 as base velocity to `/cmd_vel`
+
+4. **Progress Monitoring**: Terminates early when progress exceeds 95%
+
+5. **End Pose**: Optionally returns to a safe configuration
 
 ### Key Characteristics
 
@@ -102,7 +110,7 @@ Both skill types are executed by the **BehaviorServer**:
 Innate agent calls skill
        |
        v
-PrimitiveExecutionActionServer
+SkillsActionServer
        |
        v (physical skill detected)
 BehaviorServer.ExecuteBehavior
@@ -119,13 +127,13 @@ Robot hardware (/mars/arm/commands, /cmd_vel)
 
 ### Learned Skill Workflow
 
-1. **Collect Demonstrations**: Teleoperate robot through task 10-100 times
+The whole pipeline runs from the app — each step has its own guide:
 
-2. **Train Policy**: Run ACT training pipeline to produce checkpoint
+1. **[Collect demonstrations](/training/data-collection)**: Teleoperate the robot through the task with the leader arm (50+ episodes)
 
-3. **Create Metadata**: Add `metadata.json` with execution parameters
+2. **[Train the policy](/training/train-act-policy)**: Launch an ACT training run on Innate's cloud GPUs
 
-4. **Deploy**: Place in `skills/<name>/` directory
+3. **[Deploy](/training/deploy-trained-skill)**: Download the finished checkpoint from the app — activation writes `metadata.json` and places everything in `~/innate-os/workspace/custom_skills/<name>/` for you
 
 ### Replay Skill Workflow
 
@@ -133,7 +141,7 @@ Robot hardware (/mars/arm/commands, /cmd_vel)
 
 2. **Create Metadata**: Add `metadata.json` with replay parameters
 
-3. **Deploy**: Place in `skills/<name>/` directory
+3. **Deploy**: Place in `~/innate-os/workspace/custom_skills/<name>/`
 
 ## Demonstration Quality
 

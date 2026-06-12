@@ -62,18 +62,41 @@ class LookAround(Skill):
   </Accordion>
 </AccordionGroup>
 
-## Skill Directories
+## Where to Put Your Skills
 
-Skills are auto-discovered from two directories:
+<Warning>
+**Your skills go in `~/innate-os/workspace/custom_skills/` on the robot.** This is the directory the system scans for your skills — files placed anywhere else will not load. Getting this path right is the single most common stumbling block when a skill "doesn't appear".
+</Warning>
 
-| Directory | Purpose |
-| --- | --- |
-| `~/skills/` | Your custom skills |
-| `innate-os/skills/` | Built-in templates and examples |
+* **Code-defined skill** → a single Python file: `~/innate-os/workspace/custom_skills/my_skill.py`
+* **Policy-defined (physical) skill** → a directory with its metadata and checkpoint: `~/innate-os/workspace/custom_skills/my_skill/metadata.json`
 
-| Skill Type | Format |
-| --- | --- |
-| Code-defined | `*.py` Python class extending `Skill` |
-| Policy-defined | `<name>/metadata.json` + model checkpoint |
+No registration required. Drop the file in place and it hot-reloads within seconds — the directory is watched while the robot runs, for new files and edits alike.
 
-No registration required. Drop a file in the right place and the robot loads it on startup.
+## Skill IDs: `local/` vs `innate-os/`
+
+<Info>
+**Skill IDs are namespaced by origin, and agents must use the full ID:**
+
+* `local/<name>` — **your skills** (anything in `custom_skills/`)
+* `innate-os/<name>` — shipped skills (in `innate_skills/`)
+
+So in an agent, write `"local/my_skill"`, not `"my_skill"`:
+
+```python
+def get_skills(self) -> List[str]:
+    return [
+        "local/my_skill",              # your skill
+        "innate-os/navigate_to_position",  # shipped skill
+    ]
+```
+
+A bare name without the prefix won't resolve — this is the second most common reason a skill "doesn't work" after putting the file in the wrong directory.
+</Info>
+
+| Directory | Purpose | Skill ID prefix |
+| --- | --- | --- |
+| `~/innate-os/workspace/custom_skills/` | **Your skills** (gitignored, survives OS updates) | `local/<name>` |
+| `~/innate-os/workspace/innate_skills/` | Shipped skills (tracked in git, updated by `git pull`) | `innate-os/<name>` |
+
+Legacy locations (`~/skills/`, `~/innate-os/skills/`) from releases before the workspace layout are still scanned, and you can add extra directories via the `[paths]` section of `config/os.toml`. Skills from any of these also get the `local/` prefix — only `innate_skills/` produces `innate-os/` IDs.

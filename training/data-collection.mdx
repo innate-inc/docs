@@ -3,7 +3,7 @@ title: "Record a dataset"
 description: "Collect high-quality demonstration episodes for training a manipulation policy."
 ---
 
-Training a manipulation policy starts with data. You teleoperate the robot through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
+Training a manipulation policy starts with data. You **teleoperate** the robot — control its arm remotely with the leader arm — through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
 
 ## Create a physical skill
 
@@ -45,7 +45,7 @@ Repeat until you have enough episodes. See the tips below for guidance on how ma
 
 <AccordionGroup>
   <Accordion title="How many episodes do I need?">
-    **50–80 episodes** is a good starting point for a simple task (pick up one object from a fixed area). For tasks that require generalization across object positions, lighting, or object types, aim for **150+ episodes**. More diverse data almost always improves robustness.
+    We recommend **at least 30 episodes of good quality** as the minimum for a simple task (pick up one object from a fixed area); **50–80** is a comfortable starting point. For tasks that require generalization across object positions, lighting, or object types, aim for **150+ episodes**. More diverse data almost always improves robustness — and quality beats quantity: 30 clean episodes train better than 80 sloppy ones.
   </Accordion>
   <Accordion title="Be consistent with start poses">
     Begin each episode with the arm in roughly the same position. Large variation in start poses confuses the policy — it spends capacity learning where to begin instead of how to complete the task.
@@ -91,6 +91,8 @@ If you add more episodes later, upload again. Only new episodes are transferred 
 </Tip>
 
 ## Next steps
+
+Your dataset is now on Innate's servers and ready to train. Head to the skill's **Train** tab to configure and launch a run:
 
 <CardGroup cols={2}>
   <Card title="Train a policy" icon="brain" href="/training/train-act-policy">

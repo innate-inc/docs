@@ -2,20 +2,18 @@
 title: "Control & Connectivity"
 ---
 
-This page covers app control, leader-arm teleoperation, first-time connectivity, and SSH access.
+import AppDownloadCards from '/snippets/app-download-cards.mdx';
+import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
+
+This page covers controlling MARS with the app and leader arm, getting connected for the first time, and SSH access.
 
 ## Control via App and Leader Arm
 
-MARS (and all Innate robots) are controllable via the Innate app:
+MARS (and all Innate robots) are controllable via the Innate Controller App:
 
-<CardGroup cols={2}>
-  <Card title="Android APK (Latest)" href="https://cdn.innate.bot/innate-app-latest.apk">
-    Direct APK download.
-  </Card>
-  <Card title="iOS TestFlight" href="https://testflight.apple.com/join/YeChe4A7">
-    Open the iOS beta access page.
-  </Card>
-</CardGroup>
+<AppDownloadCards />
+
+For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
 
 Every MARS robot comes with a leader arm attachable to your phone:
 
@@ -23,136 +21,27 @@ Every MARS robot comes with a leader arm attachable to your phone:
   <img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="375" />
 </Frame>
 
-The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm. For best results, stand behind the robot while teleoperating.
+The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm — MARS's arm should start mirroring your movements within a second. If it doesn't, check that the USB-C cable is seated on both ends and that the arm shows as connected in the app. For best results, stand behind the robot while teleoperating.
 
-**iOS users:** The leader arm connects via USB-C and is not compatible with iOS devices. Reach out on [Discord](https://discord.com/invite/KtkyT97kc7) for access to a free Android phone for leader arm teleoperation.
-
-## Innate Controller App Overview
-
-The app is available for both iOS and Android so you can control your robot and trigger agents from your phone.
-
-### Current versions (May 2026)
-
-| Component | Version |
-| --- | --- |
-| MARS OS | `0.5.1` |
-| Cloud Agent | `0.2.1` |
-| Innate Controller App | `1.2.0` |
-
-Latest app builds:
-
-<CardGroup cols={2}>
-  <Card title="Android APK (Latest)" href="https://cdn.innate.bot/innate-app-latest.apk">
-    Direct APK download.
-  </Card>
-  <Card title="iOS TestFlight" href="https://testflight.apple.com/join/YeChe4A7">
-    Open the latest iOS TestFlight build.
-  </Card>
-</CardGroup>
-
-### Key features
-
-* Drive base control and arm control from phone
-* Leader arm teleoperation
-* Map-free navigation, mapping mode, and go-to mode
-* Video recording and export
-* Control the agent running on the robot from the home screen
-* Digital skills UI with input validation and feedback
+<IosLeaderArmWarning />
 
 ## Connecting to a Robot (Wi-Fi + BLE)
 
-The app connects to your robot via Wi-Fi. It can also work through your phone hotspot.
+The app discovers the robot over Bluetooth, puts it on your Wi-Fi (a phone hotspot works too), then connects over the network. The full flow, with screenshots, lives here:
 
-### First-time connection flow
+<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app/connecting-to-a-robot">
+  Bluetooth pairing, Wi-Fi setup, and what to do when the robot changes network.
+</Card>
 
-This is the same onboarding flow covered in [Quick Start](/get-started/mars-quick-start).
+Two details worth knowing:
 
-<Steps>
-  <Step title="Bluetooth pairing">
-    The app uses BLE to discover the robot and initialize network setup.
-  </Step>
-  <Step title="Wi-Fi configuration">
-    Select the Wi-Fi network the robot should join. If the robot is not yet
-    connected to any Wi-Fi, use screen 2 to pick a network and enter its
-    password.
-  </Step>
-  <Step title="Connect over Wi-Fi">
-    Once your phone and robot are on the same network, the app connects over Wi-Fi.
-  </Step>
-</Steps>
-
-The robot publishes a `.local` hostname (for example `mars-robot.local`) so you can still connect if IP changes.
-
-<CardGroup cols={3}>
-  <Card title="1. Discover Robot">
-    <img src="/images/main/robots/innate-controller-app/connect-step-1.png" alt="Bluetooth discovery step" />
-  </Card>
-  <Card title="2. Join Network">
-    <img src="/images/main/robots/innate-controller-app/connect-step-2.png" alt="Wi-Fi selection step" />
-    If the robot is not connected yet, choose a Wi-Fi network here and set the password.
-  </Card>
-  <Card title="3. Change Robot Wi-Fi">
-    <img src="/images/main/robots/innate-controller-app/connect-step-3.png" alt="Change Robot Wi-Fi step" />
-  </Card>
-</CardGroup>
-
-Once connected, you can view the current robot IP in **Configuration** -> **WiFi**.
+* The robot publishes a `.local` hostname (for example `mars-robot.local`), so you can still reach it if its IP address changes.
+* Once connected, you can check the robot's current IP in **Configuration** -> **WiFi**.
 
 ## Connecting via SSH
 
-Default credentials:
+SSH gives you a terminal directly on the robot (username `jetson1`, password `goodbot`) over Wi-Fi, Ethernet, or USB-C. Full instructions for all three methods, including hostname rules and static-IP setup per OS:
 
-* **Username:** `jetson1`
-* **Password:** `goodbot`
-
-### Via Wi-Fi
-
-If your robot is on the same network as your computer:
-
-```bash
-ssh jetson1@<robot-name>.local
-```
-
-Hostname conversion rules:
-
-* Uppercase letters become lowercase
-* Spaces/special characters become `-`
-* Duplicate hyphens are collapsed
-* Leading/trailing hyphens are removed
-
-Examples:
-
-| Robot name | Hostname | SSH command |
-| --- | --- | --- |
-| `My Robot` | `my-robot.local` | `ssh jetson1@my-robot.local` |
-| `MARS_01` | `mars-01.local` | `ssh jetson1@mars-01.local` |
-| `Test Bot` | `test-bot.local` | `ssh jetson1@test-bot.local` |
-
-If unnamed, default hostname is:
-
-```bash
-ssh jetson1@mars.local
-```
-
-### Via Ethernet (preferred wired method)
-
-Connect Ethernet between computer and robot, then SSH:
-
-```bash
-ssh jetson1@192.168.50.2
-```
-
-Set your computer Ethernet interface to static IPv4:
-
-* IP: `192.168.50.1`
-* Netmask: `255.255.255.0`
-* Gateway: empty
-* DNS: empty
-
-### Via USB-C (last resort)
-
-USB-C is not recommended and should only be used when Wi-Fi and Ethernet are unavailable.
-
-```bash
-ssh jetson1@192.168.55.1
-```
+<Card title="Connecting via SSH" icon="terminal" href="/robots/mars/connecting-via-ssh">
+  The complete SSH reference — Wi-Fi, Ethernet, and USB-C recovery.
+</Card>

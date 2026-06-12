@@ -1,15 +1,25 @@
 ---
-title: "Innate Capabilities"
+title: "The Innate Agent"
 ---
 
-**The Innate agent** is our embodied agent. Think of it as the LLM OS running your agents and skills: it reasons over live perception, chooses the right skills, and controls the robot autonomously from your instructions.
+**The Innate agent** is our embodied agent running in the cloud. Think of it as the LLM OS running your agents and skills: it reasons over live perception, chooses the right skills, and controls the robot autonomously from your instructions.
 
-The Innate agent is a multi-model system that behaves like one assistant with memory and planning. A key capability is **spatial RAG**: what MARS sees gets stored as spatial memories, so the agent can retrieve past observations (objects, places, scenes), answer questions about them, and navigate back to where they were seen.
+<Note>
+Naming: "the Innate agent" is the cloud AI system itself. The "agents" you write (see [Agents](/software/agents)) are Python definitions — a prompt, skills, and inputs — that the Innate agent runs.
+</Note>
 
-In practice, this means you can ask things like "where did you last see my keys?" and the Innate agent can use its memory to point to a location or return there. The Innate Controller app surfaces these memories on phone, so you can inspect what was remembered and where.
+The Innate agent is a multi-model system that behaves like one assistant with memory and planning. A key capability is **spatial RAG** (Retrieval-Augmented Generation over spatial memories): what MARS sees gets stored as memories tied to places, so the agent can retrieve past observations (objects, places, scenes), answer questions about them, and navigate back to where they were seen.
 
-## Technical Report
+In practice, this means you can ask things like "where did you last see my keys?" and the Innate agent can use its memory to point to a location or return there. The Innate Controller app surfaces these memories on your phone, so you can inspect what was remembered and where.
 
-**TBD**
+## Connecting to the Innate agent
 
-The Innate agent is evaluated and improved in a 3D simulation where we test a wide range of tasks and long-horizon behaviors. More details to be revealed soon.
+The Innate agent is accessible for free to all users of Innate robots for 300 cumulative hours — and probably more if you ask us.
+
+The Innate agent runs in the cloud at `wss://agent-v1.innate.bot`. Your MARS robot connects to it automatically over WebSockets using Innate's protocol — the connection is handled by the `brain_client_node` in Innate OS, so you don't need to configure anything manually. (If you ever need to point at a different endpoint, set `websocket_uri` in the `[brain]` section of `~/innate-os/config/os.toml`.)
+
+## Authentication
+
+Each MARS robot is given a unique token that authenticates it with the Innate agent. It is stored as `INNATE_SERVICE_KEY` in `~/innate-os/.env` on your robot — to check it, SSH in and run `cat ~/innate-os/.env`.
+
+If you've accidentally deleted your token or need to retrieve it, reach out to us on [Discord](https://discord.com/invite/KtkyT97kc7) or [via email](mailto:axel@innate.bot) and we'll provide it.

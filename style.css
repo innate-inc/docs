@@ -57,16 +57,20 @@ pre,
   color: #111827 !important;
 }
 
-#sidebar-content .sidebar-group-header h5 {
+#sidebar-content .sidebar-group-header h3,
+#sidebar-content .sidebar-group-header h5,
+#sidebar-content .sidebar-group-header .sidebar-title {
   color: #111827 !important;
-  font-size: 1.2rem !important;
+  font-size: 1.05rem !important;
   font-weight: 600 !important;
   line-height: 1.35 !important;
   letter-spacing: 0.01em !important;
 }
 
 .dark #sidebar-content .sidebar-group-header,
-.dark #sidebar-content .sidebar-group-header h5 {
+.dark #sidebar-content .sidebar-group-header h3,
+.dark #sidebar-content .sidebar-group-header h5,
+.dark #sidebar-content .sidebar-group-header .sidebar-title {
   color: #ffffff !important;
 }
 
@@ -432,6 +436,54 @@ pre,
 
 .dark #content-area .interface-no-params {
   color: #9ca3af;
+}
+
+/* Current-versions badges (snippets/current-versions.mdx) */
+.version-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #dadcf0;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "MD IO", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.version-badge-name {
+  padding: 6px 9px;
+  background: #f6f7ff;
+  color: #130a77;
+  font-weight: 600;
+}
+
+.version-badge-value {
+  padding: 6px 9px;
+  background: #401ffb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.dark .version-badge {
+  border-color: #353551;
+}
+
+.dark .version-badge-name {
+  background: #16162a;
+  color: #cdc8ff;
+}
+
+.dark .version-badge-value {
+  background: #401ffb;
+  color: #ffffff;
 }
 
 /* Calibration app screenshots side by side */

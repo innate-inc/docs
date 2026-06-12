@@ -15,12 +15,12 @@ This page covers setup and runtime behavior for `chess_agent`. For the dedicated
 
 ## Configure Gemini key
 
-`detect_opponent_move` loads `GEMINI_API_KEY` from `~/innate-os/skills/.env.scan`.
+`detect_opponent_move` loads `GEMINI_API_KEY` from `~/innate-os/workspace/innate_skills/.env.scan`.
 
 Create or update this file on the robot:
 
 ```bash
-cat > ~/innate-os/skills/.env.scan <<'EOF_ENV'
+cat > ~/innate-os/workspace/innate_skills/.env.scan <<'EOF_ENV'
 GEMINI_API_KEY=your_key_here
 EOF_ENV
 ```
@@ -89,10 +89,10 @@ Board state still updates once with the king UCI castling move (`e1g1` or `e1c1`
 ## Troubleshooting
 
 - Move detection fails:
-  - verify `GEMINI_API_KEY` in `~/innate-os/skills/.env.scan`
+  - verify `GEMINI_API_KEY` in `~/innate-os/workspace/innate_skills/.env.scan`
   - verify wrist camera view is unobstructed
 - Piece placement drifts:
-  - run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta#quick-manual-recalibration-for-drift)
+  - run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta#1-manual-triggering)
 - Reset fails with calibration error:
   - run full board calibration first
 - Arm hardware issue:

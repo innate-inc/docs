@@ -15,9 +15,7 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
 ## Prerequisites
 
 * A MARS robot from Innate, configured with your service key.
-* The Innate Controller app, downloaded from one of the stores:
-  [Android](https://cdn.innate.bot/innate-app-latest.apk) or
-  [iOS](https://testflight.apple.com/join/YeChe4A7).
+* The [Innate Controller app](/robots/innate-controller-app) — download links in the steps below.
 
 ## A quick overview
 
@@ -87,8 +85,8 @@ Once connected, you can verify that MARS is properly running by controling the r
   <Step title="Drive and move head">
     Use the joystick for base motion and the slider for head movement.
   </Step>
-  <Step title="Test leader arm">
-    Plug in the controller arm and toggle arm control to verify MARS mirrors your motion.
+  <Step title="Test the leader arm (optional)">
+    If you have the leader arm (the small controller arm that ships with MARS), plug it into your phone via USB-C and toggle arm control. MARS's arm should mirror your motion within a second — if it doesn't, check that the arm is powered and the cable is seated.
   </Step>
 </Steps>
 
@@ -109,7 +107,6 @@ When running the Innate agent, MARS can navigate. On the agentic screen, ask him
 You can also try more complex requests such as "explore until you see a human".
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/EsLdogaaA90" title="Navigation demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
-{/* TODO(video): replace with a cut version (half-length) of the navigation demo for Quick Start */}
 
 ## Use an autonomous arm AI skill
 
@@ -138,7 +135,6 @@ You can also try more complex requests such as "explore until you see a human".
 </div>
 
 ## Use an existing agent
-{/* TODO(video): add demo video showing how to run an existing installed agent from the app */}
 
 The Innate agent allows to run programs we call "agents" that determine the robot's purpose and abilities. On the app, you can see which ones are already installed.
 
@@ -149,8 +145,6 @@ Examples that come pre-installed:
 * **Chess Agent:** An agent to play chess with its arm with you if you put MARS in front of a chess board
 
 * **Security Guard:** An agent that moves around and warns you if it sees someone
-
-* *More coming soon...*
 
 You can also create your own agent:
 

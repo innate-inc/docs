@@ -14,11 +14,13 @@ Updating will:
 * Apply code and configuration changes
 * Restart robot software services
 
-If update notes include stereo-depth changes, run [Calibration](/robots/mars/calibration) before normal navigation.
+If update notes include stereo-depth changes, run [Stereo Depth Calibration](/robots/mars/stereo-depth-calibration) before normal navigation.
+
+The app will indicate when an OS update is available, so you don't need to check manually. A new OS version may also require updating the [Innate Controller App](/robots/innate-controller-app) for full compatibility.
 
 ### Prerequisites
 
-* You can access the robot over SSH
+* You can access the robot over SSH. If WiFi isn't available, you can also [connect via the Jetson USB-C port](/robots/mars/connecting-via-ssh#via-usb-c-last-resort)
 * The `innate` CLI is available on the robot
 * The robot has internet access
 
@@ -49,46 +51,8 @@ Charging has a dedicated page with full safety instructions and a step-by-step p
 
 ## Changing the Voice
 
-MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech.
+MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech. Set your voice ID in `config/os.toml` — full steps on the dedicated page:
 
-### Method 1: `.env` (recommended)
-
-1. SSH into the robot.
-2. Edit `.env`:
-
-```bash
-nano ~/innate-os/.env
-```
-
-3. Add or update:
-
-```bash
-CARTESIA_VOICE_ID=your-voice-id-here
-```
-
-4. Restart robot services.
-
-### Method 2: launch file (advanced)
-
-1. Edit launch file:
-
-```bash
-~/innate-os/ros2_ws/src/brain/brain_client/launch/brain_client.launch.py
-```
-
-2. Update `cartesia_voice_id` default value.
-3. Build and restart:
-
-```bash
-innate build
-```
-
-You can use existing Cartesia voices or create a custom voice:
-
-<Card title="Cartesia Docs" href="https://docs.cartesia.ai/get-started/overview">
-  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-    <img src="/images/logos/services/cartesia-light.png" alt="Cartesia logo" width="18" height="18" className="block dark:hidden" />
-    <img src="/images/logos/services/cartesia-dark.png" alt="Cartesia logo" width="18" height="18" className="hidden dark:block" />
-    <span>Voice library, custom voice cloning, and setup guides.</span>
-  </div>
+<Card title="Changing the Voice" href="/robots/mars/changing-voice">
+  Pick or clone a Cartesia voice and configure it on MARS.
 </Card>

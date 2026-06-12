@@ -9,7 +9,7 @@ Everything runs on the robot. You SSH in, edit code, restart. That's it.
 
 <Steps>
   <Step title="Find your robot's IP">
-    Open the Innate app. Go to **Settings** → **WiFi**. Note the IP address.
+    Open the Innate app. Go to **Configuration** → **WiFi**. Note the IP address.
   </Step>
   <Step title="SSH in">
     ```bash
@@ -17,13 +17,19 @@ Everything runs on the robot. You SSH in, edit code, restart. That's it.
     ```
     Default password: `goodbot`. See [Connecting via SSH](/robots/mars/connecting-via-ssh) for hostname, Ethernet, and USB-C options.
   </Step>
-  <Step title="Open your IDE over SSH">
-    Use **Cursor**, **Windsurf**, **VSCode**, or any editor with Remote SSH support.
+  <Step title="Open your IDE over SSH (don't skip this)">
+    <Warning>
+    This step is the foundation of the whole MARS development workflow. All your code lives and runs **on the robot** — there is no local build to sync. Working in your IDE over Remote SSH means you edit the files directly where they execute, with hot reload picking up your changes. Skipping this and editing over plain `ssh` + terminal editors works, but is far slower in practice.
+    </Warning>
+
+    Use **Cursor**, **Windsurf**, **VSCode**, or any editor with Remote SSH support. In plain VSCode, install the **Remote - SSH** extension first (Cursor and Windsurf ship with it built in).
 
     1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`).
     2. Run **Remote-SSH: Connect to Host...**.
     3. Enter `jetson1@<YOUR-ROBOT-IP>`.
     4. Open the folder `/home/jetson1/innate-os/`.
+
+    Once connected, your editor behaves exactly as if the robot's filesystem were local: file tree, search, extensions, and the integrated terminal all run on MARS.
   </Step>
 </Steps>
 
@@ -40,14 +46,14 @@ ssh-copy-id jetson1@<YOUR-ROBOT-IP>
 ## Optional: Fork the open-source repo
 
 <Info>
-You don't need to fork to start developing. Agents and skills in `~/agents/` and `~/skills/` work out of the box. Fork when you want to save, version-control, and share your work — or modify the OS itself (ROS2 nodes, drivers, launch files).
+You don't need to fork to start developing. Agents and skills in `~/innate-os/workspace/custom_agents/` and `~/innate-os/workspace/custom_skills/` work out of the box (both directories are gitignored, so your work survives OS updates). Fork when you want to save, version-control, and share your work — or modify the OS itself (ROS2 nodes, drivers, launch files).
 </Info>
 
-MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open source. Forking gives you your own remote repo to push changes to:
+MARS runs [innate-os](https://github.com/innate-inc/innate-os), fully open source. Forking gives you your own remote repo to push changes to:
 
 <Steps>
   <Step title="Fork on GitHub">
-    Go to [github.com/innate-robotics/innate-os](https://github.com/innate-robotics/innate-os) and click **Fork**.
+    Go to [github.com/innate-inc/innate-os](https://github.com/innate-inc/innate-os) and click **Fork**.
   </Step>
   <Step title="Clone your fork onto the robot">
     SSH into MARS and replace the default repo:
@@ -78,8 +84,7 @@ MARS runs [innate-os](https://github.com/innate-robotics/innate-os), fully open 
 
 ## Launch and restart
 
-MARS auto-launches all ROS2 nodes on boot via systemd. **When you make changes, you need to restart.**
-
+MARS auto-launches all ROS2 nodes on boot via systemd. Agent and skill files in `workspace/` hot-reload while the robot is running — both new files and edits are picked up automatically within seconds. **You only need to restart when you change anything outside `workspace/`** (ROS2 nodes, drivers, launch files), or as a fallback if a change doesn't get picked up:
 
 ```bash
 innate service restart
@@ -97,7 +102,7 @@ in8 restart
 innate service view
 ```
 
-This attaches you to the tmux session where every ROS node runs.
+This attaches you to the tmux session where every ROS node runs. After a restart, give the nodes ~30 seconds to come up: each pane should settle into steady log output with no red error text or repeating restart loops. If a pane keeps crashing, that's where to look first.
 
 | Keys | Action |
 | --- | --- |
@@ -129,9 +134,11 @@ When you SSH in, the key directories are:
 
 | Path | What's there |
 | --- | --- |
-| `~/agents/` | Your agent definitions (hot-reloaded) |
-| `~/skills/` | Your custom skills |
 | `~/innate-os/` | The full OS repo |
+| `~/innate-os/workspace/custom_agents/` | Your agent definitions (gitignored, hot-reloaded) |
+| `~/innate-os/workspace/custom_skills/` | Your custom skills (gitignored, hot-reloaded) |
+| `~/innate-os/workspace/inputs/` | Input devices |
+| `~/innate-os/config/os.toml` | Optional runtime overrides (extra scan dirs, voice, endpoints) |
 | `~/innate-os/ros2_ws/` | ROS2 workspace (all packages) |
 | `~/innate-os/scripts/` | Launch scripts, diagnostics, update system |
 

@@ -2,37 +2,29 @@
 title: "Overview"
 ---
 
-Note that we are still in beta for both versions, please reach out on Discord to get access.
+import CurrentVersions from '/snippets/current-versions.mdx';
+import AppDownloadCards from '/snippets/app-download-cards.mdx';
+import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
 
-## Current Versions
+The Innate Controller App is your phone-side cockpit for MARS: drive the robot, teleoperate the arm, run agents and skills, record training data, and manage maps — all from Android or iOS.
 
-As of May 2026:
+<AppDownloadCards />
 
-Component
+<Note>
+  Both apps are still in beta. Reach out on [Discord](https://discord.com/invite/KtkyT97kc7) to get access.
+</Note>
 
-Version
+## Current versions
 
-MARS OS
+<CurrentVersions />
 
-0.5.1
-
-Cloud Agent
-
-0.2.1
-
-Innate Controller App
-
-1.2.0
-
-The latest version of the app is available  [here for android](https://cdn.innate.bot/innate-app-latest.apk) and  [here for ios](https://testflight.apple.com/join/YeChe4A7).
-
-A robot should be easily controllable everywhere, anytime. We developed an app compatible with both iPhone and Android so that you can control your robot and trigger your agents whenever you want.
-
-## Key Features
+## Key features
 
 * **Robot Control** — Drive the robot and control the arm using your phone
 
 * **Leader Arm Teleoperation** — Attach the leader arm to your phone for intuitive arm control
+
+* **Dataset Recording & Policy Training** — [Record demonstration episodes, launch cloud training runs, and deploy trained skills](/training/overview) directly from the app
 
 * **Navigation** — Map-free navigation, mapping mode, and go-to mode with trajectory visualization
 
@@ -52,6 +44,10 @@ A robot should be easily controllable everywhere, anytime. We developed an app c
 
 * **Arm Restart Notifications** — Quick recovery from arm issues via push notifications
 
-## Platform Notes
+<IosLeaderArmWarning />
 
-**iOS Users:** The leader arm connects via USB-C and is not compatible with iOS devices. Reach out to Innate on [Discord](https://discord.com/invite/KtkyT97kc7) to get access to a free Android phone for leader arm teleoperation.
+## Next step
+
+<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app/connecting-to-a-robot">
+  Pair over Bluetooth, put the robot on your Wi-Fi, and connect.
+</Card>

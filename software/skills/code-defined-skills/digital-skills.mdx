@@ -85,6 +85,8 @@ class RetrieveEmails(Skill):
         # Returns formatted email list
 ```
 
+Want to build your own version against your own account? There's a complete implementation in the [worked example](#worked-example-retrieveemails) below.
+
 ## Creating Digital Skills
 
 ### Template
@@ -119,6 +121,49 @@ class MyDigitalSkill(Skill):
 
     def cancel(self):
         return "Operation cannot be cancelled"
+```
+
+### Worked example: RetrieveEmails
+
+Here's a complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot, and reference it from an agent as `local/retrieve_emails` (custom skills are namespaced `local/`, shipped skills `innate-os/`):
+
+```python
+import imaplib
+import email
+from brain_client.skill_types import Skill, SkillResult
+
+class RetrieveEmails(Skill):
+    def __init__(self, logger):
+        super().__init__(logger)
+        self.imap_server = "imap.gmail.com"
+        self.email = "your_email@gmail.com"
+        # Use a Gmail App Password (https://myaccount.google.com/apppasswords),
+        # not your main account password.
+        self.password = "your_app_password"
+
+    @property
+    def name(self):
+        return "retrieve_emails"
+
+    def guidelines(self):
+        return "Use to retrieve recent emails. Provide count (default 5). Returns subjects and content."
+
+    def execute(self, count: int = 5):
+        count = min(max(1, count), 20)
+        try:
+            mail = imaplib.IMAP4_SSL(self.imap_server, 993)
+            mail.login(self.email, self.password)
+            # ... fetch and process emails ...
+            email_data = "Email 1: Subject, From, Content..."
+            self._send_feedback(email_data)
+            return f"Retrieved {count} emails with subjects and content", SkillResult.SUCCESS
+        except Exception as e:
+            return f"Failed to retrieve emails: {str(e)}", SkillResult.FAILURE
+
+    def cancel(self):
+        # Every skill must implement cancel(); nothing long-running to
+        # interrupt here, so just report it.
+        return "Email retrieval cancelled"
 ```
 
 ### Best Practices
