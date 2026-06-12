@@ -57,16 +57,20 @@ pre,
   color: #111827 !important;
 }
 
-#sidebar-content .sidebar-group-header h5 {
+#sidebar-content .sidebar-group-header h3,
+#sidebar-content .sidebar-group-header h5,
+#sidebar-content .sidebar-group-header .sidebar-title {
   color: #111827 !important;
-  font-size: 1.2rem !important;
+  font-size: 1.05rem !important;
   font-weight: 600 !important;
   line-height: 1.35 !important;
   letter-spacing: 0.01em !important;
 }
 
 .dark #sidebar-content .sidebar-group-header,
-.dark #sidebar-content .sidebar-group-header h5 {
+.dark #sidebar-content .sidebar-group-header h3,
+.dark #sidebar-content .sidebar-group-header h5,
+.dark #sidebar-content .sidebar-group-header .sidebar-title {
   color: #ffffff !important;
 }
 
