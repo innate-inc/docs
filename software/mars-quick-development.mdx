@@ -70,6 +70,8 @@ To train it, you can use the app to collect episodes of data for imitation learn
 
 In the app, go to Skills -> Physical, create a new skill, name it, and press "Add Episodes".
 
+You demonstrate the task with the **leader arm** — a teleoperation controller that MARS mirrors; if you're unsure what it is or why it has no camera and a trigger instead of a gripper, see [What the leader arm is](/robots/mars/control-and-connectivity#what-the-leader-arm-is-and-isnt).
+
 Then, arm the arm and press record to collect an episode. Ideally, all episodes should start in a similar position and end in a similar position, following roughly the same movement. Start with very similar trajectories to accomplish the goal while making sure that the arm camera has the objective of motion relatively in sight. More guidelines on training can be found in [Data Collection](/training/data-collection).
 
 Below, an example of training the arm to pick up a cherry.

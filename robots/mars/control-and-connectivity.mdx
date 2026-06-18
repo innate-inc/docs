@@ -25,6 +25,18 @@ The app automatically recognizes your arm. Press the red **Arm** button to contr
 
 <IosLeaderArmWarning />
 
+### What the leader arm is (and isn't)
+
+The leader arm is a **teleoperation controller**, not a second robot. You pose it joint-by-joint and MARS's own arm mirrors the motion, puppet-style — so a few things that look like missing pieces are by design:
+
+* **It has no camera.** All perception comes from MARS's onboard cameras. The leader arm only reports its joint angles.
+* **The tip is a spring-loaded trigger, not a gripper.** Squeezing the trigger drives MARS's grasper open/closed; it doesn't grasp anything itself.
+* **Its segment proportions differ from the robot's arm, and that's fine.** Teleoperation maps joint angles, not absolute reach, and training only records the *robot's* joint state plus its camera feeds — never the leader arm's geometry. So the difference in segment lengths has no effect on the skills you train.
+
+In other words, the leader arm is how you *demonstrate* a task; the picking, seeing, and grasping all happen on MARS. Here it is being used to record a manipulation dataset:
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/dr1TuHpc_94" title="Recording a manipulation dataset with the leader arm" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
 ## Connecting to a Robot (Wi-Fi + BLE)
 
 The app discovers the robot over Bluetooth, puts it on your Wi-Fi (a phone hotspot works too), then connects over the network. The full flow, with screenshots, lives here:
