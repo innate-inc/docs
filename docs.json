@@ -119,6 +119,7 @@
             "pages": [
               "software/mars-quick-development",
               "software/advanced-development",
+              "software/configuration",
               "software/innate-cli",
               "software/foxglove-setup"
             ]
