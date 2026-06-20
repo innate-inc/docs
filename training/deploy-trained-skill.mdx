@@ -7,19 +7,28 @@ Once a training run is marked **Done**, the model is ready to download to your r
 
 ## Download the model
 
-When a run completes, it appears in the **Completed** tab (or shows a download button in the **Runs** tab).
+When a run completes, the trained checkpoint is downloaded to the robot and activated.
 
-<Steps>
-  <Step title="Open the completed run">
-    Navigate to the skill page and open the **Completed** tab. Find the run you want to deploy.
-  </Step>
-  <Step title="Tap Download">
-    Tap the download button on the run card. The app downloads the trained checkpoint and dataset statistics file to the robot.
-  </Step>
-  <Step title="Wait for activation">
-    A progress bar shows the download and verification stages. When it completes, the model is automatically activated — the skill's `metadata.json` is updated with the checkpoint path.
-  </Step>
-</Steps>
+<Tabs>
+  <Tab title="Phone app">
+    A completed run appears in the **Completed** tab (or shows a download button in the **Runs** tab).
+
+    <Steps>
+      <Step title="Open the completed run">
+        Navigate to the skill page and open the **Completed** tab. Find the run you want to deploy.
+      </Step>
+      <Step title="Tap Download">
+        Tap the download button on the run card. The app downloads the trained checkpoint and dataset statistics file to the robot.
+      </Step>
+      <Step title="Wait for activation">
+        A progress bar shows the download and verification stages. When it completes, the model is automatically activated — the skill's `metadata.json` is updated with the checkpoint path.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Web app">
+    The web app has no manual download step — it relies on **auto-download** (below). Watch the run reach **Done** on the **Training** page; when the robot is on and connected, the checkpoint downloads and activates on its own.
+  </Tab>
+</Tabs>
 
 The robot's brain reloads automatically after activation. Your skill is now live.
 
@@ -28,6 +37,10 @@ Auto-download is also enabled. If the robot is on and connected when a training 
 </Info>
 
 ## Run the skill from the app
+
+<Note>
+The web app doesn't run skills — use the phone app's **Manual Control** (below), or call the skill [from code](#run-the-skill-from-code).
+</Note>
 
 The simplest way to test your trained skill is from **Manual Control**.
 

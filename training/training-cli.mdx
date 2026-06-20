@@ -1,0 +1,111 @@
+---
+title: "Training from the CLI"
+description: "Headless training: submit skills, launch and monitor runs, and point a run at a custom ACT fork — all from the command line."
+---
+
+<Info>
+  The CLI is the **power-user / headless** path. For the standard
+  record → train → deploy workflow, the [app and web app training UI](/training/overview)
+  is the polished route. Reach for the CLI when you're scripting training, working
+  over SSH, or need to point a run at a **custom ACT fork** (the researcher feature).
+</Info>
+
+The `training_client` CLI ships with Innate OS and drives the same cloud training orchestrator the robot's training node uses. Run it on the robot over SSH (or inside the Docker container).
+
+## Setup
+
+Source the ROS workspace so the module is importable:
+
+```bash
+source ~/innate-os/ros2_ws/install/setup.zsh
+```
+
+Authentication is by service key (`--server` defaults to Innate's orchestrator). The robot's training node already uses the same key; to run the CLI yourself, set it in your shell:
+
+```bash
+export INNATE_SERVICE_KEY="<your-service-key>"
+# optional overrides: TRAINING_SERVER_URL, INNATE_AUTH_ISSUER_URL
+```
+
+Then invoke commands with `python -m training_client.cli <command>` (or the installed `innate-training <command>` shorthand).
+
+Every command takes a **`SKILL_DIR`** — a skill's dataset directory (under `~/innate-os/workspace/custom_skills/<skill>`), defaulting to the current directory. The skill's cloud ID is read from `SKILL_DIR/metadata.json`, which `submit` writes.
+
+### Global options
+
+| Option | Env var | Description |
+| --- | --- | --- |
+| `--server`, `-s` | `TRAINING_SERVER_URL` | Orchestrator URL (defaults to the production server) |
+| `--token`, `-t` | `INNATE_SERVICE_KEY` | Service key — **required** |
+| `--issuer` | `INNATE_AUTH_ISSUER_URL` | OIDC issuer; the token is exchanged for a JWT here |
+
+## Typical workflow
+
+```bash
+# 1. Register the skill with the orchestrator (writes the skill ID into metadata.json)
+python -m training_client.cli submit ./my-skill
+
+# 2. Upload its dataset
+python -m training_client.cli upload ./my-skill
+
+# 3. Launch a training run with a server-side preset
+python -m training_client.cli run ./my-skill --preset act-default
+
+# 4. Watch it until it finishes
+python -m training_client.cli watch ./my-skill <run-id>
+
+# 5. Download results, then activate the trained checkpoint so the robot loads it
+python -m training_client.cli download ./my-skill <run-id>
+python -m training_client.cli activate ./my-skill <run-id>
+```
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| `submit [SKILL_DIR]` | Create (or reuse) a cloud skill from the dataset dir; writes `training_skill_id` to `metadata.json` |
+| `upload [SKILL_DIR]` | Upload the skill's data files |
+| `run [SKILL_DIR]` | Launch a training run (options below) |
+| `status [SKILL_DIR] RUN_ID` | Print a run's current status |
+| `watch [SKILL_DIR] RUN_ID` | Poll a run until it completes (`--interval` seconds, default 20) |
+| `runs [SKILL_DIR]` | List all runs for the skill |
+| `skills` | List all your skills |
+| `download [SKILL_DIR] RUN_ID` | Download a completed run's results (`--dest` for the output dir) |
+| `fetch-data [SKILL_DIR]` | Download the skill's input training data (`--dest`) |
+| `activate [SKILL_DIR] RUN_ID` | Set the trained checkpoint + stats file into `metadata.json` so the robot loads it |
+
+## Launching a run
+
+`run` takes a server-side preset, a fully custom configuration, or a preset with overrides:
+
+| Option | Description |
+| --- | --- |
+| `--preset` | Server-side preset (e.g. `act-default`) — pre-fills everything below |
+| `--repo` | GitHub `owner/repo` of a **custom ACT fork** to train with |
+| `--ref` | Branch, tag, or commit in that repo |
+| `--command`, `-c` | Training command parts (repeatable) |
+| `--env`, `-e` | Environment variables as `KEY=VALUE` (repeatable) |
+| `--gpu-type` | GPU type (e.g. `H100`) |
+| `--min-gpus` / `--max-gpus` | GPU count bounds |
+| `--hours` | Estimated duration |
+| `--budget` | Max total cost in USD |
+| `--checkpoint-patterns`, `-p` | Globs for which output files to upload (e.g. `checkpoints/**/*.pt`) |
+
+A preset is the quickest path; override individual values as needed:
+
+```bash
+python -m training_client.cli run ./my-skill --preset act-default --max-gpus 4 --budget 500
+```
+
+### Custom ACT fork
+
+The headline power-user feature: point a run at your own fork of the ACT training code — change the architecture or loss, then train against it with no server-side changes.
+
+```bash
+python -m training_client.cli run ./my-skill \
+    --repo innate-inc/ACT-test \
+    --ref lambda_refactor \
+    -c "pip install -r requirements.txt; python3 -m act_test.train_dist --data-dir /data/dataset" \
+    --hours 8 --gpu-type H100 --min-gpus 1 --max-gpus 2 \
+    --budget 200
+```

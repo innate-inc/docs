@@ -3,41 +3,80 @@ title: "Record a dataset"
 description: "Collect high-quality demonstration episodes for training a manipulation policy."
 ---
 
-Training a manipulation policy starts with data. You **teleoperate** the robot — control its arm remotely with the leader arm — through the task you want it to learn, and the app records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
+Training a manipulation policy starts with data. You **teleoperate** the robot — control its arm remotely with the leader arm — through the task you want it to learn, and the robot records synchronized camera images, joint positions, and velocities at 30 Hz. The more consistent and varied your demonstrations, the better the resulting policy.
+
+You can record from the phone app or the [web app](/robots/web-app) — pick your surface in the tabs below.
 
 ## Create a physical skill
 
 Before you can record, you need a skill entry to hold your dataset.
 
-<Steps>
-  <Step title="Open the Skills screen">
-    In the app, tap **Skills** and switch to the **Physical** tab.
-  </Step>
-  <Step title="Create the skill">
-    Tap the **+** button, enter a name in **Enter Action name here**, and tap **Create Physical Skill**. The app opens the episode recorder directly.
-  </Step>
-</Steps>
+<Tabs>
+  <Tab title="Phone app">
+    <Steps>
+      <Step title="Open the Skills screen">
+        Tap **Skills** and switch to the **Physical** tab.
+      </Step>
+      <Step title="Create the skill">
+        Tap the **+** button, enter a name in **Enter Action name here**, and tap **Create Physical Skill**. The app opens the episode recorder directly.
+      </Step>
+    </Steps>
 
-If the skill already exists, open **Skills**, go to the **Datasets** tab, and select it.
+    If the skill already exists, open **Skills**, go to the **Datasets** tab, and select it.
+  </Tab>
+  <Tab title="Web app">
+    <Steps>
+      <Step title="Open the Collect page">
+        Open the web app and switch to the **Collect** page from the icon rail.
+      </Step>
+      <Step title="Create the skill">
+        In the skill picker, choose **+ New skill…**, pick **Learned skill**, name it, and create it. The recorder points at the new skill automatically.
+      </Step>
+    </Steps>
+
+    If the skill already exists, select it in the **Collect** page's skill picker.
+  </Tab>
+</Tabs>
 
 ## Record episodes
 
-Inside the skill page's **Record** tab you'll see an episode counter, the current episode list, and a **Record Episode** button.
+<Tabs>
+  <Tab title="Phone app">
+    Inside the skill page's **Record** tab you'll see an episode counter, the current episode list, and a **Record Episode** button.
 
-<Steps>
-  <Step title="Open the recorder">
-    Tap **Record Episode** at the bottom of the Record tab.
-  </Step>
-  <Step title="Enable arm streaming">
-    On the recorder screen, toggle **Arm** on. The **Record** button is enabled only when arm updates are flowing (you'll see an MPS value appear).
-  </Step>
-  <Step title="Capture the demonstration">
-    Press **Record**, teleoperate the robot through the task, then press **Stop** when done.
-  </Step>
-  <Step title="Save or discard">
-    After stopping, choose **Save** to keep the episode or **Discard** to drop it.
-  </Step>
-</Steps>
+    <Steps>
+      <Step title="Open the recorder">
+        Tap **Record Episode** at the bottom of the Record tab.
+      </Step>
+      <Step title="Enable arm streaming">
+        On the recorder screen, toggle **Arm** on. The **Record** button is enabled only when arm updates are flowing (you'll see an MPS value appear).
+      </Step>
+      <Step title="Capture the demonstration">
+        Press **Record**, teleoperate the robot through the task, then press **Stop** when done.
+      </Step>
+      <Step title="Save or discard">
+        After stopping, choose **Save** to keep the episode or **Discard** to drop it.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Web app">
+    The **Collect** page is the teleop cockpit with a recording HUD on top.
+
+    <Steps>
+      <Step title="Engage the leader arm">
+        Plug the leader arm into the computer, click **Connect arm**, then **Engage follow**. **Record** stays disabled until the arm is engaged and streaming.
+      </Step>
+      <Step title="Capture the demonstration">
+        Press **Record**, teleoperate the robot through the task, then press **Stop**.
+      </Step>
+      <Step title="Save or discard">
+        Choose **Save** to keep the episode or **Discard** to drop it.
+      </Step>
+    </Steps>
+
+    The head is locked during recording so the camera viewpoint stays identical across episodes (the policy needs a consistent view). Leader-arm teleop needs Chrome or Edge — see the [web app overview](/robots/web-app).
+  </Tab>
+</Tabs>
 
 Repeat until you have enough episodes. See the tips below for guidance on how many you need.
 
@@ -66,33 +105,49 @@ Repeat until you have enough episodes. See the tips below for guidance on how ma
 
 ## Review your dataset
 
-After saving, return to the skill's **Record** tab to inspect your episodes. Each episode card shows an index and timestamp.
+Play your episodes back to verify quality, and delete any that look wrong — inconsistent demonstrations hurt more than a smaller dataset helps.
 
-Tap any episode to open **Episode Replay**, where you can play back the recorded actions and camera feeds to verify quality. Delete any episodes that look wrong — inconsistent demonstrations hurt more than a smaller dataset helps.
+<Tabs>
+  <Tab title="Phone app">
+    Return to the skill's **Record** tab to inspect your episodes — each card shows an index and timestamp. Tap any episode to open **Episode Replay** and play back the recorded actions and camera feeds.
+  </Tab>
+  <Tab title="Web app">
+    Open the **Datasets** page and select the skill. Each episode shows a thumbnail, time, and a ready/preparing dot — click a **ready** episode to replay it (per-camera video with a synced joint graph). Label outcomes and delete bad takes here.
+
+    <Tip>
+    Freshly recorded episodes show **preparing** while the robot encodes them to video in the background; they flip to **ready** on their own.
+    </Tip>
+  </Tab>
+</Tabs>
 
 ## Upload to the cloud
 
-Once you're satisfied with your dataset, upload it so it's available for training.
-
-<Steps>
-  <Step title="Open the Record tab">
-    Navigate to the skill's **Record** tab. You'll see an **Upload** button and a sync status indicator.
-  </Step>
-  <Step title="Start the upload">
-    Tap **Upload**. The app compresses your episodes and uploads them to Innate's training servers. A progress indicator shows the current stage.
-  </Step>
-  <Step title="Confirm sync status">
-    When the upload finishes, the sync badge turns green. You can verify this on the **Train** tab — the dataset card should show the correct episode count and a green sync status.
-  </Step>
-</Steps>
+<Tabs>
+  <Tab title="Phone app">
+    <Steps>
+      <Step title="Open the Record tab">
+        Navigate to the skill's **Record** tab. You'll see an **Upload** button and a sync status indicator.
+      </Step>
+      <Step title="Start the upload">
+        Tap **Upload**. The app compresses your episodes and uploads them to Innate's training servers. A progress indicator shows the current stage.
+      </Step>
+      <Step title="Confirm sync status">
+        When the upload finishes, the sync badge turns green. You can verify this on the **Train** tab — the dataset card should show the correct episode count and a green sync status.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Web app">
+    There's no separate upload step — the web app uploads the dataset automatically when you start a training run from the **Training** page. Only changed files are transferred, so it's quick to re-run after adding episodes.
+  </Tab>
+</Tabs>
 
 <Tip>
-If you add more episodes later, upload again. Only new episodes are transferred — you don't need to re-upload the entire dataset.
+Only new or changed episodes are transferred — you don't need to re-upload the entire dataset when you add more.
 </Tip>
 
 ## Next steps
 
-Your dataset is now on Innate's servers and ready to train. Head to the skill's **Train** tab to configure and launch a run:
+Your dataset is ready to train:
 
 <CardGroup cols={2}>
   <Card title="Train a policy" icon="brain" href="/training/train-act-policy">
@@ -100,8 +155,5 @@ Your dataset is now on Innate's servers and ready to train. Head to the skill's 
   </Card>
   <Card title="Dataset format" icon="database" href="/training/dataset-format">
     Understand what's inside each episode file.
-  </Card>
-  <Card title="Training Manager" icon="wrench" href="/training/training-manager">
-    Power-user web UI for merging datasets, deleting episodes, and more.
   </Card>
 </CardGroup>

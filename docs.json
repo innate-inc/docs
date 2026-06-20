@@ -58,6 +58,13 @@
             ]
           },
           {
+            "group": "Web App",
+            "pages": [
+              "robots/web-app",
+              "robots/web-app/debugging"
+            ]
+          },
+          {
             "group": "Agent SDK",
             "pages": [
               "software/overview",
@@ -125,7 +132,7 @@
               "training/deploy-trained-skill",
               "training/evaluate",
               "training/dataset-format",
-              "training/training-manager"
+              "training/training-cli"
             ]
           },
           {

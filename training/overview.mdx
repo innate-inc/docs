@@ -3,7 +3,7 @@ title: "Training overview"
 description: "Teach your robot new manipulation skills by demonstrating them."
 ---
 
-Innate lets you train end-to-end manipulation policies directly from the app. You demonstrate a task with the leader arm, upload the data, and deploy the result as a skill your robot can execute autonomously. **Training runs on Innate's infrastructure** — our cloud GPUs do the heavy lifting, so you don't need a GPU or any ML setup of your own.
+Innate lets you train end-to-end manipulation policies directly from your phone or browser. You demonstrate a task with the leader arm, upload the data, and deploy the result as a skill your robot can execute autonomously. **Training runs on Innate's infrastructure** — our cloud GPUs do the heavy lifting, so you don't need a GPU or any ML setup of your own.
 
 The underlying architecture is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705) — a neural network that observes camera images and joint positions, then outputs coordinated arm and base actions. In practice this means the robot learns the manipulation by watching you do it, instead of you hand-coding every motion.
 
@@ -11,19 +11,19 @@ The underlying architecture is [ACT (Action Chunking with Transformers)](https:/
 
 ```text
 Record episodes  →  Upload dataset  →  Train on cloud  →  Download model  →  Run as a skill
-     (app)            (~10s/min)        (1-3 hours)         (automatic)        (app or code)
+  (app / web)         (~10s/min)        (1-3 hours)         (automatic)        (app or code)
 ```
 
-Everything happens through four tabs inside a physical skill page in the app:
+You can drive the whole pipeline from the phone app or the [web app](/robots/web-app) — each stage maps to a tab (app) or page (web):
 
-| Tab | What you do |
-| --- | --- |
-| **Record** | Collect demonstration episodes with the leader arm |
-| **Train** | Configure hyperparameters and launch a training run |
-| **Runs** | Monitor active training jobs |
-| **Completed** | Download finished models and activate them |
+| Stage | Phone app | Web app |
+| --- | --- | --- |
+| Record demonstrations | **Record** tab | **Collect** page |
+| Configure & launch training | **Train** tab | **Training** page |
+| Monitor runs | **Runs** tab | **Running now** card |
+| Download & activate | **Completed** tab | automatic |
 
-Once a trained model is activated, the skill appears in **Manual Control** and is available to agents and code.
+Once a trained model is activated, the skill is available to agents and code, and (in the phone app) appears in **Manual Control**.
 
 ## What goes in, what comes out
 
@@ -49,8 +49,5 @@ Trained policies shine when the task needs **visuomotor coordination** — reach
   </Card>
   <Card title="Dataset format" icon="database" href="/training/dataset-format">
     Understand what's inside each episode file.
-  </Card>
-  <Card title="Training Manager" icon="wrench" href="/training/training-manager">
-    Browser-based power-user UI for dataset management.
   </Card>
 </CardGroup>
