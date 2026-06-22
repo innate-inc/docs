@@ -17,7 +17,36 @@ The file ships with **every knob commented out**, each next to its default value
 `config/settings.yaml` is created automatically from a template on update, and your edits are **never overwritten** by future updates.
 </Note>
 
-## Overriding a parameter
+## From the web app
+
+The web app's **Settings** page edits `config/settings.yaml` as a form — the easiest way to change a value, with no SSH or YAML.
+
+<Steps>
+  <Step title="Open Settings">
+    Open the web app at `https://<robot-ip>` and click the **Settings** icon (sliders) in the left rail.
+  </Step>
+  <Step title="Change a value">
+    Each tunable shows its **default** and its **current** value. Edit a field (or flip a toggle) to override it, or **reset** a row to return it to the default. Rows are color-coded — **orange** = a saved override, **blue** = an unsaved edit — and a counter shows how many unsaved changes you have.
+  </Step>
+  <Step title="Save">
+    Click **Save** (enabled only when something changed) to write your overrides to `config/settings.yaml`. **Reset all to defaults** clears every override at once.
+  </Step>
+  <Step title="Restart to apply">
+    Parameters are read when nodes start, so restart the stack:
+
+    ```bash
+    innate service restart
+    ```
+  </Step>
+</Steps>
+
+<Note>
+The Settings page shows a curated set of the most common knobs (driving speed, safety clamp, battery, arm). For anything else, edit the file directly — see below; the file documents every parameter with an inline comment.
+</Note>
+
+## Editing the file directly
+
+Prefer SSH, or need a knob the Settings page doesn't show? Edit `config/settings.yaml` yourself — it's the same file the web app writes, so the two stay in sync.
 
 <Steps>
   <Step title="Open the file">
