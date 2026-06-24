@@ -137,11 +137,13 @@ The whole pipeline runs from the app — each step has its own guide:
 
 ### Replay Skill Workflow
 
-1. **Record Episode**: Teleoperate through motion once, save to H5
+Replay skills are created by **recording the motion once** — no hand-written metadata. You teleoperate the robot through the motion, then save the recording as a replay skill. The robot does the rest:
 
-2. **Create Metadata**: Add `metadata.json` with replay parameters
+1. **Record once**: Teleoperate through the motion a single time.
 
-3. **Deploy**: Place in `~/innate-os/workspace/custom_skills/<name>/`
+2. **Save as a replay skill**: The robot converts the recording to the replay layout, writes the `type: "replay"` `metadata.json` for you, and drops it into `~/innate-os/workspace/custom_skills/<name>/` — ready to run immediately.
+
+Unlike learned skills, replay skills also capture **head movement**, so the robot reproduces where it was looking during the recording.
 
 ## Demonstration Quality
 

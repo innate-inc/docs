@@ -36,6 +36,10 @@ The robot's brain reloads automatically after activation. Your skill is now live
 Auto-download is also enabled. If the robot is on and connected when a training run finishes, the model downloads and activates without any manual action.
 </Info>
 
+<Note>
+When a model downloads, the robot pre-builds an optimized **TensorRT** engine for it, so policies run fast on-device with temporal ensembling for smoother motion. This happens automatically — there's nothing to configure.
+</Note>
+
 ## Run the skill from the app
 
 <Note>
