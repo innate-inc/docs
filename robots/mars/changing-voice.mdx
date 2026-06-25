@@ -4,32 +4,45 @@ title: "Changing the Voice"
 
 MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech. You can customize the robot's voice by changing the Cartesia voice ID.
 
-## Method 1: Using `config/os.toml` (Recommended)
+## Method 1: Using `.env` (Recommended)
 
-The simplest way to change the voice is through the OS config file. No rebuild required.
+The simplest way to change the voice is one line in `.env`. It sets the default voice for both speech paths — the agent's chat replies and the realtime voice loop — at once. No rebuild required.
 
 ### Steps
 
 1. Connect to your robot — either [open it in your IDE over Remote SSH](/software/development-setup) (recommended) or [SSH in from a terminal](/robots/mars/connecting-via-ssh)
 
-2. Edit `config/os.toml` — open it in your IDE, or directly from the terminal:
+2. Edit `.env` — open it in your IDE, or directly from the terminal:
 
 ```bash
-nano ~/innate-os/config/os.toml
+nano ~/innate-os/.env
 ```
 
-3. Set the voice ID in the `[voice]` section:
+3. Set your voice ID:
 
-```toml
-[voice]
-cartesia_voice_id = "your-voice-id-here"
+```bash
+CARTESIA_VOICE_ID="your-voice-id-here"
 ```
 
 4. Save the file and restart the robot services (`innate service restart`) for changes to take effect.
 
-You can also set `CARTESIA_VOICE_ID` in `~/innate-os/.env`; the `os.toml` value takes precedence.
+## Method 2: Using `config/settings.yaml` (per-node)
 
-## Method 2: Editing the Launch File (Advanced)
+Prefer the central [settings file](/software/configuration)? The voice is read by two nodes — `brain_client_node` (chat replies) and `input_manager_node` (the realtime voice loop) — so set `cartesia_voice_id` in **both** blocks to keep the two paths in sync:
+
+```yaml
+brain_client_node:
+  ros__parameters:
+    cartesia_voice_id: "your-voice-id-here"
+
+input_manager_node:
+  ros__parameters:
+    cartesia_voice_id: "your-voice-id-here"
+```
+
+Then restart the robot services (`innate service restart`). A value set here takes precedence over `.env`.
+
+## Method 3: Editing the launch file (advanced)
 
 For more permanent changes, you can modify the launch file directly.
 

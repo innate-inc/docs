@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "OS 0.5.1",
+        "version": "OS 0.6.0",
         "default": true,
         "groups": [
           {
@@ -55,6 +55,13 @@
             "pages": [
               "robots/innate-controller-app",
               "robots/innate-controller-app/connecting-to-a-robot"
+            ]
+          },
+          {
+            "group": "Web App",
+            "pages": [
+              "robots/web-app",
+              "robots/web-app/debugging"
             ]
           },
           {
@@ -112,6 +119,7 @@
             "pages": [
               "software/mars-quick-development",
               "software/advanced-development",
+              "software/configuration",
               "software/innate-cli",
               "software/foxglove-setup"
             ]
@@ -125,7 +133,7 @@
               "training/deploy-trained-skill",
               "training/evaluate",
               "training/dataset-format",
-              "training/training-manager"
+              "training/training-cli"
             ]
           },
           {

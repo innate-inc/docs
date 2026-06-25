@@ -7,23 +7,36 @@ import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
 
 This page covers controlling MARS with the app and leader arm, getting connected for the first time, and SSH access.
 
-## Control via App and Leader Arm
+## Control via app, web, and leader arm
 
-MARS (and all Innate robots) are controllable via the Innate Controller App:
+MARS is controllable from the [phone app](/robots/innate-controller-app) and the [web app](/robots/web-app) — both with live video, driving, and leader-arm teleoperation. Pick your surface below.
 
-<AppDownloadCards />
+<Tabs>
+  <Tab title="Phone app">
+    <AppDownloadCards />
 
-For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
+    For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
 
-Every MARS robot comes with a leader arm attachable to your phone:
+    Every MARS robot comes with a leader arm attachable to your phone:
 
-<Frame caption="The arm is plugged in your phone with a double USB-C cable">
-  <img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="375" />
-</Frame>
+    <Frame caption="The arm is plugged in your phone with a double USB-C cable">
+      <img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="375" />
+    </Frame>
 
-The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm — MARS's arm should start mirroring your movements within a second. If it doesn't, check that the USB-C cable is seated on both ends and that the arm shows as connected in the app. For best results, stand behind the robot while teleoperating.
+    The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm — MARS's arm should start mirroring your movements within a second. If it doesn't, check that the USB-C cable is seated on both ends and that the arm shows as connected in the app. For best results, stand behind the robot while teleoperating.
 
-<IosLeaderArmWarning />
+    <IosLeaderArmWarning />
+  </Tab>
+  <Tab title="Web app">
+    Open the web app at `https://<robot-ip>` (its IP address — the `.local` hostname works too but is slower; see the [web app overview](/robots/web-app)) and use the **Teleop** page: live video, an on-screen joystick (or `WASD` / arrow keys), head tilt, and robot speech (type a line and the robot says it). You can also **listen to the robot's microphone** — toggle the mic button on the video to hear what it hears (it starts muted). To teleoperate the arm, plug the leader arm into the computer running the browser, click **Connect arm**, then **Engage follow** — the robot's arm mirrors the leader. The panel also has **Reboot servos** and a **Torque** toggle.
+
+    <Warning>
+    Leader-arm teleop needs **Chrome or Edge** (it uses WebSerial), on the robot's HTTPS page. Driving, video, and speech work in any modern browser.
+    </Warning>
+
+    See the [web app overview](/robots/web-app) for details.
+  </Tab>
+</Tabs>
 
 ### What the leader arm is (and isn't)
 

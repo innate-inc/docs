@@ -50,10 +50,35 @@ Smart build that does the right thing automatically. If ROS nodes are running, i
 ### Examples
 
 ```bash
-innate build maurice_arm       # build one package (restarts nodes if they're running)
+innate build mars_arm          # build one package (restarts nodes if they're running)
 innate build                   # build everything
 innate clean && innate build   # full clean rebuild
 ```
+
+---
+
+## Skills
+
+List and trigger the robot's skills straight from the terminal — handy for testing a skill without the app.
+
+| Command | What it does |
+| --- | --- |
+| `innate skill list` | List the skills the robot currently publishes |
+| `innate skill type <skill-id>` | Print a skill's input contract (the parameters it accepts) |
+| `innate skill run <skill-id> [@param=value ...]` | Run a skill by ID, passing any inputs as `@key=value` |
+
+### Examples
+
+```bash
+innate skill list                                   # see what's available
+innate skill run innate-os/wave                     # run a skill with no inputs
+innate skill run innate-os/arm_utils @command=torque_on --timeout 0
+innate skill run local/my-skill @x=1 @name=alice    # pass parameters
+```
+
+<Tip>
+Skill IDs are prefixed by where they live — `innate-os/` for shipped skills, `local/` for your own. See [Skills](/software/skills) for how IDs are formed.
+</Tip>
 
 ---
 
@@ -61,10 +86,20 @@ innate clean && innate build   # full clean rebuild
 
 | Command | What it does |
 | --- | --- |
-| `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) |
+| `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) — offers to stop running ROS nodes first so the check is reliable |
 | `innate update check [--dev]` | Check for available updates |
-| `innate update apply [version] [--dev]` | Apply updates (optionally pin a specific version) |
-| `innate update status` | Show version + service info |
+| `innate update apply [target] [--dev]` | Apply updates (optionally pin a specific version) |
+| `innate update status` | Show version + service info, and warn if installed services drift from the checkout |
+
+### Dev mode and branch targets
+
+Pass `--dev` to opt into pre-release tags and branch targets. With it, `apply` can take a tag, a branch name, or the latest commit on a branch:
+
+```bash
+innate update --dev apply 0.6.0-rc1   # a specific pre-release tag
+innate update --dev apply main        # latest commit on main
+innate update --dev apply my-feature  # latest commit on any branch
+```
 
 <Note>
 See [Updates and Maintenance](/robots/mars/updates-and-maintenance) for details.
@@ -84,9 +119,11 @@ innate view                     → shortcut for above
 innate restart                  → shortcut for above
 innate build [pkg ...]          → build (stops/starts nodes if running)
 innate clean                    → rm build/install/log
+innate skill list               → list the robot's skills
+innate skill run <id> [@k=v]    → run a skill by ID
 innate diag                     → hardware diagnostics
 innate update check [--dev]     → check for updates
-innate update apply [version] [--dev] → apply updates
+innate update apply [target] [--dev] → apply updates (tag or branch with --dev)
 innate update status            → version + service info
 in8 ...                         → alias for innate
 ```

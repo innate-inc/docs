@@ -23,7 +23,7 @@ This is your core workflow. Every change follows the same cycle:
     Or build just the package you changed:
 
     ```bash
-    innate build maurice_arm
+    innate build mars_arm
     ```
   </Step>
   <Step title="Verify">
@@ -98,11 +98,11 @@ Key packages to know:
 | Package | What it controls |
 | --- | --- |
 | `brain_client` | Cloud agent connection, agent orchestration |
-| `maurice_bringup` | Hardware init (UART, battery, LEDs) |
-| `maurice_arm` | Arm drivers, kinematics, MoveIt2 |
-| `maurice_nav` | Nav2, SLAM, path planning |
-| `maurice_cam` | Camera pipeline (OAK-D, WebRTC) |
-| `maurice_control` | App control, UDP teleoperation |
+| `mars_bringup` | Hardware init (UART, battery, LEDs) |
+| `mars_arm` | Arm drivers, kinematics, MoveIt2 |
+| `mars_nav` | Nav2, SLAM, path planning |
+| `mars_cam` | Camera pipeline (OAK-D, WebRTC) |
+| `mars_control` | App control, UDP teleoperation |
 | `manipulation` | Behavior server, policy execution |
 
 ### Launch files
@@ -167,7 +167,7 @@ systemctl status zenoh-router.service
 
 ## Tips
 
-- **Build only what changed.** `innate build maurice_arm` is faster than `innate build`.
+- **Build only what changed.** `innate build mars_arm` is faster than `innate build`.
 - **Check logs in tmux.** Each pane scrolls. `Ctrl+B` then `[` enters scroll mode, `q` exits.
 - **Use `ros2 topic echo`** to inspect live data: `ros2 topic echo /cmd_vel`.
 - **Use `ros2 node list`** to verify nodes are alive after a restart.

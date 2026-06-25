@@ -16,7 +16,7 @@ In practice, this means you can ask things like "where did you last see my keys?
 
 The Innate agent is accessible for free to all users of Innate robots for 300 cumulative hours — and probably more if you ask us.
 
-The Innate agent runs in the cloud at `wss://agent-v1.innate.bot`. Your MARS robot connects to it automatically over WebSockets using Innate's protocol — the connection is handled by the `brain_client_node` in Innate OS, so you don't need to configure anything manually. (If you ever need to point at a different endpoint, set `websocket_uri` in the `[brain]` section of `~/innate-os/config/os.toml`.)
+The Innate agent runs in the cloud at `wss://agent-v1.innate.bot`. Your MARS robot connects to it automatically over WebSockets using Innate's protocol — the connection is handled by the `brain_client_node` in Innate OS, so you don't need to configure anything manually. (If you ever need to point at a different endpoint, set `BRAIN_WEBSOCKET_URI` in `~/innate-os/.env`.)
 
 ## Authentication
 
