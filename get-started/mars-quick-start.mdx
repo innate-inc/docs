@@ -51,6 +51,37 @@ If you want a more technical introduction to our SDK and the underlying ROS2 sys
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/lbwYFGgOh-g" title="Powering up and connecting to MARS" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
+## Update MARS to the latest version
+
+<Warning>
+  Before anything else, update your robot. We ship improvements and fixes frequently, and running the latest stable version is the single most important thing you can do for the best experience. Skipping this step is the most common cause of issues with a brand-new MARS.
+</Warning>
+
+Updating happens on the robot over SSH. On the app, go to **Settings -> Wifi** and read the robot's IP, then from your computer:
+
+<Steps>
+  <Step title="SSH into the robot">
+    ```bash
+    ssh jetson1@<YOUR-ROBOT-IP>
+    ```
+  </Step>
+  <Step title="Check for updates">
+    ```bash
+    innate update check
+    ```
+  </Step>
+  <Step title="Apply the latest stable version">
+    ```bash
+    innate update apply
+    ```
+    This pulls and installs the latest stable release. Run `innate update status` afterward to confirm the version.
+  </Step>
+</Steps>
+
+<Tip>
+  Make a habit of running `innate update apply` periodically — new agents, skills, and capabilities land in regular releases.
+</Tip>
+
 ## Create your first map
 
 Innate robots have spatial memory, and mapping starts automatically after you connect if no map exists yet.
