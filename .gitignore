@@ -4,4 +4,5 @@ node_modules/
 
 # Local source checkout and session config — not docs content
 innate-os/
-.claude/
+.claude/*
+!.claude/settings.json
