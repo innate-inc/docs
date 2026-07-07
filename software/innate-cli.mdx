@@ -45,6 +45,7 @@ Smart build that does the right thing automatically. If ROS nodes are running, i
 | --- | --- |
 | `innate build` | Build full workspace (stops/starts nodes if running) |
 | `innate build pkg1 pkg2` | Build specific packages only |
+| `innate build release [pkg ...]` | Build with `CMAKE_BUILD_TYPE=Release` (whole workspace, or the named packages) |
 | `innate clean` | Remove `build/`, `install/`, `log/` |
 
 ### Examples
@@ -52,6 +53,8 @@ Smart build that does the right thing automatically. If ROS nodes are running, i
 ```bash
 innate build mars_arm          # build one package (restarts nodes if they're running)
 innate build                   # build everything
+innate build release           # optimized release build of everything
+innate build release mars_arm  # optimized release build of one package
 innate clean && innate build   # full clean rebuild
 ```
 
@@ -67,10 +70,19 @@ List and trigger the robot's skills straight from the terminal — handy for tes
 | `innate skill type <skill-id>` | Print a skill's input contract (the parameters it accepts) |
 | `innate skill run <skill-id> [@param=value ...]` | Run a skill by ID, passing any inputs as `@key=value` |
 
+### Options
+
+| Command | Options |
+| --- | --- |
+| `innate skill list` | `--timeout <sec>` — how long to wait for skills to be published (default 5) |
+| `innate skill type` | `--timeout <sec>` (default 5) · `--json` — print the raw contract as JSON |
+| `innate skill run` | `--timeout <sec>` — wait for the skill result (`0`, the default, waits indefinitely) · `--server-timeout <sec>` — wait for the skill action server (default 5) |
+
 ### Examples
 
 ```bash
 innate skill list                                   # see what's available
+innate skill type innate-os/wave --json             # contract as JSON
 innate skill run innate-os/wave                     # run a skill with no inputs
 innate skill run innate-os/arm_utils @command=torque_on --timeout 0
 innate skill run local/my-skill @x=1 @name=alice    # pass parameters
@@ -82,20 +94,46 @@ Skill IDs are prefixed by where they live — `innate-os/` for shipped skills, `
 
 ---
 
+## Speaker volume
+
+| Command | What it does |
+| --- | --- |
+| `innate volume` | Show the current speaker volume |
+| `innate volume <0-100>` | Set the speaker volume (`0` mutes) |
+
+### Examples
+
+```bash
+innate volume        # show current volume
+innate volume 60     # set to 60%
+innate volume 0      # mute
+```
+
+---
+
 ## Diagnostics & updates
 
 | Command | What it does |
 | --- | --- |
 | `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) — offers to stop running ROS nodes first so the check is reliable |
-| `innate update check [--dev]` | Check for available updates |
-| `innate update apply [target] [--dev]` | Apply updates (optionally pin a specific version) |
+| `innate update check` | Check for available updates |
+| `innate update apply [target]` | Apply updates (optionally pin a specific version) |
 | `innate update status` | Show version + service info, and warn if installed services drift from the checkout |
+| `innate update reinstall` | Re-run the post-update setup (systemd units, sudoers, dependencies, rebuild) without changing version |
+
+### Apply options
+
+| Option | What it does |
+| --- | --- |
+| `--yes`, `-y` | Skip confirmation prompts |
+| `--background`, `-b` | Run the update in a background tmux session (`innate_update`); attach with `tmux attach -t innate_update` |
 
 ### Dev mode and branch targets
 
-Pass `--dev` to opt into pre-release tags and branch targets. With it, `apply` can take a tag, a branch name, or the latest commit on a branch:
+Pass `--dev` **before** the subcommand to opt into pre-release tags and branch targets. With it, `apply` can take a tag, a branch name, or the latest commit on a branch:
 
 ```bash
+innate update --dev check             # list newer tags, including pre-releases
 innate update --dev apply 0.6.0-rc1   # a specific pre-release tag
 innate update --dev apply main        # latest commit on main
 innate update --dev apply my-feature  # latest commit on any branch
@@ -118,13 +156,17 @@ innate service view             → attach to tmux
 innate view                     → shortcut for above
 innate restart                  → shortcut for above
 innate build [pkg ...]          → build (stops/starts nodes if running)
+innate build release [pkg ...]  → optimized release build
 innate clean                    → rm build/install/log
 innate skill list               → list the robot's skills
+innate skill type <id> [--json] → show a skill's input contract
 innate skill run <id> [@k=v]    → run a skill by ID
+innate volume [0-100]           → show or set speaker volume
 innate diag                     → hardware diagnostics
 innate update check [--dev]     → check for updates
 innate update apply [target] [--dev] → apply updates (tag or branch with --dev)
 innate update status            → version + service info
+innate update reinstall         → re-run post-update setup
 in8 ...                         → alias for innate
 ```
 
