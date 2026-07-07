@@ -1,0 +1,106 @@
+---
+title: "Rollout evaluation (in development)"
+description: "Run learned skills as scored rollouts from the web app, keep evaluation episodes separate from training data, and let skills stop on their own."
+---
+
+<Warning>
+  This feature is **still under development**. It lives on the `innate-os`
+  `main` branch and is **not part of a released OS build yet** — the UI, the
+  dataset layout, and every tuning default on this page may change without
+  notice. Treat this page as a preview of where policy evaluation is heading,
+  not as a stable reference.
+</Warning>
+
+[Evaluate and iterate](/training/evaluate) covers eyeballing a policy from Manual Control. Rollout evaluation turns that into a measured workflow: one button runs the skill, charts its inference live, records the run as a full episode on the robot, and ends in a ✓/✗ review — so after ten rollouts you have a success rate, tagged failure modes, and replayable episodes instead of mental notes.
+
+It lives on the web app's **Profiling** page.
+
+## Run a rollout
+
+<Steps>
+  <Step title="Open the Profiling page">
+    In the [web app](/robots/web-app), open **Profiling** from the icon rail and pick a learned skill from the dropdown. Only trained, activated skills appear.
+  </Step>
+  <Step title="Press Run rollout">
+    The robot starts the skill and the page starts charting its inference profile live — progress head, ensemble disagreement, arm motion, base speed, and per-step latency. **Profile only** runs the same charts without recording anything on the robot.
+  </Step>
+  <Step title="Let the run end">
+    A rollout ends when the policy completes, when [auto-stop](#auto-stop-for-learned-skills) fires, when you press **Stop**, or at the skill's `duration` cap — whichever comes first.
+  </Step>
+  <Step title="Judge it">
+    The review bar shows the run's numbers (duration, steps, latency, peak progress). Mark it **✓ Success** or **✗ Failure** — optionally with failure tags like *missed grasp*, *dropped*, or *collision* — or **Discard** to throw the run away without saving.
+  </Step>
+</Steps>
+
+Check **auto-continue** to chain rollouts: after each save, the next run starts automatically a few seconds later. A running tally on the page keeps score for the session. If a run fails to start, the loop stops and the error is shown on the page.
+
+## Where evaluation episodes go
+
+Saved rollouts land in a dedicated **Policy Rollouts** dataset with type `eval` — they are never mixed into a skill's training data. Each episode is stamped with its provenance:
+
+- **source** — `rollout` (versus `teleop` for demonstrations)
+- **policy** — the id of the skill that drove it
+- **outcome and tags** — your ✓/✗ judgment and failure modes
+
+Alongside the usual video and trajectory data, every rollout episode also keeps its **full inference profile trace** (per-step progress, motion, latency), saved next to the HDF5 file.
+
+## Review and promote
+
+On the **Datasets** page, evaluation datasets get their own treatment: provenance badges, per-policy filter chips, and a success-rate summary. Opening a rollout episode in the player shows an **inference profile** chart next to the video — progress on an absolute 0–1 axis, with hover readouts of the exact values — so you can see *why* a run was judged the way it was.
+
+A good rollout can be **promoted into a training dataset** from the episode's context menu. The copy carries the episode's video, trajectory, profile trace, outcome, and provenance; the original stays in the eval dataset untouched.
+
+<Tip>
+  This closes the loop: evaluate a policy, keep the successful rollouts, and
+  fold the best ones back into the next training round.
+</Tip>
+
+## Auto-stop for learned skills
+
+An ACT policy never terminates on its own — it keeps emitting action chunks until the wall-clock `duration` cap. Auto-stop lets a learned skill end early, when it's actually done, using the policy's trained progress head.
+
+It is **off by default** and opt-in per skill, in the skill's `metadata.json`:
+
+```json
+"execution": {
+    "checkpoint": "act_policy_step_135000.pth",
+    "action_dim": 10,
+    "duration": 60.0,
+    "auto_stop": true
+}
+```
+
+Turning `auto_stop` on fills the tuning knobs below with a recommended configuration; any knob you set explicitly wins.
+
+| Knob | Filled default | Meaning |
+| --- | --- | --- |
+| `duration` | 120 | Hard wall-clock cap, always on — auto-stop only ever ends a run *earlier* |
+| `min_duration` | 5.0 | Floor (seconds) before any early stop may fire |
+| `progress_ema_alpha` | 0.3 | Smoothing of the progress signal, in (0, 1]; 1.0 = raw |
+| `engage_below` | 0.75 | Arms the stop once smoothed progress first dips below this |
+| `stable_min` | 0.93 | …then stop once smoothed progress holds at or above this… |
+| `stable_seconds` | 3.0 | …for this long |
+
+### Why the dip-then-hold rule
+
+On real checkpoints the progress head saturates near its maximum at *both* ends of a run: the opening seconds — before the arm engages — read just as high and stable as the finished tail. A bare "progress is high" check would stop the skill immediately. So the detector first requires progress to **dip below `engage_below`** (evidence the policy actually started working), and only then stops once it **holds above `stable_min` for `stable_seconds`**.
+
+Note that the dip is a one-way latch: once progress drops below `engage_below`, the run counts as engaged until the end — so set it below anything the idle opening phase can produce.
+
+### Tuning the thresholds
+
+Read the numbers off a real run rather than trusting the defaults:
+
+1. Run a successful rollout from the **Profiling** page and look at the **Progress** chart — it shows the whole run on a time axis, and hovering reads exact values.
+2. Set `stable_min` just under the settled tail's plateau.
+3. Set `engage_below` above the mid-run working dips but below the idle opening plateau.
+4. Saved rollouts keep their profile trace, so you can also read thresholds off past episodes in the Datasets player.
+
+<Warning>
+  Auto-stop's defaults were tuned on **one** skill and have not been validated
+  broadly — expect to tune per checkpoint. The progress head is self-reported
+  and can be confidently wrong (a sub-goal that resembles the final state can
+  read as "done"), and nothing independently corroborates it yet. Use auto-stop
+  for supervised evaluation runs, where a wrong stop just costs a rerun; the
+  `duration` cap remains the backstop either way.
+</Warning>

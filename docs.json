@@ -132,6 +132,7 @@
               "training/train-act-policy",
               "training/deploy-trained-skill",
               "training/evaluate",
+              "training/rollout-evaluation",
               "training/dataset-format",
               "training/training-cli"
             ]
