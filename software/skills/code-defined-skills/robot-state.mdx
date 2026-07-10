@@ -75,6 +75,19 @@ class MySkill(Skill):
 | `linear_velocity` | `float` | Forward speed in m/s (negative when reversing) |
 | `angular_velocity` | `float` | Turn rate in rad/s, counter-clockwise positive |
 | `stamp` | `float` | Sensor timestamp in seconds |
+| `raw` | `dict` | The full `nav_msgs/Odometry` as plain data |
+
+### Need more than the 2D pose?
+
+`odom.raw` carries the complete odometry message with rosbridge-style keys —
+the real quaternion, `z`, covariances, and the full twist — for skills doing
+their own filtering or fusion:
+
+```python
+quat = self.odom.raw["pose"]["pose"]["orientation"]   # {"x", "y", "z", "w"}
+pose_cov = self.odom.raw["pose"]["covariance"]        # 36 floats, row-major
+lateral = self.odom.raw["twist"]["twist"]["linear"]["y"]
+```
 
 <Note>
 Skills written against releases up to 0.6.x read odometry as a raw-message
