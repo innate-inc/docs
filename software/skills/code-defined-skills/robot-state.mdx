@@ -90,7 +90,7 @@ lateral = self.odom.raw["twist"]["twist"]["linear"]["y"]
 ```
 
 <Note>
-Skills written against releases up to 0.6.x read odometry as a raw-message
+Skills written for **0.3.0 through 0.6.x** read odometry as a raw-message
 dict (`self.odom["theta_degrees"]`, `self.odom["pose"]["pose"]["position"]`).
 Dict-style access still works but is deprecated — use the attributes above.
 </Note>
