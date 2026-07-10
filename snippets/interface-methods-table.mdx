@@ -438,7 +438,7 @@ export const RobotStateAvailableTable = () => {
     {
       state: "Odometry",
       typeEnum: "RobotStateType.LAST_ODOM",
-      description: "Position, orientation, and velocity.",
+      description: "2D pose (x, y, theta) and velocities.",
     },
     {
       state: "Map",
@@ -540,7 +540,7 @@ export const DigitalStateTypesTable = () => {
     },
     {
       stateType: "LAST_ODOM",
-      description: "Current odometry.",
+      description: "2D pose (x, y, theta) and velocities.",
     },
     {
       stateType: "LAST_MAP",

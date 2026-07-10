@@ -51,7 +51,9 @@ class MySkill(Skill):
 
 ## Odometry
 
-Current position, orientation, and velocity:
+Where the robot is and how it is moving, as an `innate.Odometry` object. MARS
+is a differential-drive base on flat ground, so you get a flat 2D pose —
+`x`, `y`, and a yaw angle — directly, no quaternion math needed:
 
 ```python
 class MySkill(Skill):
@@ -59,12 +61,26 @@ class MySkill(Skill):
 
     def execute(self):
         if self.odom:
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            # orientation as quaternion
-            qz = self.odom.pose.pose.orientation.z
-            qw = self.odom.pose.pose.orientation.w
+            x, y = self.odom.position          # meters, odom frame
+            heading = self.odom.theta_degrees  # yaw, counter-clockwise positive
+            speed = self.odom.linear_velocity  # m/s, forward
 ```
+
+| Attribute | Type | Description |
+| --- | --- | --- |
+| `x`, `y` | `float` | Position in meters, odom frame |
+| `position` | `tuple[float, float]` | `(x, y)` shorthand |
+| `theta` | `float` | Yaw in radians, counter-clockwise positive, wrapped to `(-pi, pi]` |
+| `theta_degrees` | `float` | Yaw in degrees (matches `navigate_to_position`'s `theta_degrees`) |
+| `linear_velocity` | `float` | Forward speed in m/s (negative when reversing) |
+| `angular_velocity` | `float` | Turn rate in rad/s, counter-clockwise positive |
+| `stamp` | `float` | Sensor timestamp in seconds |
+
+<Note>
+Skills written against releases up to 0.6.x read odometry as a raw-message
+dict (`self.odom["theta_degrees"]`, `self.odom["pose"]["pose"]["position"]`).
+Dict-style access still works but is deprecated — use the attributes above.
+</Note>
 
 ## Map
 
@@ -164,17 +180,14 @@ class MonitorPosition(Skill):
         if not self.odom:
             return "Odometry not available", SkillResult.FAILURE
 
-        start_x = self.odom.pose.pose.position.x
-        start_y = self.odom.pose.pose.position.y
+        start = self.odom.position
         start_time = time.time()
 
         while time.time() - start_time < duration:
             if self._cancelled:
                 return "Monitoring cancelled", SkillResult.CANCELLED
 
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            distance = math.sqrt((x - start_x)**2 + (y - start_y)**2)
+            distance = math.dist(self.odom.position, start)
 
             self._send_feedback(f"Moved {distance:.2f}m from start")
             time.sleep(0.5)
