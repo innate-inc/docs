@@ -26,10 +26,24 @@ seconds.
 
     (or download it from [docker.com](https://docs.docker.com/get-started/get-docker/)).
   </Tab>
-  <Tab title="Linux (Ubuntu / Debian)">
+  <Tab title="Linux (Ubuntu / Debian / Raspberry Pi OS)">
+    On Ubuntu:
+
     ```bash
     sudo apt install docker.io docker-compose-v2
-    sudo usermod -aG docker $USER && newgrp docker   # lets your user talk to Docker
+    ```
+
+    On Debian / Raspberry Pi OS (whose `docker-compose` package is the old
+    v1 tool), use Docker's own install script instead:
+
+    ```bash
+    curl -fsSL https://get.docker.com | sudo sh
+    ```
+
+    Then let your user talk to Docker:
+
+    ```bash
+    sudo usermod -aG docker $USER && newgrp docker
     ```
 
     Desktop installs already have working OpenGL. On a headless server or VM,
