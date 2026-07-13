@@ -96,7 +96,8 @@
                       "software/skills/code-defined-skills/body-control-interfaces",
                       "software/skills/code-defined-skills/robot-state",
                       "software/skills/code-defined-skills/physical-skill-examples",
-                      "software/skills/code-defined-skills/digital-skills"
+                      "software/skills/code-defined-skills/composing-skills",
+                      "software/skills/code-defined-skills/external-services"
                     ]
                   },
                   "software/skills/policy-defined-skills",
@@ -170,6 +171,10 @@
     "dark": "/images/logo-dark.png"
   },
   "redirects": [
+    {
+      "source": "/software/skills/code-defined-skills/digital-skills",
+      "destination": "/software/skills/code-defined-skills/external-services"
+    },
     {
       "source": "/software/ros2/navigation-stack",
       "destination": "/software/ros2-core"
