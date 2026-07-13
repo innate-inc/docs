@@ -17,13 +17,20 @@ without changes.
 * **[Agents](/software/agents)** — give the AI brain goals, personality,
   and access to your skills, then talk to it in the web app's chat.
 
-After editing code under `workspace/` or `ros2_ws/`, rebuild inside the
+## When do changes take effect?
+
+| You edited | What to do |
+| --- | --- |
+| skills or agents in `workspace/` | **nothing** — they hot-reload on save |
+| ROS code in `ros2_ws/src/` | inside the container: `innate build`, then `innate restart` |
+| the simulated world itself | `./innate-sim down && ./innate-sim up` — physics runs on the host |
+
+If a hot reload ever seems missed, trigger one manually from inside the
 container:
 
 ```bash
-./innate-sim sh        # shell into the container
-innate build           # rebuild the ROS workspace
-innate restart         # relaunch the session
+./innate-sim sh
+ros2 service call /brain/reload std_srvs/srv/Trigger
 ```
 
 ## Looking under the hood
