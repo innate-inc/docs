@@ -1,0 +1,64 @@
+---
+title: "Building with the Simulator"
+description: "Develop skills, agents, and integrations against the simulated MARS"
+---
+
+The simulator shares the innate-os repository's `workspace/` directory with
+the robot's container, so the skills and agents you write against the
+simulator are the ones a real robot runs — develop here, deploy there
+without changes.
+
+## Skills and agents
+
+* **[Skills](/software/skills)** — teach the robot new abilities in Python.
+  Code-defined skills (navigation, arm control, digital actions) work fully
+  in the simulator; trigger them from the web app's skill menu exactly like
+  on a real robot ([manual triggering](/software/skills/manual-triggering)).
+* **[Agents](/software/agents)** — give the AI brain goals, personality,
+  and access to your skills, then talk to it in the web app's chat.
+
+After editing code under `workspace/` or `ros2_ws/`, rebuild inside the
+container:
+
+```bash
+./innate-sim sh        # shell into the container
+innate build           # rebuild the ROS workspace
+innate restart         # relaunch the session
+```
+
+## Looking under the hood
+
+The container's ROS session lives in tmux — one window per subsystem:
+
+```bash
+./innate-sim sh
+tmux attach -t innate   # zenoh, rosbridge, sim-driver, nav-brain, behavior, arm-ik, vision-nav, console-webapp
+```
+
+Prefer [Foxglove](/software/foxglove-setup) or your own ROS tooling? Open a
+Rosbridge connection to `ws://localhost:9090` for TF, `/scan`,
+`/mars/main_camera/points`, camera topics, and `/cmd_vel` teleop. The
+simulated driver publishes the exact topic surface of the real hardware
+drivers — same topics, types, rates, and frame names.
+
+## The simulated world as a Python object
+
+For scripts, notebooks, and RL loops there is a second way in that needs no
+ROS and no Docker: `VirtualMars`, the whole simulated world as one Python
+object.
+
+```python
+from mars_sim_driver.core import VirtualMars
+
+sim = VirtualMars()
+sim.step(1.0)                          # settle from spawn; step(dt) runs physics
+sim.set_cmd_vel(0.3, 0.5)              # vx m/s, wz rad/s
+x, y, yaw = sim.pose()                 # ground truth
+rgb   = sim.render_rgb("main")         # 640x480 camera image
+scan  = sim.lidar_scan(360, 12.0)      # planar lidar
+```
+
+The
+[simulator README](https://github.com/innate-inc/innate-os/blob/main/sim/README.md)
+has the walkthrough notebook, the full API, and the architecture of the
+simulation stack.
