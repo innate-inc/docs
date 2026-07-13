@@ -73,8 +73,19 @@ seconds.
     ```
 
     This checks the prerequisites (and offers to install `uv` if it is
-    missing), then walks you through configuring an agent backend — a Gemini
-    API key for a local agent, or an Innate service key for the hosted one.
+    missing), then asks which brain the robot's AI agent should use:
+
+    * **Hosted Innate brain** — uses your Innate service key (it comes with
+      a MARS robot). The full experience, including voice — the robot
+      speaks.
+    * **Local brain (Gemini)** — runs the open-source agent on your machine
+      against a [Gemini API key](https://aistudio.google.com/api-keys).
+      Everything works except voice: the web app's speak bar is disabled
+      without a service key.
+    * **None** — no agent; you can still drive, navigate, and trigger
+      skills manually.
+
+    Rerun `./innate-sim setup` anytime to switch.
   </Step>
   <Step title="Bring it up">
     ```bash
