@@ -1,6 +1,13 @@
 ---
-title: "Composing Skills"
+title: "Composing Skills (pre-release)"
 ---
+
+<Warning>
+  Composing skills is a **pre-release feature**. The `innate.skills` calling
+  convention shown here is not part of a stable OS build yet, so the import path,
+  the result shape, and `SkillFailed` behavior may change without notice. Treat
+  this page as a preview, not a stable reference.
+</Warning>
 
 A skill can call other skills. Import them from `innate.skills` and call them like
 ordinary functions — the runtime runs each one to completion, then returns control to
