@@ -96,6 +96,18 @@ You are a friendly robot who greets people.
 
 This agent combines navigation and waving skills, microphone input, a friendly prompt, and gaze tracking for more natural interaction.
 
+## Skill IDs
+
+`get_skills()` takes full skill IDs, prefixed by where each skill comes from:
+
+| Prefix | Source |
+| --- | --- |
+| `innate-os/` | skills shipped with the OS |
+| `local/` | your own skills in `~/innate-os/workspace/custom_skills/` |
+
+IDs are matched exactly during registration — a custom skill named
+`victory_spin` must be listed as `"local/victory_spin"`, not bare.
+
 ## Enabling the Microphone
 
 If you want to **talk to your agent**, you must enable the microphone input — it is not on by default. Add `"micro"` to the list returned by `get_inputs()`:

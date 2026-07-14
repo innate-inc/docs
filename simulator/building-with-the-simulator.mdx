@@ -89,11 +89,15 @@ class CheerfulAgent(Agent):
         return "Cheerful"
 
     def get_skills(self) -> List[str]:
-        return ["victory_spin"]
+        return ["local/victory_spin"]
 
     def get_prompt(self) -> str:
         return "You are an enthusiastic robot. Celebrate good news physically."
 ```
+
+Skill IDs are prefixed by where the skill comes from: your own skills in
+`workspace/custom_skills/` are `local/<name>`, shipped ones are
+`innate-os/<name>` — and `get_skills()` matches IDs exactly.
 
 It hot-reloads the same way. Select **Cheerful** in the web app's agent
 picker, start it, and tell it in chat that you just merged a big PR — it
