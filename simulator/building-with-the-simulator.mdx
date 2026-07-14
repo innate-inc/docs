@@ -3,14 +3,25 @@ title: "Building with the Simulator"
 description: "Develop skills, agents, and integrations against the simulated MARS"
 ---
 
-The simulator shares the innate-os repository's `workspace/` directory with
-the robot's container, so the [skills](/software/skills) and
-[agents](/software/agents) you write against the simulator are the ones a
-real robot runs — develop here, deploy there without changes.
+While the simulator is up, an entire robot is running on your machine: the
+same Innate OS a physical MARS runs, inside a Docker container — just
+connected to a physics world instead of motors and cameras.
 
-To work on them, open the `innate-os` folder you cloned during
-[setup](/simulator/setup) in your editor — everything below happens inside
-its `workspace/` directory while the simulator is running.
+That container doesn't have its own copy of the software. It runs directly
+from the `innate-os` folder you cloned during [setup](/simulator/setup) —
+your checkout is mounted into it live, so editing files on your machine
+changes the running robot, no image rebuilds involved.
+
+For building [skills](/software/skills) and [agents](/software/agents), the
+part of the checkout that matters is `workspace/`: drop Python files into
+`workspace/custom_skills/` or `workspace/custom_agents/` and the robot
+hot-reloads them the moment you save. (Deeper changes, like the ROS nodes
+under `ros2_ws/`, need a build step — the table further down covers what
+takes effect when.) And because a real robot runs the same `workspace/`,
+whatever you build here deploys to hardware unchanged.
+
+Open the cloned folder in your editor, keep the simulator running, and
+follow along.
 
 ## Your first skill, end to end
 
