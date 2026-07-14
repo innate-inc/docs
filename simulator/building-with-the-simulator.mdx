@@ -8,14 +8,99 @@ the robot's container, so the skills and agents you write against the
 simulator are the ones a real robot runs — develop here, deploy there
 without changes.
 
-## Skills and agents
+## Your first skill, end to end
 
-* **[Skills](/software/skills)** — teach the robot new abilities in Python.
-  Code-defined skills (navigation, arm control, digital actions) work fully
-  in the simulator; trigger them from the web app's skill menu exactly like
-  on a real robot ([manual triggering](/software/skills/manual-triggering)).
-* **[Agents](/software/agents)** — give the AI brain goals, personality,
-  and access to your skills, then talk to it in the web app's chat.
+Skills are Python classes the AI agent can call — the
+[skills overview](/software/skills) covers the full interface. The loop below
+takes about two minutes and exercises the whole pipeline: file watcher, hot
+reload, the web app, and the simulated base.
+
+<Steps>
+  <Step title="Create the skill file">
+    With the simulator running, create
+    `workspace/custom_skills/victory_spin.py` in your innate-os checkout:
+
+    ```python
+    from brain_client.skill_types import Skill, SkillResult
+    from brain_client.skill_types import Interface, InterfaceType
+
+
+    class VictorySpin(Skill):
+        mobility = Interface(InterfaceType.MOBILITY)
+
+        @property
+        def name(self):
+            return "victory_spin"
+
+        def guidelines(self):
+            return "Use to celebrate: the robot spins in place once."
+
+        def execute(self, spins: int = 1):
+            """Spin the robot in place to celebrate.
+
+            Args:
+                spins: How many full turns to make (1-3).
+            """
+            for _ in range(2 * min(int(spins), 3)):
+                self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
+            return "Spun with joy", SkillResult.SUCCESS
+    ```
+
+    The agent reads your `execute()` signature and docstring to learn how to
+    call the skill — type hints and the docstring are the API contract.
+  </Step>
+  <Step title="Save — that's the whole deploy">
+    The container watches `workspace/` and hot-reloads skills within a second
+    or two of saving. No build, no restart. If you want to see it happen:
+
+    ```bash
+    ./innate-sim logs brain -n 20
+    ```
+  </Step>
+  <Step title="Trigger it">
+    Open the web app, go to the skill menu, and run `victory_spin`
+    ([manual triggering](/software/skills/manual-triggering)) — the simulated
+    robot spins in the 3D view. Edit the file, save, trigger again: that's
+    the whole iteration loop.
+  </Step>
+</Steps>
+
+## Hand it to an agent
+
+Skills become interesting when the agent can decide to use them. Drop a
+minimal agent next door in `workspace/custom_agents/cheerful.py`:
+
+```python
+from typing import List
+from brain_client.agent_types import Agent
+
+
+class CheerfulAgent(Agent):
+    @property
+    def id(self) -> str:
+        return "cheerful"
+
+    @property
+    def display_name(self) -> str:
+        return "Cheerful"
+
+    def get_skills(self) -> List[str]:
+        return ["victory_spin"]
+
+    def get_prompt(self) -> str:
+        return "You are an enthusiastic robot. Celebrate good news physically."
+```
+
+It hot-reloads the same way. Select **Cheerful** in the web app's agent
+picker, start it, and tell it in chat that you just merged a big PR — it
+should decide, on its own, that the situation calls for `victory_spin`.
+Watch its reasoning stream in the AI-thoughts panel.
+
+Agent chat needs a brain backend — the hosted Innate service or a local
+Gemini key, whichever you chose during
+[setup](/simulator/setup#start-the-simulator). See
+[Anatomy of an Agent](/software/agents/definitions) for everything an agent
+can define.
 
 ## When do changes take effect?
 
@@ -33,20 +118,47 @@ container:
 ros2 service call /brain/reload std_srvs/srv/Trigger
 ```
 
-## Looking under the hood
+## Watching it run
 
-The container's ROS session lives in tmux — one window per subsystem:
+Three windows into the running stack, from shallow to deep:
 
-```bash
-./innate-sim sh
-tmux attach -t innate   # zenoh, rosbridge, sim-driver, nav-brain, behavior, arm-ik, vision-nav, console-webapp
-```
+* **`./innate-sim` (no arguments)** — the live dashboard: overall health, the
+  world server's render backend and speed, and the brain log.
+* **`./innate-sim logs <target>`** — tail one subsystem's log; `brain` shows
+  skill loading and agent reasoning, `startup` aggregates everything from
+  the last boot, `world-server` covers physics and rendering.
+* **The tmux session** — every subsystem in its own window:
+
+  ```bash
+  ./innate-sim sh
+  tmux attach -t innate   # zenoh, rosbridge, sim-driver, nav-brain, behavior, arm-ik, vision-nav, console-webapp
+  ```
 
 Prefer [Foxglove](/software/foxglove-setup) or your own ROS tooling? Open a
 Rosbridge connection to `ws://localhost:9090` for TF, `/scan`,
 `/mars/main_camera/points`, camera topics, and `/cmd_vel` teleop. The
 simulated driver publishes the exact topic surface of the real hardware
-drivers — same topics, types, rates, and frame names.
+drivers — same topics, types, rates, and frame names — so anything you build
+against it (input devices, dashboards, recorders) carries over to hardware
+unchanged.
+
+## What's different from a real robot
+
+The point of the digital twin is that almost nothing is — but a few
+hardware-bound features have no simulated counterpart:
+
+* **Speech** requires the hosted backend: the web app's speak bar disables
+  itself with a hint when the sim runs on a local Gemini key or without a
+  backend.
+* **Voice input** — there is no simulated microphone; talk to the agent
+  through chat instead.
+* **Policy-defined (trained) skills** are trained from teleoperation
+  recordings on physical hardware; the simulator is for developing and
+  testing [code-defined skills](/software/skills/code-defined-skills) and
+  agents.
+
+Everything else — navigation, lidar, cameras, depth, the arm — behaves and
+publishes like the hardware it stands in for.
 
 ## The simulated world as a Python object
 
@@ -63,6 +175,7 @@ sim.set_cmd_vel(0.3, 0.5)              # vx m/s, wz rad/s
 x, y, yaw = sim.pose()                 # ground truth
 rgb   = sim.render_rgb("main")         # 640x480 camera image
 scan  = sim.lidar_scan(360, 12.0)      # planar lidar
+sim.reset()                            # back to spawn, zero velocity
 ```
 
 The
