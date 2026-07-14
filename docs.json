@@ -51,6 +51,14 @@
             ]
           },
           {
+            "group": "Simulator",
+            "pages": [
+              "simulator",
+              "simulator/setup",
+              "simulator/building-with-the-simulator"
+            ]
+          },
+          {
             "group": "Controller App",
             "pages": [
               "robots/innate-controller-app",
