@@ -7,18 +7,20 @@ While the simulator is up, an entire robot is running on your machine: the
 same Innate OS a physical MARS runs, inside a Docker container — just
 connected to a physics world instead of motors and cameras.
 
-That container doesn't have its own copy of the software. It runs directly
-from the `innate-os` folder you cloned during [setup](/simulator/setup) —
-your checkout is mounted into it live, so editing files on your machine
-changes the running robot, no image rebuilds involved.
+* **It runs from your checkout.** The container has no copy of the software
+  of its own — the `innate-os` folder you cloned during
+  [setup](/simulator/setup) is mounted into it live, so editing files on
+  your machine changes the running robot. No image rebuilds.
+* **`workspace/` is your part of it.** [Skills](/software/skills) and
+  [agents](/software/agents) are Python files in `workspace/custom_skills/`
+  and `workspace/custom_agents/`, and the robot hot-reloads them the moment
+  you save. Deeper changes — like the ROS nodes under `ros2_ws/` — need a
+  build step; the table further down covers what takes effect when.
 
-For building [skills](/software/skills) and [agents](/software/agents), the
-part of the checkout that matters is `workspace/`: drop Python files into
-`workspace/custom_skills/` or `workspace/custom_agents/` and the robot
-hot-reloads them the moment you save. (Deeper changes, like the ROS nodes
-under `ros2_ws/`, need a build step — the table further down covers what
-takes effect when.) And because a real robot runs the same `workspace/`,
-whatever you build here deploys to hardware unchanged.
+<Check>
+A real robot runs the same `workspace/`, so whatever you build against the
+simulator deploys to hardware unchanged.
+</Check>
 
 Open the cloned folder in your editor, keep the simulator running, and
 follow along.
