@@ -4,9 +4,13 @@ description: "Develop skills, agents, and integrations against the simulated MAR
 ---
 
 The simulator shares the innate-os repository's `workspace/` directory with
-the robot's container, so the skills and agents you write against the
-simulator are the ones a real robot runs — develop here, deploy there
-without changes.
+the robot's container, so the [skills](/software/skills) and
+[agents](/software/agents) you write against the simulator are the ones a
+real robot runs — develop here, deploy there without changes.
+
+To work on them, open the `innate-os` folder you cloned during
+[setup](/simulator/setup) in your editor — everything below happens inside
+its `workspace/` directory while the simulator is running.
 
 ## Your first skill, end to end
 
@@ -17,8 +21,7 @@ reload, the web app, and the simulated base.
 
 <Steps>
   <Step title="Create the skill file">
-    With the simulator running, create
-    `workspace/custom_skills/victory_spin.py` in your innate-os checkout:
+    Create `workspace/custom_skills/victory_spin.py`:
 
     ```python
     from brain_client.skill_types import Skill, SkillResult
@@ -67,8 +70,9 @@ reload, the web app, and the simulated base.
 
 ## Hand it to an agent
 
-Skills become interesting when the agent can decide to use them. Drop a
-minimal agent next door in `workspace/custom_agents/cheerful.py`:
+Skills become interesting when an [agent](/software/agents) can decide to
+use them. Drop a minimal agent next door in
+`workspace/custom_agents/cheerful.py`:
 
 ```python
 from typing import List
