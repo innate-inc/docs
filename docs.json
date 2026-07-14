@@ -37,14 +37,6 @@
             ]
           },
           {
-            "group": "Simulator",
-            "pages": [
-              "simulator",
-              "simulator/setup",
-              "simulator/building-with-the-simulator"
-            ]
-          },
-          {
             "group": "MARS Hardware",
             "pages": [
               "robots/mars",
@@ -56,6 +48,14 @@
               "robots/mars/stereo-depth-calibration",
               "robots/mars/changing-voice",
               "robots/mars/extending-mars"
+            ]
+          },
+          {
+            "group": "Simulator",
+            "pages": [
+              "simulator",
+              "simulator/setup",
+              "simulator/building-with-the-simulator"
             ]
           },
           {
