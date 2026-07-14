@@ -63,8 +63,21 @@ reload, the web app, and the simulated base.
   <Step title="Trigger it">
     Open the web app, go to the skill menu, and run `victory_spin`
     ([manual triggering](/software/skills/manual-triggering)) — the simulated
-    robot spins in the 3D view. Edit the file, save, trigger again: that's
-    the whole iteration loop.
+    robot spins in the 3D view:
+
+    <video
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls
+      className="w-full rounded-xl"
+      src="/videos/simulator/victory_spin.mp4"
+    >
+      Triggering the victory_spin skill from the web app's skill menu.
+    </video>
+
+    Edit the file, save, trigger again: that's the whole iteration loop.
   </Step>
 </Steps>
 
@@ -103,6 +116,18 @@ It hot-reloads the same way. Select **Cheerful** in the web app's agent
 picker, start it, and tell it in chat that you just merged a big PR — it
 should decide, on its own, that the situation calls for `victory_spin`.
 Watch its reasoning stream in the AI-thoughts panel.
+
+<video
+  autoPlay
+  muted
+  loop
+  playsInline
+  controls
+  className="w-full rounded-xl"
+  src="/videos/simulator/cheerful_agent.mp4"
+>
+  Starting the Cheerful agent and watching it trigger victory_spin from chat.
+</video>
 
 Agent chat needs a brain backend — the hosted Innate service or a local
 Gemini key, whichever you chose during
