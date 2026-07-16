@@ -1,12 +1,12 @@
 ---
-title: "Debugging"
+title: "Logging"
 ---
 
-The **Debugging** page is a live, structured view of the robot's entire console — every node and process, in one place, in your browser. It's the fastest way to see what the robot is doing (or why it isn't) without SSH.
+The **Logging** page is a live, structured view of the robot's entire console — every node and process, in one place, in your browser. It's the fastest way to see what the robot is doing (or why it isn't) without SSH.
 
 ## Why it's more complete than `/rosout`
 
-Robot logs are usually scattered: each program prints in its own format, and a lot of output — library messages, the launch system, low-level connection errors — never reaches the standard ROS log topic at all. The Debugging page reads the robot's raw console instead, which is a complete superset, and structures it for you. So things that would otherwise be invisible off-robot show up here.
+Robot logs are usually scattered: each program prints in its own format, and a lot of output — library messages, the launch system, low-level connection errors — never reaches the standard ROS log topic at all. The Logging page reads the robot's raw console instead, which is a complete superset, and structures it for you. So things that would otherwise be invisible off-robot show up here.
 
 ## The log view
 
@@ -33,7 +33,7 @@ Each entry carries a health tint rolled up from the worst severity beneath it, s
 </Note>
 
 <Warning>
-  The Debugging page needs the robot's console bridge running. It starts automatically with the rest of the robot's software, so if the page is empty, check that the robot is fully up.
+  The Logging page needs the robot's console bridge running. It starts automatically with the rest of the robot's software, so if the page is empty, check that the robot is fully up.
 </Warning>
 
 For low-level ROS 2 debugging from a terminal — topics, services, and Foxglove — see the [ROS 2 debugging guide](/software/ros2/debugging).
