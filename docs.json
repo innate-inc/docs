@@ -69,7 +69,7 @@
             "group": "Web App",
             "pages": [
               "robots/web-app",
-              "robots/web-app/debugging"
+              "robots/web-app/logging"
             ]
           },
           {
@@ -179,6 +179,10 @@
     "dark": "/images/logo-dark.png"
   },
   "redirects": [
+    {
+      "source": "/robots/web-app/debugging",
+      "destination": "/robots/web-app/logging"
+    },
     {
       "source": "/software/skills/code-defined-skills/digital-skills",
       "destination": "/software/skills/code-defined-skills/external-services"
