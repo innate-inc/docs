@@ -2,7 +2,7 @@
 title: "Introduction"
 ---
 
-Skills are atomic robot capabilities that the Innate agent chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—physical (manipulation, navigation) or digital (emails, API calls)—that can be combined with others to form coherent action sequences.
+Skills are atomic robot capabilities that the Innate agent chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—moving through the world, manipulating objects, speaking, or reaching an external service like email or an API—that can be combined with others to form coherent action sequences.
 
 When the Innate agent receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → send picture via email → speak reassurance. Four skills, one coherent behavior.
 
@@ -40,7 +40,7 @@ class LookAround(Skill):
         return "Cancelled"
 ```
 
-    Use this style when you want deterministic physical control, digital/API operations, explicit sequencing, or custom sensor processing.
+    Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
   </Accordion>
 
   <Accordion title="Policy-Defined Skills (End-to-End)">

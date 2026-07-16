@@ -1,17 +1,21 @@
 ---
-title: "Digital Skills"
+title: "External Services & APIs"
 ---
 
 import {
-  DigitalSendEmailParametersTable,
-  DigitalStateTypesTable,
+  SendEmailParametersTable,
+  ServiceStateTypesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-Digital skills enable the robot to interact with external services—sending emails, making API calls, retrieving information. These are always code skills, implementing explicit protocols and handling authentication, errors, and network conditions.
+Some skills reach beyond the robot's body — sending emails, calling APIs, retrieving
+information. These are ordinary [code-defined skills](/software/skills/code-defined-skills)
+that happen to talk to the network: they implement explicit protocols and handle
+authentication, errors, and connectivity.
 
-## Characteristics
+## What to keep in mind
 
-Unlike physical skills that deal with real-world variability, digital skills operate in a deterministic domain:
+Talking to an external service is a more deterministic domain than acting in the physical
+world, but it comes with its own constraints:
 
 * **Protocol-based**: Follow defined APIs and standards
 
@@ -21,7 +25,7 @@ Unlike physical skills that deal with real-world variability, digital skills ope
 
 * **Network-dependent**: Must handle connectivity issues
 
-## Built-in Skills
+## Built-in examples
 
 ### SendEmail
 
@@ -48,7 +52,7 @@ class SendEmail(Skill):
 
 **Parameters:**
 
-<DigitalSendEmailParametersTable />
+<SendEmailParametersTable />
 
 ### SendPictureViaEmail
 
@@ -87,7 +91,7 @@ class RetrieveEmails(Skill):
 
 Want to build your own version against your own account? There's a complete implementation in the [worked example](#worked-example-retrieveemails) below.
 
-## Creating Digital Skills
+## Building a service skill
 
 ### Template
 
@@ -95,7 +99,7 @@ Want to build your own version against your own account? There's a complete impl
 import os
 from brain_client.skill_types import Skill, SkillResult
 
-class MyDigitalSkill(Skill):
+class MyServiceSkill(Skill):
     def __init__(self, logger):
         super().__init__(logger)
         self.api_key = os.environ.get("SERVICE_API_KEY")
@@ -104,7 +108,7 @@ class MyDigitalSkill(Skill):
 
     @property
     def name(self):
-        return "my_digital_skill"
+        return "my_service_skill"
 
     def guidelines(self):
         return "Use when [describe appropriate use cases]"
@@ -225,13 +229,13 @@ The system automatically updates declared state at 50Hz while your skill runs. A
 
 Available state types:
 
-<DigitalStateTypesTable />
+<ServiceStateTypesTable />
 
 See [Robot State](/software/skills/code-defined-skills/robot-state) for more details on the RobotState system.
 
 ## Cancellation
 
-Many digital operations are atomic and cannot be meaningfully cancelled:
+Many service operations are atomic and cannot be meaningfully cancelled:
 
 ```python
 def cancel(self):

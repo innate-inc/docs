@@ -51,6 +51,14 @@
             ]
           },
           {
+            "group": "Simulator",
+            "pages": [
+              "simulator",
+              "simulator/setup",
+              "simulator/building-with-the-simulator"
+            ]
+          },
+          {
             "group": "Controller App",
             "pages": [
               "robots/innate-controller-app",
@@ -96,7 +104,8 @@
                       "software/skills/code-defined-skills/body-control-interfaces",
                       "software/skills/code-defined-skills/robot-state",
                       "software/skills/code-defined-skills/physical-skill-examples",
-                      "software/skills/code-defined-skills/digital-skills"
+                      "software/skills/code-defined-skills/composing-skills",
+                      "software/skills/code-defined-skills/external-services"
                     ]
                   },
                   "software/skills/policy-defined-skills",
@@ -173,6 +182,10 @@
     {
       "source": "/robots/web-app/debugging",
       "destination": "/robots/web-app/logging"
+    },
+    {
+      "source": "/software/skills/code-defined-skills/digital-skills",
+      "destination": "/software/skills/code-defined-skills/external-services"
     },
     {
       "source": "/software/ros2/navigation-stack",

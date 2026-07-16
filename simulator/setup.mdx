@@ -1,0 +1,137 @@
+---
+title: "Setup"
+description: "Get the simulator running on macOS, Linux, or Windows"
+---
+
+You need two tools installed; everything else (world geometry, the Docker
+image, the ROS build) is provisioned automatically on first start:
+
+* **Docker** — runs the robot's software stack in a container.
+* **uv** — runs the physics world natively on your machine
+  (`./innate-sim setup` offers to install this one for you).
+
+A machine with 4 CPU cores and 8 GB of RAM is comfortable. The first start
+downloads and builds a few GB, so it takes a while; later starts take
+seconds.
+
+## Install the prerequisites
+
+<Tabs>
+  <Tab title="macOS">
+    Install Docker Desktop and start it:
+
+    ```bash
+    brew install --cask docker
+    ```
+
+    (or download it from [docker.com](https://docs.docker.com/get-started/get-docker/)).
+  </Tab>
+  <Tab title="Linux (Ubuntu / Debian / Raspberry Pi OS)">
+    On Ubuntu:
+
+    ```bash
+    sudo apt install docker.io docker-compose-v2
+    ```
+
+    On Debian / Raspberry Pi OS (whose `docker-compose` package is the old
+    v1 tool), use Docker's own install script instead:
+
+    ```bash
+    curl -fsSL https://get.docker.com | sudo sh
+    ```
+
+    Then let your user talk to Docker:
+
+    ```bash
+    sudo usermod -aG docker $USER && newgrp docker
+    ```
+
+    Desktop installs already have working OpenGL. On a headless server or VM,
+    also install the offscreen rendering libraries:
+
+    ```bash
+    sudo apt install libegl1 libgl1 libopengl0 libosmesa6
+    ```
+  </Tab>
+  <Tab title="Windows (WSL2)">
+    The simulator runs inside WSL2. In PowerShell:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    ```
+
+    then open the Ubuntu terminal and follow the **Linux** tab inside it.
+    WSLg (included in current WSL) gives the simulator GPU-accelerated
+    rendering automatically.
+
+    <Warning>
+      Use exactly **one** Docker — either Docker Desktop (with WSL
+      integration enabled) or `docker.io` installed inside WSL. Having both
+      installed makes the `docker` command hang in confusing ways.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Start the simulator
+
+<Steps>
+  <Step title="Clone innate-os">
+    ```bash
+    git clone https://github.com/innate-inc/innate-os.git
+    cd innate-os
+    ```
+  </Step>
+  <Step title="Run setup once">
+    ```bash
+    ./innate-sim setup
+    ```
+
+    This checks the prerequisites (and offers to install `uv` if it is
+    missing), then asks which brain the robot's AI agent should use:
+
+    * **Hosted Innate brain** — uses your Innate service key (it comes with
+      a MARS robot). The full experience, including voice — the robot
+      speaks.
+    * **Local brain (Gemini)** — runs the open-source agent on your machine
+      against a [Gemini API key](https://aistudio.google.com/api-keys).
+      Everything works except voice: the web app's speak bar is disabled
+      without a service key.
+    * **None** — no agent; you can still drive, navigate, and trigger
+      skills manually.
+
+    Rerun `./innate-sim setup` anytime to switch.
+  </Step>
+  <Step title="Bring it up">
+    ```bash
+    ./innate-sim up
+    ```
+
+    The first run provisions everything and shows its progress; leave the
+    live dashboard open. Later runs start in seconds.
+  </Step>
+  <Step title="Open the web app">
+    Go to **[https://localhost](https://localhost)** and accept the
+    self-signed certificate. You are looking at the robot's web app: drive
+    with the joystick or WASD, switch between the 3D view, the robot's
+    cameras, and the map, trigger skills, and chat with the agent.
+  </Step>
+</Steps>
+
+## Everyday commands
+
+```bash
+./innate-sim status      # startup checks + health snapshot
+./innate-sim logs        # startup logs; `logs os` / `logs agent` follow live
+./innate-sim sh          # shell into the container
+./innate-sim down        # stop
+./innate-sim clean       # remove containers/volumes (keeps .env + config)
+```
+
+## If something goes wrong
+
+Every error the launcher prints is written to tell you exactly what to do
+next — missing packages come with the install command, a wedged Docker names
+itself, and the startup checks end with a health panel that includes the
+world server and its measured render speed. If you get stuck anyway,
+[ask on Discord](/support/contact-discord) — setup reports from new machines
+are how the rough edges get fixed.
