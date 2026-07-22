@@ -117,12 +117,14 @@ Typical flow:
     Connect to the robot over SSH on the same network.
   </Step>
   <Step title="Start Foxglove Bridge">
-    Run the Foxglove Bridge node on MARS so topics are exposed over WebSocket.
+    On the robot, run `innate foxglove start` — it exposes topics over WebSocket and prints the `ws://<robot-ip>:8765` URL to connect to.
   </Step>
   <Step title="Open Foxglove and connect">
-    In your browser, open [app.foxglove.dev](https://app.foxglove.dev) and connect to the robot bridge endpoint.
+    In your browser, open [app.foxglove.dev](https://app.foxglove.dev) and connect to the printed `ws://` URL.
   </Step>
 </Steps>
+
+See the full [Foxglove Setup](/software/foxglove-setup) guide for topics to visualize and the Wi-Fi bandwidth caveat.
 
 ***
 

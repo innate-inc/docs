@@ -5,7 +5,7 @@ description: "Develop skills, agents, and integrations against the simulated MAR
 
 While the simulator is up, an entire robot is running on your machine: the
 same Innate OS a physical MARS runs, inside a Docker container — just
-connected to a physics world instead of motors and cameras.
+running in the simulated world instead of the real one.
 
 * **It runs from your checkout.** The container has no copy of the software
   of its own — the `innate-os` folder you cloned during
@@ -67,11 +67,7 @@ reload, the web app, and the simulated base.
   </Step>
   <Step title="Save — that's the whole deploy">
     The container watches `workspace/` and hot-reloads skills within a second
-    or two of saving. No build, no restart. If you want to see it happen:
-
-    ```bash
-    ./innate-sim logs brain -n 20
-    ```
+    or two of saving. No build, no restart.
   </Step>
   <Step title="Trigger it">
     Open the web app, go to the skill menu, and run `victory_spin`
@@ -180,10 +176,32 @@ Three windows into the running stack, from shallow to deep:
   tmux attach -t innate   # zenoh, rosbridge, sim-driver, nav-brain, behavior, arm-ik, vision-nav, console-webapp
   ```
 
-Prefer [Foxglove](/software/foxglove-setup) or your own ROS tooling? Open a
-Rosbridge connection to `ws://localhost:9090` for TF, `/scan`,
-`/mars/main_camera/points`, camera topics, and `/cmd_vel` teleop. The
-simulated driver publishes the exact topic surface of the real hardware
+### Foxglove and ROS tooling
+
+Prefer [Foxglove](/software/foxglove-setup) or your own ROS tooling? The sim
+launches a Foxglove bridge for you — nothing to start.
+
+<Steps>
+  <Step title="Open a connection in Foxglove">
+    In [Foxglove](https://foxglove.dev), choose **Open connection → Foxglove
+    WebSocket**.
+  </Step>
+  <Step title="Connect to the bridge">
+    Enter `ws://localhost:8765` and connect. You get TF, `/scan`,
+    `/mars/main_camera/points`, the camera topics, and `/cmd_vel` teleop.
+  </Step>
+</Steps>
+
+![Foxglove visualizing the simulated MARS — cameras, map, laser scan, and TF frames](/images/simulator/foxglove.png)
+
+<Note>
+  Running the **local brain**? Its cloud-agent owns port `8765`, so the
+  Foxglove bridge shifts to `ws://localhost:8766` — the dashboard and startup
+  log always print the exact address. For rosbridge clients,
+  `ws://localhost:9090` is open too.
+</Note>
+
+The simulated driver publishes the exact topic surface of the real hardware
 drivers — same topics, types, rates, and frame names — so anything you build
 against it (input devices, dashboards, recorders) carries over to hardware
 unchanged.
