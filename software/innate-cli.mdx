@@ -111,6 +111,18 @@ innate volume 0      # mute
 
 ---
 
+## Foxglove
+
+Start the Foxglove bridge to visualize topics, TF, images, and point clouds from a browser. Off by default on the robot; always on in the [simulator](/simulator/building-with-the-simulator#foxglove-and-ros-tooling). See [Foxglove Setup](/software/foxglove-setup) for the full workflow.
+
+| Command | What it does |
+| --- | --- |
+| `innate foxglove start` | Start the bridge (WebSocket on port `8765`); prints the `ws://` URL to connect to |
+| `innate foxglove stop` | Stop the bridge |
+| `innate foxglove status` | Show whether the bridge is running |
+
+---
+
 ## Diagnostics & updates
 
 | Command | What it does |
@@ -162,6 +174,9 @@ innate skill list               → list the robot's skills
 innate skill type <id> [--json] → show a skill's input contract
 innate skill run <id> [@k=v]    → run a skill by ID
 innate volume [0-100]           → show or set speaker volume
+innate foxglove start           → start Foxglove bridge (ws :8765)
+innate foxglove stop            → stop the bridge
+innate foxglove status          → bridge status
 innate diag                     → hardware diagnostics
 innate update check [--dev]     → check for updates
 innate update apply [target] [--dev] → apply updates (tag or branch with --dev)

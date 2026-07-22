@@ -3,40 +3,40 @@ title: "Foxglove Setup"
 description: "Visualize ROS2 topics from any machine using Foxglove."
 ---
 
-Foxglove lets you see what your robot sees — camera feeds, LiDAR scans, navigation costmaps, TF frames — all from a browser. Works on macOS, Windows, and Linux.
+Foxglove lets you see what your robot sees — camera feeds, LiDAR scans, navigation costmaps, TF frames, and `/cmd_vel` teleop — all from a browser. Works on macOS, Windows, and Linux.
+
+![Foxglove connected to MARS — camera feed, map, laser scan, and TF frames](/images/simulator/foxglove.png)
 
 ## How it works
 
-MARS runs a **Foxglove Bridge** node that exposes ROS2 topics over WebSocket. You connect to it from [Foxglove](https://foxglove.dev/) on your laptop.
+MARS runs a **Foxglove Bridge** that exposes ROS2 topics over WebSocket. You connect to it from [Foxglove Studio](https://foxglove.dev/) on your laptop.
 
 ```
 MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
 ```
+
+In the [simulator](/simulator/building-with-the-simulator#foxglove-and-ros-tooling) the bridge is always on. On a physical robot it is opt-in — you start it with the `innate` CLI.
+
 ---
+
 ## Setup
 
 <Steps>
-  <Step title="SSH into MARS">
+  <Step title="Start the bridge on MARS">
+    SSH into the robot (or use a terminal on it) and start the bridge:
+
     ```bash
-    ssh jetson1@<YOUR-ROBOT-IP>
-    ```
-  </Step>
-  <Step title="Install Foxglove Bridge (if not already installed)">
-    ```bash
-    sudo apt install ros-humble-foxglove-bridge
-    ```
-  </Step>
-  <Step title="Start the bridge">
-    ```bash
-    ros2 launch foxglove_bridge foxglove_bridge_launch.xml
+    innate foxglove start    # prints ws://<robot-ip>:8765
+    innate foxglove status   # is it running?
+    innate foxglove stop     # stop it
     ```
 
-    The bridge listens on port `8765` by default.
+    `innate foxglove start` prints the exact `ws://` URL to connect to.
   </Step>
   <Step title="Open Foxglove in your browser">
-    Go to [app.foxglove.dev](https://app.foxglove.dev).
+    Go to [app.foxglove.dev](https://app.foxglove.dev) (or open the desktop app).
 
-    Click **Open connection** → **Foxglove WebSocket** → enter:
+    Click **Open connection** → **Foxglove WebSocket** → enter the printed URL:
 
     ```
     ws://<YOUR-ROBOT-IP>:8765
@@ -44,12 +44,16 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
   </Step>
   <Step title="Add panels">
     Once connected, add visualization panels:
-    - **Image** panel → select `/oak/rgb/image_raw` for the camera feed
-    - **3D** panel → see TF frames, LiDAR, and navigation paths
+    - **Image** panel → select a camera topic (see below) for the camera feed
+    - **3D** panel → see TF frames, LiDAR, point clouds, and navigation paths
     - **Plot** panel → graph any numeric topic over time
     - **Raw Messages** panel → inspect any topic's raw data
   </Step>
 </Steps>
+
+<Note>
+  **Over Wi-Fi, subscribe to the `/mars/main_camera/remote/*` topics, not the raw ones.** The raw camera images (~0.9 MB/frame) and point clouds (`/mars/main_camera/points`, ~10 MB/s) are far more than a Wi-Fi link can carry, so every panel — including `/cmd_vel` — falls seconds behind. The `remote/` namespace carries the same topics throttled to ~2 Hz (images already compressed), which fits comfortably. Prefer the `.../compressed` image topics and mono `remote/points` over `remote/points_color`. On a wired connection or the simulator, the raw topics are fine.
+</Note>
 
 ---
 
@@ -57,13 +61,16 @@ MARS (ROS2 topics) → Foxglove Bridge (WebSocket :8765) → Your browser
 
 | Topic | Type | What you see |
 | --- | --- | --- |
-| `/oak/rgb/image_raw` | Image | Main camera feed |
+| `/mars/main_camera/left/image_rect_color` | Image | Main camera feed (rectified color) |
+| `/mars/main_camera/left/image_rect_color/compressed` | CompressedImage | Same feed, compressed — prefer over Wi-Fi |
+| `/mars/main_camera/remote/left/image_rect_color/compressed` | CompressedImage | Throttled camera for Wi-Fi |
+| `/mars/main_camera/points` | PointCloud2 | Depth point cloud (use `remote/points` over Wi-Fi) |
 | `/scan` | LaserScan | LiDAR sweep |
 | `/odom` | Odometry | Robot position and velocity |
 | `/cmd_vel` | Twist | Velocity commands being sent |
-| `/map` | OccupancyGrid | SLAM map |
+| `/map` | OccupancyGrid | SLAM / navigation map |
 | `/battery_state` | BatteryState | Battery voltage and percentage |
-| `/tf` | TF | All coordinate frames |
+| `/tf`, `/tf_static` | TF | All coordinate frames |
 
 ---
 
@@ -87,8 +94,9 @@ Add displays for the topics you care about. RViz gives you the most complete vis
 <AccordionGroup>
   <Accordion title="Can't connect to WebSocket">
     - Verify MARS and your laptop are on the same network.
-    - Check the bridge is running: `ros2 node list | grep foxglove`.
-    - Try the IP address directly instead of `.local` hostname.
+    - Check the bridge is running: `innate foxglove status`, or `ros2 node list | grep foxglove`.
+    - Use the exact `ws://` URL that `innate foxglove start` printed.
+    - Try the IP address directly instead of a `.local` hostname.
     - Make sure port `8765` isn't blocked by a firewall.
   </Accordion>
   <Accordion title="No topics showing up">
@@ -96,7 +104,7 @@ Add displays for the topics you care about. RViz gives you the most complete vis
     - Try `ros2 topic list` on the robot to confirm topics exist.
   </Accordion>
   <Accordion title="High latency on camera feed">
-    - Image topics are bandwidth-heavy. Use a wired Ethernet connection for the best experience.
-    - In Foxglove, reduce the image panel's update rate or use compressed image topics if available.
+    - Image topics are bandwidth-heavy. Over Wi-Fi, use the `/mars/main_camera/remote/*` topics and `.../compressed` variants (see the note above); for the full-rate raw topics, use a wired connection.
+    - In Foxglove, reduce the image panel's update rate.
   </Accordion>
 </AccordionGroup>
