@@ -77,13 +77,41 @@ export const ManipulationInterfaceMethods = () => {
         { name: "pitch", type: "float" },
         { name: "yaw", type: "float" },
         { name: "duration", type: "float (seconds)" },
+        { name: "blocking", type: "bool" },
       ],
       desc: "Move the end-effector to a target Cartesian pose. duration is in seconds.",
     },
     {
-      method: "goto_joint_state()",
-      params: [{ name: "joints", type: "list[float]" }],
-      desc: "Move the arm to a target joint configuration (6 values).",
+      method: "move_to_joint_positions()",
+      params: [
+        { name: "joint_positions", type: "list[float]" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "blocking", type: "bool" },
+      ],
+      desc: "Move the arm to a target joint configuration (6 values) with a smooth trajectory.",
+    },
+    {
+      method: "open_gripper()",
+      params: [
+        { name: "percent", type: "float" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "blocking", type: "bool" },
+      ],
+      desc: "Open the claw; percent=100 is fully open.",
+    },
+    {
+      method: "close_gripper()",
+      params: [
+        { name: "strength", type: "float" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "blocking", type: "bool" },
+      ],
+      desc: "Close the claw; grip force is capped in hardware, strength sets the close depth.",
+    },
+    {
+      method: "torque_on() / torque_off()",
+      params: [],
+      desc: "Enable or disable arm servo torque. A torque-disabled servo won't move at all.",
     },
     {
       method: "get_current_orientation_rpy()",
@@ -279,20 +307,24 @@ export const AgentOptionalMethodsTable = () => {
 export const SkillCoreMethodsTable = () => {
   const rows = [
     {
-      method: "name",
-      purpose: "Unique identifier the agent uses to call this skill.",
+      method: "execute()",
+      purpose: "The actual behavior (required). The signature defines the skill parameters.",
     },
     {
       method: "guidelines()",
-      purpose: "Natural language instructions for when and how to use the skill.",
+      purpose: "Natural language instructions for when and how to use the skill. Defaults to the class docstring.",
     },
     {
-      method: "execute()",
-      purpose: "The actual behavior. The signature defines the skill parameters.",
+      method: "name",
+      purpose: "Unique identifier the agent uses to call this skill. Defaults to the snake_cased class name.",
     },
     {
-      method: "cancel()",
-      purpose: "Clean shutdown when the user or agent interrupts.",
+      method: "fail()",
+      purpose: "End the run as a FAILURE with a message (raises SkillFailed).",
+    },
+    {
+      method: "on_cancel() / check_cancelled()",
+      purpose: "React to interruption: register an immediate stop hook, or raise out of a loop checkpoint.",
     },
   ];
 
@@ -431,24 +463,59 @@ export const HeadTiltAnglesTable = () => {
 export const RobotStateAvailableTable = () => {
   const rows = [
     {
-      state: "Camera Image",
-      typeEnum: "RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64",
-      description: "Latest frame (base64 JPEG).",
+      state: "Main camera",
+      declaration: "image: MainImage",
+      description: "Latest main-camera frame (base64 JPEG string; .jpeg for bytes).",
+    },
+    {
+      state: "Wrist camera",
+      declaration: "wrist_image: WristImage",
+      description: "Latest wrist-camera frame (base64 JPEG string; .jpeg for bytes).",
+    },
+    {
+      state: "Depth",
+      declaration: "depth: DepthMap",
+      description: "Latest depth frame as a (height, width) numpy array.",
     },
     {
       state: "Odometry",
-      typeEnum: "RobotStateType.LAST_ODOM",
-      description: "Position, orientation, and velocity.",
+      declaration: "odom: Odometry",
+      description: "2D pose in the odom frame (x, y, theta) plus body velocities.",
+    },
+    {
+      state: "Map pose",
+      declaration: "pose: Pose | None",
+      description: "Localizer's pose in the persistent map frame; None until localized.",
+    },
+    {
+      state: "Battery",
+      declaration: "battery: Battery",
+      description: "Charge percentage (0.0-1.0), voltage, current, charging flag.",
+    },
+    {
+      state: "Lidar",
+      declaration: "lidar: Lidar",
+      description: "One sweep: ranges, angles, and a min_range() sector helper.",
+    },
+    {
+      state: "Arm",
+      declaration: "arm: Arm",
+      description: "End-effector pose (live forward kinematics) plus gripper joint.",
     },
     {
       state: "Map",
-      typeEnum: "RobotStateType.LAST_MAP",
-      description: "Occupancy grid.",
+      declaration: "map: Map",
+      description: "Occupancy grid: .grid array, resolution, origin.",
     },
     {
-      state: "Head Position",
-      typeEnum: "RobotStateType.LAST_HEAD_POSITION",
-      description: "Head tilt angle.",
+      state: "Joint states",
+      declaration: "joint_states: JointStates",
+      description: "Arm joint names, positions, velocities, efforts; .of(name) lookup.",
+    },
+    {
+      state: "Head position",
+      declaration: "head_position: HeadState",
+      description: "Current head pitch in degrees, plus commandable range.",
     },
   ];
 
@@ -458,16 +525,16 @@ export const RobotStateAvailableTable = () => {
         <thead>
           <tr>
             <th>State</th>
-            <th>Type Enum</th>
+            <th>Declaration</th>
             <th>Description</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.typeEnum}>
+            <tr key={row.declaration}>
               <td>{row.state}</td>
               <td>
-                <span className="interface-param-badge">{row.typeEnum}</span>
+                <span className="interface-param-badge">{row.declaration}</span>
               </td>
               <td>{row.description}</td>
             </tr>
@@ -535,19 +602,19 @@ export const SendEmailParametersTable = () => {
 export const ServiceStateTypesTable = () => {
   const rows = [
     {
-      stateType: "LAST_MAIN_CAMERA_IMAGE_B64",
+      stateType: "image: MainImage",
       description: "Latest camera frame (base64 JPEG).",
     },
     {
-      stateType: "LAST_ODOM",
-      description: "Current odometry.",
+      stateType: "odom: Odometry",
+      description: "Current 2D pose and velocities.",
     },
     {
-      stateType: "LAST_MAP",
+      stateType: "map: Map",
       description: "Occupancy grid.",
     },
     {
-      stateType: "LAST_HEAD_POSITION",
+      stateType: "head_position: HeadState",
       description: "Head tilt angle.",
     },
   ];
@@ -557,7 +624,7 @@ export const ServiceStateTypesTable = () => {
       <table className="interface-methods-table">
         <thead>
           <tr>
-            <th>State Type</th>
+            <th>Declaration</th>
             <th>Description</th>
           </tr>
         </thead>

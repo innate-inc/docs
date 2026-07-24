@@ -9,10 +9,10 @@ import {
 
 Code-defined skills are Python classes that implement robot behaviors with explicit logic. Three things make them easy to write:
 
-**The agent reads your code.** Your `execute()` signature and docstring are the API contract — the AI sees `execute(target: str, speed: float = 0.5)` plus the docstring and knows exactly how to call your skill. Type hints matter.
+**The agent reads your code.** Your `guidelines()`, `execute()` signature, and docstrings are the API contract — the AI sees `execute(target: str, speed: float = 0.5)` plus the docstring and knows exactly how to call your skill. Type hints matter.
 
 ```python
-def execute(self, target: str, speed: float = 0.5):
+def execute(self, target: str, speed: float = 0.5) -> SkillReturn:
     """Move toward the target object.
 
     Args:
@@ -21,78 +21,135 @@ def execute(self, target: str, speed: float = 0.5):
     """
 ```
 
-**Dependencies are one-line class attributes.** Declare what you need and the system injects it — no wiring in `__init__`:
+**Dependencies are one-line type annotations.** Declare what you need and the system injects it — no wiring in `__init__`:
 
 ```python
+from innate import MainImage, Mobility, Skill
+
 class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)                    # hardware access
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)   # sensor data
+    mobility: Mobility    # hardware access
+    image: MainImage      # latest main-camera frame
 ```
 
-**Then just use them.** No callbacks, no message passing:
+**Then just use them.** No callbacks, no message passing, no `None` checks — a declared feed is guaranteed before `execute()` starts:
 
 ```python
 def execute(self):
-    if self.image:                    # Latest camera frame, updated at 50Hz
-        self.mobility.rotate(0.5)     # Rotate 0.5 radians
+    frame = self.image.jpeg       # Latest frame as JPEG bytes, updated at 50Hz
+    self.mobility.rotate(0.5)     # Rotate 0.5 radians
 ```
 
 ## The Skill Class
 
-Every code-defined skill extends `Skill` and implements these methods:
+Every code-defined skill extends `Skill`. Written out fully explicitly, a skill looks like this:
 
 ```python
-from brain_client.skill_types import Skill, SkillResult
+from innate import Skill, SkillResult, SkillReturn
 
 class MySkill(Skill):
     @property
-    def name(self):
-        return "my_skill"  # Unique identifier
+    def name(self) -> str:
+        return "my_skill"  # Unique identifier the agent calls
 
-    def guidelines(self):
-        """Tell the agent when to use this skill."""
+    def guidelines(self) -> str:
+        # What the agent reads to decide when to use this skill.
         return "Use when you need to [do something specific]"
 
-    def execute(self, param1: str, param2: float = 1.0):
-        """Do the thing. Agent calls this with parsed arguments."""
+    def execute(self, param1: str, param2: float = 1.0) -> SkillReturn:
+        """Do the thing. The agent calls this with parsed arguments."""
         # Your logic here
         return "Result message", SkillResult.SUCCESS
-
-    def cancel(self):
-        """Stop gracefully when interrupted."""
-        return "Cancelled"
 ```
 
 <SkillCoreMethodsTable />
 
-## Skill Results
+### What you can leave out
 
-Return a tuple of `(message, status)` from `execute()`:
+The explicit form above is what actually runs, but the base class supplies sensible defaults, so most shipped skills are much slimmer:
+
+* **`name`** defaults to the snake_cased class name — `MySkill` is callable as `my_skill`. The file name must match (`my_skill.py`). Override the property only when the two legitimately differ.
+* **`guidelines()`** defaults to the class docstring. Writing the docstring *as* the guidelines is idiomatic; define `guidelines()` explicitly when you want the agent-facing text to differ from developer documentation.
+* **The return value** defaults to success — returning a plain string means success with that message, and returning `None` means success with a generated message. Use `self.fail("reason")` to end the run as a failure.
+
+The same skill, idiomatically:
 
 ```python
-from brain_client.skill_types import SkillResult
+from innate import Skill, SkillReturn
+
+class MySkill(Skill):
+    """Use when you need to [do something specific]"""  # = guidelines()
+
+    def execute(self, param1: str, param2: float = 1.0) -> SkillReturn:
+        if not self._can_do_the_thing():
+            self.fail("Could not do the thing")  # ends the run as FAILURE
+        return "Result message"                  # plain string = SUCCESS
+```
+
+## Skill Results
+
+`execute()` may return any `SkillReturn` form:
+
+```python
+from innate import SkillResult
 
 def execute(self):
-    if success:
-        return "Task completed", SkillResult.SUCCESS
-    elif self._cancelled:
-        return "Interrupted by user", SkillResult.CANCELLED
-    else:
-        return "Something went wrong", SkillResult.FAILURE
+    return None                                  # SUCCESS, generated message
+    return "Task completed"                      # SUCCESS with message
+    return "Task completed", SkillResult.SUCCESS # explicit tuple
+    return "Found 3 cups", SkillResult.SUCCESS, {"count": 3}  # + structured
+                                                 # data for chaining callers
 ```
+
+Failures are usually raised rather than returned — `self.fail("reason")` raises `SkillFailed`, which ends the run as a `FAILURE` and propagates to a calling skill (see [Composing Skills](/software/skills/code-defined-skills/composing-skills)).
 
 <SkillResultsTable />
 
+## Cancellation
+
+The user or agent can interrupt a running skill. The base class handles the plumbing — you choose how to react:
+
+```python
+def execute(self):
+    # Stop motion the instant a cancel lands (runs on the cancelling thread):
+    self.on_cancel(lambda: self.mobility.send_cmd_vel(0.0, 0.0))
+
+    for step in range(10):
+        self.check_cancelled()   # raises SkillCancelled at loop checkpoints
+        # ... do work ...
+    return "Done"
+```
+
+* **`self.cancelled`** — `True` once cancellation was requested; poll it where raising is inconvenient.
+* **`self.check_cancelled()`** — raises `SkillCancelled`, ending the run as `CANCELLED`.
+* **`self.on_cancel(hook)`** — registers a zero-arg hook fired the moment a cancel lands, for stopping motion immediately.
+
+You normally don't override `cancel()` — the base implementation latches `self.cancelled`, fires your hooks, and cancels any running child skill.
+
 ## Feedback
 
-Send progress updates during long-running skills. The agent reads feedback in real-time and can act on it—for example, canceling the skill or triggering another one immediately:
+Send progress updates during long-running skills. The agent reads feedback in real time and can act on it — for example, canceling the skill or triggering another one immediately:
 
 ```python
 def execute(self):
     for i in range(10):
-        self._send_feedback(f"Step {i+1}/10")
+        self.feedback(f"Step {i+1}/10")
         # ... do work ...
-    return "Done", SkillResult.SUCCESS
+    return "Done"
+```
+
+## Speech, storage, and waiting
+
+The base class also provides:
+
+```python
+self.say("Found it!", wait=True)       # speak through the robot's voice;
+                                       # wait=True blocks until playback ends
+
+runs = self.storage.get("runs", 0)     # persistent per-skill key-value store
+self.storage["runs"] = runs + 1        # (a JSON file; survives restarts)
+
+frame = self.wait_for(lambda: self.image, timeout=5.0)  # block until a
+                                       # read returns non-None (or timeout)
 ```
 
 ## Next Steps

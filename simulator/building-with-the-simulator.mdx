@@ -37,21 +37,16 @@ reload, the web app, and the simulated base.
     Create `workspace/custom_skills/victory_spin.py`:
 
     ```python
-    from brain_client.skill_types import Skill, SkillResult
-    from brain_client.skill_types import Interface, InterfaceType
+    from innate import Mobility, Skill, SkillReturn
 
 
     class VictorySpin(Skill):
-        mobility = Interface(InterfaceType.MOBILITY)
+        mobility: Mobility  # injected; guaranteed before execute() starts
 
-        @property
-        def name(self):
-            return "victory_spin"
-
-        def guidelines(self):
+        def guidelines(self) -> str:
             return "Use to celebrate: the robot spins in place once."
 
-        def execute(self, spins: int = 1):
+        def execute(self, spins: int = 1) -> SkillReturn:
             """Spin the robot in place to celebrate.
 
             Args:
@@ -59,7 +54,7 @@ reload, the web app, and the simulated base.
             """
             for _ in range(2 * min(int(spins), 3)):
                 self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
-            return "Spun with joy", SkillResult.SUCCESS
+            return "Spun with joy"
     ```
 
     The agent reads your `execute()` signature and docstring to learn how to

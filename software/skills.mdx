@@ -12,35 +12,31 @@ Skills are defined in one of two ways.
 
 <AccordionGroup>
   <Accordion title="Code-Defined Skills" defaultOpen={true}>
-    Code-defined skills are Python classes with explicit logic. The runtime injects declared interfaces, and the Innate agent reads your signature/docstrings to call the skill correctly.
+    Code-defined skills are Python classes with explicit logic. Declare what the skill needs as type annotations and the runtime injects it; the Innate agent reads your `guidelines()` and `execute()` signature to call the skill correctly.
 
 ```python
 import math
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+from innate import Head, Mobility, Skill, SkillResult, SkillReturn
 
 class LookAround(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
-    head = Interface(InterfaceType.HEAD)
+    # Declared feeds are injected and guaranteed before execute() starts.
+    mobility: Mobility
+    head: Head
 
-    @property
-    def name(self):
-        return "look_around"
+    def guidelines(self) -> str:
+        # What the agent reads to decide when to call this skill.
+        return "Use when the robot needs to scan its surroundings."
 
-    def execute(self, num_directions: int = 4):
-        """Rotate and scan the environment."""
-        if self.mobility is None or self.head is None:
-            return "Required interfaces not available", SkillResult.FAILURE
-
+    def execute(self, num_directions: int = 4) -> SkillReturn:
         num_directions = max(1, num_directions)
         self.head.set_position(-15)
-        self.mobility.rotate((2 * math.pi) / num_directions)
+        for _ in range(num_directions):
+            self.check_cancelled()  # raises if the user or agent interrupted
+            self.mobility.rotate((2 * math.pi) / num_directions)
         return "Scan complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        return "Cancelled"
 ```
 
-    Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
+    The class name (snake_cased) is the skill name, so `LookAround` is callable as `look_around`. Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
   </Accordion>
 
   <Accordion title="Policy-Defined Skills (End-to-End)">

@@ -8,17 +8,17 @@ import {
   HeadTiltAnglesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `ManipulationInterface` and `HeadInterface` give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
+The `Manipulation` and `Head` interfaces give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
 
-## ManipulationInterface
+## Manipulation
 
-Declare the interface at class level:
+Declare the interface with a class-level type annotation — it's injected and guaranteed before `execute()` starts:
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+from innate import Manipulation, Skill
 
 class MySkill(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    manipulation: Manipulation
 ```
 
 ### Methods
@@ -34,7 +34,8 @@ Move the end-effector to a specific position and orientation:
 self.manipulation.move_to_cartesian_pose(
     x=0.2, y=0.0, z=0.3,
     roll=0.0, pitch=0.0, yaw=0.0,
-    duration=2.0  # motion duration in seconds (not milliseconds)
+    duration=2.0,   # motion duration in seconds (not milliseconds)
+    blocking=True,  # wait for the motion to finish
 )
 ```
 
@@ -44,8 +45,19 @@ Move directly to joint angles (6 joints):
 
 ```python
 # Move to joint configuration [j1, j2, j3, j4, j5, j6]
-self.manipulation.goto_joint_state([0, -0.5, 1.5, -1.0, 0, 0])
+self.manipulation.move_to_joint_positions([0, -0.5, 1.5, -1.0, 0, 0], duration=2.0, blocking=True)
 ```
+
+### Gripper
+
+The claw is joint 6, driven through dedicated helpers. Grip force is enforced in hardware (current-based position control), so a deep close squeezes any object at a constant, safe force:
+
+```python
+self.manipulation.open_gripper(percent=100.0, duration=1.0, blocking=True)
+self.manipulation.close_gripper(strength=0.6, duration=1.5, blocking=True)
+```
+
+The shipped `gripper_open` / `gripper_close` skills wrap these with servo-trip recovery — prefer [composing them](/software/skills/code-defined-skills/composing-skills) over calling the raw interface.
 
 ### Reading State
 
@@ -59,6 +71,8 @@ rpy = self.manipulation.get_current_orientation_rpy()
 # Returns: {'roll': r, 'pitch': p, 'yaw': y}
 ```
 
+For ambient arm state (live forward kinematics plus the gripper joint), declare `arm: Arm` instead — see [Robot State](/software/skills/code-defined-skills/robot-state).
+
 ### Inverse Kinematics
 
 Check if a pose is reachable before moving:
@@ -70,20 +84,20 @@ joints = self.manipulation.solve_ik(
     timeout=1.0
 )
 if joints:
-    self.manipulation.goto_joint_state(joints)
+    self.manipulation.move_to_joint_positions(joints)
 else:
-    return "Pose unreachable", SkillResult.FAILURE
+    self.fail("Pose unreachable")
 ```
 
-## HeadInterface
+## Head
 
 Control camera tilt:
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+from innate import Head, Skill
 
 class MySkill(Skill):
-    head = Interface(InterfaceType.HEAD)
+    head: Head
 ```
 
 ### Methods
@@ -102,61 +116,45 @@ self.head.set_position(10)   # Look up at faces
 
 ## Example: Wave
 
-A skill that waves the arm:
+A skill that waves the arm, with `guidelines()` written out explicitly:
 
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 import time
+from innate import Manipulation, Skill, SkillResult, SkillReturn
 
 class Wave(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    manipulation: Manipulation
 
-    @property
-    def name(self):
-        return "wave"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to wave at someone in greeting."
 
-    def execute(self, times: int = 3):
+    def execute(self, times: int = 3) -> SkillReturn:
         # Wave positions
         wave_left = [0.5, -0.3, 1.0, -0.5, 0.5, 0]
         wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
 
-        for i in range(times):
-            if self._cancelled:
-                return "Wave cancelled", SkillResult.CANCELLED
+        for _ in range(times):
+            self.check_cancelled()
 
-            self.manipulation.goto_joint_state(wave_left)
-            time.sleep(0.3)
-            self.manipulation.goto_joint_state(wave_right)
-            time.sleep(0.3)
+            self.manipulation.move_to_joint_positions(wave_left, duration=0.5, blocking=True)
+            self.manipulation.move_to_joint_positions(wave_right, duration=0.5, blocking=True)
 
         return f"Waved {times} times", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Wave cancelled"
 ```
 
 ## Example: LookAtObject
 
-A skill that adjusts head to look at objects:
+A skill that adjusts head to look at objects. Here the class docstring doubles as the guidelines — the idiomatic shorthand:
 
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+from innate import Head, Skill, SkillReturn
 
 class LookAtObject(Skill):
-    head = Interface(InterfaceType.HEAD)
+    """Use to tilt camera to look at objects on the floor or shelves."""
 
-    @property
-    def name(self):
-        return "look_at_object"
+    head: Head
 
-    def guidelines(self):
-        return "Use to tilt camera to look at objects on the floor or shelves."
-
-    def execute(self, location: str = "floor"):
+    def execute(self, location: str = "floor") -> SkillReturn:
         angles = {
             "floor": -25,
             "table": -10,
@@ -168,8 +166,5 @@ class LookAtObject(Skill):
         angle = angles.get(location, 0)
         self.head.set_position(angle)
 
-        return f"Looking at {location}", SkillResult.SUCCESS
-
-    def cancel(self):
-        return "Cannot cancel head movement"
+        return f"Looking at {location}"
 ```

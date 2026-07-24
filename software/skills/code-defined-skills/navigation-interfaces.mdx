@@ -7,7 +7,7 @@ import {
   NavigationUseCasesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
+The `Mobility` interface gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
 
 ## Core Navigation (Built-in)
 
@@ -23,15 +23,15 @@ When you tell the robot "go to the kitchen," the agent automatically:
 
 3. Monitors progress and handles obstacles
 
-## MobilityInterface
+## Mobility
 
-Declare the interface at class level:
+Declare the interface with a class-level type annotation. Declaring is requiring — the run fails up front if the base is unavailable, so `self.mobility` is guaranteed inside `execute()`:
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+from innate import Mobility, Skill
 
 class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    mobility: Mobility
 ```
 
 ### Methods
@@ -46,7 +46,7 @@ import math
 # Rotate 90 degrees (blocking)
 self.mobility.rotate(math.pi / 2)
 
-# Drive forward for 2 seconds (non-blocking)
+# Drive forward for 2 seconds (non-blocking; stops after duration)
 self.mobility.send_cmd_vel(linear_x=0.1, angular_z=0.0, duration=2.0)
 
 # Spin in place
@@ -59,35 +59,28 @@ self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 
 ## Example: LookAround
 
-A skill that rotates to survey the environment:
+A skill that rotates to survey the environment, written with every agent-facing method explicit:
 
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 import math
+from innate import Mobility, Skill, SkillResult, SkillReturn
 
 class LookAround(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    mobility: Mobility
 
-    @property
-    def name(self):
-        return "look_around"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use when the robot needs to look in multiple directions."
 
-    def execute(self, num_directions: int = 4):
+    def execute(self, num_directions: int = 4) -> SkillReturn:
         rotation_per_step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            if self._cancelled:
-                return "Survey cancelled", SkillResult.CANCELLED
+            self.check_cancelled()  # ends the run as CANCELLED if interrupted
 
-            self._send_feedback(f"Looking direction {i+1}/{num_directions}")
+            self.feedback(f"Looking direction {i+1}/{num_directions}")
             self.mobility.rotate(rotation_per_step)
 
         return "Survey complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Survey cancelled"
 ```
+
+The base class handles cancellation plumbing — `check_cancelled()` raises out of the loop when the user or agent interrupts, and you don't need to override `cancel()`.

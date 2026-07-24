@@ -36,33 +36,17 @@ This is `run_routine_demo`, a shipped skill you can read in full at
 back and forth, turns, and attempts a learned pick — chaining six different skills.
 
 ```python
-from innate import RobotState, RobotStateType, Skill, SkillFailed, SkillResult
-from innate.skills import (
-    arm_zero_position,
-    head_emotion,
-    move_straight,
-    pick_socks,
-    turn_in_place,
-)
+from innate import Battery, Skill, SkillFailed, SkillReturn
+from innate.skills import arm_zero_position, head_emotion, move_straight, pick_socks, turn_in_place
 
 
 class RunRoutineDemo(Skill):
-    """Demo of a chained routine: skills are imported functions, calls block,
-    failures raise SkillFailed, and each call is its own step in the app."""
+    """Run the demo routine: talk, emote, shuffle, turn, and try to pick a
+    sock. Use when the user asks for the demo."""
 
-    battery = RobotState(RobotStateType.LAST_BATTERY)
+    battery: Battery | None  # nice to have — the demo runs without a reading
 
-    @property
-    def name(self):
-        return "run_routine_demo"
-
-    def guidelines(self):
-        return (
-            "Run the demo routine: talk, emote, shuffle, turn, and try to pick a "
-            "sock. Use when the user asks for the demo."
-        )
-
-    def execute(self):
+    def execute(self) -> SkillReturn:
         runs = self.storage.get("runs", 0) + 1
         self.storage["runs"] = runs
 
@@ -84,10 +68,10 @@ class RunRoutineDemo(Skill):
             self.say("No socks today.")
 
         if self.battery:
-            self.say(f"Battery at {self.battery['percentage']:.0%}.")
+            self.say(f"Battery at {self.battery.percentage:.0%}.")
         head_emotion(emotion="proud")
         self.say("All done!")
-        return "Demo complete", SkillResult.SUCCESS
+        return "Demo complete"
 ```
 
 ## What each piece is doing
@@ -121,10 +105,11 @@ If you *don't* catch it, the exception propagates and your composing skill fails
 which is often exactly what you want for a step that must succeed.
 
 **Everything else is a normal skill.** The composing skill is still an ordinary
-[code-defined skill](/software/skills/code-defined-skills): it declares
-[`RobotState`](/software/skills/code-defined-skills/robot-state) dependencies
-(`battery`), persists data across runs with `self.storage`, speaks with `self.say(...,
-wait=True)`, and returns a `(message, SkillResult)` tuple.
+[code-defined skill](/software/skills/code-defined-skills): the class docstring is its
+`guidelines()`, it declares [robot state](/software/skills/code-defined-skills/robot-state)
+with a type annotation (`battery: Battery | None`), persists data across runs with
+`self.storage`, speaks with `self.say(..., wait=True)`, and returns a plain success
+message.
 
 <Tip>
 Because each sub-skill call is its own step, a composed routine is easy to follow in the

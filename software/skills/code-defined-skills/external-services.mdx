@@ -29,15 +29,15 @@ world, but it comes with its own constraints:
 
 ### SendEmail
 
-Sends email notifications, typically for alerts or status updates.
+Sends email notifications, typically for alerts or status updates. The guidelines are
+written out explicitly here — the agent-facing text carries usage policy ("emergency
+only") that goes beyond a one-line description:
 
 ```python
-class SendEmail(Skill):
-    @property
-    def name(self):
-        return "send_email"
+from innate import Skill, SkillReturn
 
-    def guidelines(self):
+class SendEmail(Skill):
+    def guidelines(self) -> str:
         return (
             "Use to send an emergency email notification. Provide a subject and "
             "message. You can optionally provide a list of recipients, otherwise "
@@ -45,10 +45,11 @@ class SendEmail(Skill):
             "potential emergency is detected and assistance might be required."
         )
 
-    def execute(self, subject: str, message: str, recipients: list[str] = None):
-        # Send via SMTP
-        # Returns (message, SkillResult)
+    def execute(self, subject: str, message: str, recipients: list[str] | None = None) -> SkillReturn:
+        # Send via SMTP; return a success message or self.fail(...)
 ```
+
+The skill name defaults to the snake_cased class name, so `SendEmail` is callable as `send_email` — no `name` property needed.
 
 **Parameters:**
 
@@ -59,17 +60,21 @@ class SendEmail(Skill):
 Sends an email with the robot's current camera view attached.
 
 ```python
-class SendPictureViaEmail(Skill):
-    # Declare camera image dependency - updated at 50Hz while skill runs
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+from innate import MainImage, Skill, SkillReturn
 
-    def execute(self, subject: str, message: str, recipient: str = None):
-        if not self.image:
-            return "No image available to send", SkillResult.FAILURE
+class SendPictureViaEmail(Skill):
+    # Declared camera frame — guaranteed before execute() starts,
+    # updated at 50Hz while the skill runs
+    image: MainImage
+
+    def execute(self, subject: str, message: str, recipient: str | None = None) -> SkillReturn:
+        jpeg_bytes = self.image.jpeg
         # Attach image and send
 ```
 
-This skill demonstrates **state dependencies**—using the `RobotState` descriptor to declare required robot state that the system updates at 50Hz.
+This skill demonstrates **state dependencies** — declaring robot state with a type
+annotation. Because `image` is declared without `| None`, the run fails up front if no
+frame arrives, so `execute()` never needs a guard.
 
 ### RetrieveEmails
 
@@ -77,19 +82,19 @@ Fetches recent emails from configured account.
 
 ```python
 class RetrieveEmails(Skill):
-    def guidelines(self):
-        return (
-            "Use to retrieve recent emails from the configured email account. "
-            "Provide the number of emails to retrieve (default is 5). "
-            "Returns email subjects and content."
-        )
+    """Use to retrieve recent emails from the configured email account.
+    Provide the number of emails to retrieve (default is 5).
+    Returns email subjects and content."""
 
-    def execute(self, count: int = 5):
+    def execute(self, count: int = 5) -> SkillReturn:
         # Connect to IMAP, fetch emails
-        # Returns formatted email list
+        # Return formatted email list
 ```
 
-Want to build your own version against your own account? There's a complete implementation in the [worked example](#worked-example-retrieveemails) below.
+Here the class docstring doubles as the guidelines — the idiomatic shorthand once
+you're comfortable with the explicit form. Want to build your own version against your
+own account? There's a complete implementation in the
+[worked example](#worked-example-retrieveemails) below.
 
 ## Building a service skill
 
@@ -97,7 +102,7 @@ Want to build your own version against your own account? There's a complete impl
 
 ```python
 import os
-from brain_client.skill_types import Skill, SkillResult
+from innate import Skill, SkillReturn
 
 class MyServiceSkill(Skill):
     def __init__(self, logger):
@@ -106,25 +111,17 @@ class MyServiceSkill(Skill):
         if not self.api_key:
             raise ValueError("SERVICE_API_KEY not configured")
 
-    @property
-    def name(self):
-        return "my_service_skill"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use when [describe appropriate use cases]"
 
-    def execute(self, param: str):
+    def execute(self, param: str) -> SkillReturn:
         try:
-            # Call external service
             result = self._call_service(param)
-            return f"Success: {result}", SkillResult.SUCCESS
         except TimeoutError:
-            return "Service timed out", SkillResult.FAILURE
+            self.fail("Service timed out")
         except Exception as e:
-            return f"Error: {e}", SkillResult.FAILURE
-
-    def cancel(self):
-        return "Operation cannot be cancelled"
+            self.fail(f"Error: {e}")
+        return f"Success: {result}"
 ```
 
 ### Worked example: RetrieveEmails
@@ -132,9 +129,9 @@ class MyServiceSkill(Skill):
 Here's a complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot, and reference it from an agent as `local/retrieve_emails` (custom skills are namespaced `local/`, shipped skills `innate-os/`):
 
 ```python
-import imaplib
 import email
-from brain_client.skill_types import Skill, SkillResult
+import imaplib
+from innate import Skill, SkillReturn
 
 class RetrieveEmails(Skill):
     def __init__(self, logger):
@@ -145,29 +142,20 @@ class RetrieveEmails(Skill):
         # not your main account password.
         self.password = "your_app_password"
 
-    @property
-    def name(self):
-        return "retrieve_emails"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to retrieve recent emails. Provide count (default 5). Returns subjects and content."
 
-    def execute(self, count: int = 5):
+    def execute(self, count: int = 5) -> SkillReturn:
         count = min(max(1, count), 20)
         try:
             mail = imaplib.IMAP4_SSL(self.imap_server, 993)
             mail.login(self.email, self.password)
             # ... fetch and process emails ...
             email_data = "Email 1: Subject, From, Content..."
-            self._send_feedback(email_data)
-            return f"Retrieved {count} emails with subjects and content", SkillResult.SUCCESS
+            self.feedback(email_data)
+            return f"Retrieved {count} emails with subjects and content"
         except Exception as e:
-            return f"Failed to retrieve emails: {str(e)}", SkillResult.FAILURE
-
-    def cancel(self):
-        # Every skill must implement cancel(); nothing long-running to
-        # interrupt here, so just report it.
-        return "Email retrieval cancelled"
+            self.fail(f"Failed to retrieve emails: {e}")
 ```
 
 ### Best Practices
@@ -183,16 +171,16 @@ class RetrieveEmails(Skill):
 **Error Handling**
 
 ```python
-def execute(self, query: str):
+def execute(self, query: str) -> SkillReturn:
     try:
         response = self.client.call(query, timeout=10)
-        return f"Result: {response}", SkillResult.SUCCESS
     except RateLimitError:
-        return "Rate limit exceeded", SkillResult.FAILURE
+        self.fail("Rate limit exceeded")
     except NetworkError:
-        return "Network unavailable", SkillResult.FAILURE
+        self.fail("Network unavailable")
     except Exception as e:
-        return f"Unexpected error: {e}", SkillResult.FAILURE
+        self.fail(f"Unexpected error: {e}")
+    return f"Result: {response}"
 ```
 
 **Timeouts**
@@ -209,37 +197,35 @@ def execute(self, query: str):
 
 ## Requesting Robot State
 
-Skills declare sensor data dependencies using the `RobotState` descriptor:
+Skills declare sensor data dependencies with class-level type annotations:
 
 ```python
-from brain_client.skill_types import RobotState, RobotStateType
+from innate import MainImage, Odometry, Skill
 
 class MySkill(Skill):
-    # Declare state dependencies at class level
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
-    odom = RobotState(RobotStateType.LAST_ODOM)
+    # Declared state — injected and updated at 50Hz while the skill runs
+    image: MainImage
+    odom: Odometry
 
     def execute(self):
-        if self.image:
-            # Use the latest camera frame
-            pass
+        # Both are guaranteed here; append `| None` to a declaration to
+        # make it best-effort instead (then guard your reads).
+        ...
 ```
-
-The system automatically updates declared state at 50Hz while your skill runs. Always check for `None` on first access.
 
 Available state types:
 
 <ServiceStateTypesTable />
 
-See [Robot State](/software/skills/code-defined-skills/robot-state) for more details on the RobotState system.
+See [Robot State](/software/skills/code-defined-skills/robot-state) for more details on typed ambient state.
 
 ## Cancellation
 
-Many service operations are atomic and cannot be meaningfully cancelled:
+Many service operations are atomic and cannot be meaningfully cancelled. If your skill has nothing to interrupt, just don't check for cancellation — a cancel that lands mid-run takes effect at the next `self.check_cancelled()` call, so a skill without checkpoints simply runs to completion. Mention it in the guidelines if the agent should know:
 
 ```python
-def cancel(self):
-    return "Email sending is an atomic operation that cannot be canceled once started"
+def guidelines(self) -> str:
+    return "Sends the email immediately; cannot be cancelled once started."
 ```
 
 The Innate agent understands this limitation and factors it into planning decisions.
