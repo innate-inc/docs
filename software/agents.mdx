@@ -21,23 +21,23 @@ No configuration files. No complex setup. Just Python.
 The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear on the **Home** screen in the Innate Controller App.
 
 <CardGroup cols={2}>
-  <Card title="No Prompt (`basic_agent`)">
-    Minimal default behavior with `navigate_to_position` and no prompt text.
+  <Card title="No Prompt (`empty_directive`)">
+    The idle default — no skills, no prompt. What the robot runs when you haven't picked an agent.
+  </Card>
+  <Card title="Basic Navigation (`basic_agent`)">
+    Navigation only, with no prompt text.
   </Card>
   <Card title="Demo Agent (`demo_agent`)">
-    Friendly interactive demo agent with navigation, waving, and gaze.
+    Friendly interactive demo: navigation, waving, picking, and gaze.
   </Card>
   <Card title="J3SO (`j3so_directive`)">
     Character-style conversational agent with navigation.
   </Card>
   <Card title="Security Guard (`security_guard_agent`)">
-    Patrol-oriented agent with door opening and email alert behavior.
+    Patrol-oriented agent with navigation and email alerts.
   </Card>
-  <Card title="Chess Piece Agent (`chess_piece_agent`)">
-    Chess gameplay agent using piece manipulation and move detection.
-  </Card>
-  <Card title="Chess Self-Play Agent (`chess_self_play_agent`)">
-    Autonomous self-play chess agent with narrated moves.
+  <Card title="Chess Agent (`chess_agent`)">
+    Chess gameplay: piece manipulation, move detection, board state. Beta.
   </Card>
   <Card title="Board Calibration Agent (`board_calibration_agent`)">
     Guided workflow agent for chess board corner calibration.

@@ -233,7 +233,7 @@ export const AgentCoreMethodsTable = () => {
   const rows = [
     { method: "id", returns: "str", purpose: "Unique identifier (snake_case)." },
     { method: "display_name", returns: "str", purpose: "Human-readable name shown in the app." },
-    { method: "get_skills()", returns: "List[str]", purpose: "Skills this agent can use." },
+    { method: "get_skills()", returns: "list[SkillRef]", purpose: "Skills this agent can use — the skill classes, or their id strings." },
     { method: "get_prompt()", returns: "str", purpose: "Personality and behavioral instructions." },
   ];
 
@@ -270,7 +270,7 @@ export const AgentCoreMethodsTable = () => {
 export const AgentOptionalMethodsTable = () => {
   const rows = [
     { method: "display_icon", returns: "str", purpose: "Path to a 32x32 pixel icon." },
-    { method: "get_inputs()", returns: "List[str]", purpose: "Input devices to activate (for example: [\"micro\"])." },
+    { method: "get_inputs()", returns: "list[InputRef]", purpose: "Input devices to activate (for example: [MicroInput])." },
     { method: "uses_gaze()", returns: "bool", purpose: "Enable person-tracking eye movement." },
   ];
 
@@ -308,23 +308,27 @@ export const SkillCoreMethodsTable = () => {
   const rows = [
     {
       method: "execute()",
-      purpose: "The actual behavior (required). The signature defines the skill parameters.",
+      purpose: "The behavior itself (required). Its signature defines the skill's parameters.",
     },
     {
       method: "guidelines()",
-      purpose: "Natural language instructions for when and how to use the skill. Defaults to the class docstring.",
-    },
-    {
-      method: "name",
-      purpose: "Unique identifier the agent uses to call this skill. Defaults to the snake_cased class name.",
+      purpose: "Tells the agent when to use this skill. Falls back to the class docstring.",
     },
     {
       method: "fail()",
-      purpose: "End the run as a FAILURE with a message (raises SkillFailed).",
+      purpose: "End the run as a FAILURE with a message. Raises, so there is no error branch to return.",
     },
     {
-      method: "on_cancel() / check_cancelled()",
-      purpose: "React to interruption: register an immediate stop hook, or raise out of a loop checkpoint.",
+      method: "sleep()",
+      purpose: "Wait, and raise SkillCancelled if the run is stopped. Always use instead of time.sleep().",
+    },
+    {
+      method: "feedback()",
+      purpose: "Send a progress update the agent can read and act on while the skill runs.",
+    },
+    {
+      method: "name",
+      purpose: "The id the agent calls. Defaults to the snake_cased class name; override only if they differ.",
     },
   ];
 
@@ -354,9 +358,9 @@ export const SkillCoreMethodsTable = () => {
 
 export const SkillResultsTable = () => {
   const rows = [
-    { status: "SUCCESS", meaning: "Skill completed its task." },
-    { status: "FAILURE", meaning: "Something went wrong." },
-    { status: "CANCELLED", meaning: "Skill was interrupted via cancel()." },
+    { status: "SUCCESS", meaning: "execute() returned a message (or None)." },
+    { status: "FAILURE", meaning: "The skill called self.fail(), or raised." },
+    { status: "CANCELLED", meaning: "The user or agent stopped the skill." },
   ];
 
   return (

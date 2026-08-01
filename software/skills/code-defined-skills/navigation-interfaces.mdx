@@ -27,7 +27,7 @@ When you tell the robot "go to the kitchen," the agent automatically:
 
 Declare the interface with a class-level type annotation. Declaring is requiring — the run fails up front if the base is unavailable, so `self.mobility` is guaranteed inside `execute()`:
 
-```python
+```innatepy
 from innate import Mobility, Skill
 
 class MySkill(Skill):
@@ -40,7 +40,7 @@ class MySkill(Skill):
 
 ### Examples
 
-```python
+```innatepy
 import math
 
 # Rotate 90 degrees (blocking)
@@ -61,9 +61,9 @@ self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 
 A skill that rotates to survey the environment, written with every agent-facing method explicit:
 
-```python
+```innatepy
 import math
-from innate import Mobility, Skill, SkillResult, SkillReturn
+from innate import Mobility, Skill, SkillReturn
 
 class LookAround(Skill):
     mobility: Mobility
@@ -75,12 +75,11 @@ class LookAround(Skill):
         rotation_per_step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            self.check_cancelled()  # ends the run as CANCELLED if interrupted
-
-            self.feedback(f"Looking direction {i+1}/{num_directions}")
+            self.feedback(f"Looking direction {i + 1}/{num_directions}")
             self.mobility.rotate(rotation_per_step)
+            self.sleep(0.2)
 
-        return "Survey complete", SkillResult.SUCCESS
+        return "Survey complete"
 ```
 
-The base class handles cancellation plumbing — `check_cancelled()` raises out of the loop when the user or agent interrupts, and you don't need to override `cancel()`.
+Cancellation needs no plumbing: `self.sleep()` raises the moment the user or agent interrupts, the base is braked for you, and the run reports `CANCELLED`.

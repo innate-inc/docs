@@ -8,10 +8,10 @@ Every InputDevice has to implement a `name`, an `on_open` and `on_close` methods
 
 This template, once activated, sends data every 1 second to the agent as if the user was talking.
 
-```python
+```innatepy
 import threading
 
-from brain_client.input_types import InputDevice
+from brain_client.inputs.types import InputDevice
 
 class MyInput(InputDevice):
     def __init__(self):

@@ -11,9 +11,9 @@ Every agent follows the same structure. Once you understand it, you can create a
 
 ## File Location
 
-Your agents are stored in `~/innate-os/workspace/custom_agents/` on the robot (shipped agents live next door in `workspace/innate_agents/`). The system automatically discovers Python files in these directories—no registration or configuration required.
+Your agents live in `~/innate-os/workspace/custom_agents/` on the robot; shipped agents live next door in `workspace/innate_agents/`. Both are ordinary Python packages — define an `Agent` subclass in any `.py` file and the robot knows it.
 
-The directory is watched while the robot runs: new files and edits hot-reload automatically within a second or two — no restart required. (`innate service restart` remains the fallback if something doesn't get picked up.)
+Edits hot-reload within a second or two, no restart required. (`innate service restart` remains the fallback if something doesn't get picked up.)
 
 ## Core Interface
 
@@ -29,9 +29,8 @@ Optional methods:
 
 The simplest possible agent:
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, SkillRef
 
 class MyAgent(Agent):
     @property
@@ -42,22 +41,24 @@ class MyAgent(Agent):
     def display_name(self) -> str:
         return "My Agent"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return []
 
     def get_prompt(self) -> str:
         return "You are a robot."
 ```
 
-This agent loads and runs, but does very little—it has no skills and a minimal prompt.
+It loads and runs, but does very little — no skills, and a minimal prompt.
 
 ## Complete Example
 
-A functional agent with skills, inputs, and a detailed prompt:
+Skills, inputs, and a real prompt. **Import the skill classes and list them** — a typo or a renamed skill is then caught by your editor instead of at runtime on the robot:
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.wave import Wave
+from inputs.micro_input import MicroInput
 
 class HelloWorld(Agent):
     """Greets visitors with a friendly wave."""
@@ -74,11 +75,11 @@ class HelloWorld(Agent):
     def display_icon(self) -> str:
         return "assets/hello_world.png"
 
-    def get_skills(self) -> List[str]:
-        return ["innate-os/navigate_to_position", "innate-os/wave"]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, Wave]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]  # enables the microphone — see below
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]   # enables the microphone — see below
 
     def get_prompt(self) -> str:
         return """
@@ -94,46 +95,55 @@ You are a friendly robot who greets people.
         return True
 ```
 
-This agent combines navigation and waving skills, microphone input, a friendly prompt, and gaze tracking for more natural interaction.
+Code skills and trained policies are listed the same way. `Wave` above is a recorded demonstration — the catalog generates a typed reference for every physical skill inside its own folder, so it imports just like a code skill. See [Composing Skills](/software/skills/code-defined-skills/composing-skills#learned-policies-call-the-same-way).
 
-## Skill IDs
+## Referring to skills by ID
 
-`get_skills()` takes full skill IDs, prefixed by where each skill comes from:
+A skill ID string works anywhere a class does, which is what you need for a skill you can't import from your agent:
+
+```innatepy
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition, "local/victory_spin"]
+```
+
+IDs are namespaced by the package the skill lives in, and are matched exactly:
 
 | Prefix | Source |
 | --- | --- |
-| `innate-os/` | skills shipped with the OS |
-| `local/` | your own skills in `~/innate-os/workspace/custom_skills/` |
-
-IDs are matched exactly during registration — a custom skill named
-`victory_spin` must be listed as `"local/victory_spin"`, not bare.
+| `innate-os/` | skills shipped with the OS (`workspace/innate_skills/`) |
+| `local/` | your own skills (`workspace/custom_skills/`) |
+| `<package>/` | a skill pack you dropped into `workspace/` |
 
 ## Enabling the Microphone
 
-If you want to **talk to your agent**, you must enable the microphone input — it is not on by default. Add `"micro"` to the list returned by `get_inputs()`:
+To **talk to your agent**, enable the microphone input — it is not on by default:
 
-```python
-def get_inputs(self) -> List[str]:
-    return ["micro"]
+```innatepy
+from inputs.micro_input import MicroInput
+
+def get_inputs(self) -> list[InputRef]:
+    return [MicroInput]
 ```
 
-That's all: when the agent starts, the runtime opens MARS's built-in microphone and everything you say is streamed into the agent's context as chat input. Without this, the agent only reacts to what it sees and to messages typed in the app.
+When the agent starts, the runtime opens MARS's built-in microphone and streams everything you say into the agent's context as chat input. Without it, the agent only reacts to what it sees and to messages typed in the app.
 
-The same mechanism works for any [input device](/software/inputs) (added sensors, network events, ...) — `"micro"` is just the built-in one. See [Example: Microphone](/software/inputs/example-microphone) for how it works under the hood.
+The same mechanism works for any [input device](/software/inputs) — added sensors, network events, and so on. See [Example: Microphone](/software/inputs/example-microphone) for how it works under the hood.
 
 ## Writing Effective Prompts
 
 The prompt determines how the robot behaves. Skills define what's *possible*; the prompt defines what *actually happens*.
 
-A good prompt defines personality, goals, constraints, and strategy in plain language. Be specific. The AI interprets your prompt literally, and vague instructions produce inconsistent behavior.
+A good prompt defines personality, goals, constraints, and strategy in plain language. Be specific — the model interprets your prompt literally, and vague instructions produce inconsistent behavior.
 
 ## Template
 
-Copy and modify this template for new agents:
+Copy and modify this for new agents:
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.turn_in_place import TurnInPlace
+from inputs.micro_input import MicroInput
 
 class MyCustomAgent(Agent):
     """One-line description of what this agent does."""
@@ -150,15 +160,11 @@ class MyCustomAgent(Agent):
     def display_icon(self) -> str:
         return "assets/my_icon.png"  # Optional
 
-    def get_skills(self) -> List[str]:
-        return [
-            "innate-os/navigate_to_position",
-            "innate-os/wave",
-            "innate-os/turn_and_move",
-        ]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, TurnInPlace]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """
@@ -174,7 +180,7 @@ Be explicit about personality, goals, strategy, and constraints.
 
 <Steps>
   <Step title="Save the file in the right place">
-    Save your agent as `my_agent.py` in **`~/innate-os/workspace/custom_agents/`** on the robot. This is the one directory the system scans for your agents — anywhere else and it won't load.
+    Save your agent as `my_agent.py` in **`~/innate-os/workspace/custom_agents/`** on the robot.
   </Step>
   <Step title="Let hot reload pick it up">
     The runtime watches `custom_agents/` — your new agent loads automatically within a second or two of saving, and so does every later edit. If it ever fails to appear, restart the runtime as a fallback:

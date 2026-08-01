@@ -14,7 +14,7 @@ The `Manipulation` and `Head` interfaces give you direct control over the robot'
 
 Declare the interface with a class-level type annotation — it's injected and guaranteed before `execute()` starts:
 
-```python
+```innatepy
 from innate import Manipulation, Skill
 
 class MySkill(Skill):
@@ -29,7 +29,7 @@ class MySkill(Skill):
 
 Move the end-effector to a specific position and orientation:
 
-```python
+```innatepy
 # Move to position (x, y, z) with orientation (roll, pitch, yaw)
 self.manipulation.move_to_cartesian_pose(
     x=0.2, y=0.0, z=0.3,
@@ -43,7 +43,7 @@ self.manipulation.move_to_cartesian_pose(
 
 Move directly to joint angles (6 joints):
 
-```python
+```innatepy
 # Move to joint configuration [j1, j2, j3, j4, j5, j6]
 self.manipulation.move_to_joint_positions([0, -0.5, 1.5, -1.0, 0, 0], duration=2.0, blocking=True)
 ```
@@ -52,7 +52,7 @@ self.manipulation.move_to_joint_positions([0, -0.5, 1.5, -1.0, 0, 0], duration=2
 
 The claw is joint 6, driven through dedicated helpers. Grip force is enforced in hardware (current-based position control), so a deep close squeezes any object at a constant, safe force:
 
-```python
+```innatepy
 self.manipulation.open_gripper(percent=100.0, duration=1.0, blocking=True)
 self.manipulation.close_gripper(strength=0.6, duration=1.5, blocking=True)
 ```
@@ -61,7 +61,7 @@ The shipped `gripper_open` / `gripper_close` skills wrap these with servo-trip r
 
 ### Reading State
 
-```python
+```innatepy
 # Get current end-effector pose
 pose = self.manipulation.get_current_end_effector_pose()
 # Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
@@ -77,7 +77,7 @@ For ambient arm state (live forward kinematics plus the gripper joint), declare 
 
 Check if a pose is reachable before moving:
 
-```python
+```innatepy
 joints = self.manipulation.solve_ik(
     x=0.2, y=0.0, z=0.3,
     roll=0.0, pitch=0.0, yaw=0.0,
@@ -93,7 +93,7 @@ else:
 
 Control camera tilt:
 
-```python
+```innatepy
 from innate import Head, Skill
 
 class MySkill(Skill):
@@ -108,7 +108,7 @@ class MySkill(Skill):
 
 <HeadTiltAnglesTable />
 
-```python
+```innatepy
 self.head.set_position(-15)  # Look down at objects
 self.head.set_position(0)    # Look straight ahead
 self.head.set_position(10)   # Look up at faces
@@ -118,9 +118,9 @@ self.head.set_position(10)   # Look up at faces
 
 A skill that waves the arm, with `guidelines()` written out explicitly:
 
-```python
+```innatepy
 import time
-from innate import Manipulation, Skill, SkillResult, SkillReturn
+from innate import Manipulation, Skill, SkillReturn
 
 class Wave(Skill):
     manipulation: Manipulation
@@ -134,19 +134,17 @@ class Wave(Skill):
         wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
 
         for _ in range(times):
-            self.check_cancelled()
-
             self.manipulation.move_to_joint_positions(wave_left, duration=0.5, blocking=True)
             self.manipulation.move_to_joint_positions(wave_right, duration=0.5, blocking=True)
 
-        return f"Waved {times} times", SkillResult.SUCCESS
+        return f"Waved {times} times"
 ```
 
 ## Example: LookAtObject
 
 A skill that adjusts head to look at objects. Here the class docstring doubles as the guidelines — the idiomatic shorthand:
 
-```python
+```innatepy
 from innate import Head, Skill, SkillReturn
 
 class LookAtObject(Skill):

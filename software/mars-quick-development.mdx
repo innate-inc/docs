@@ -16,9 +16,11 @@ ssh jetson1@<YOUR-ROBOT-IP>
 
 Either way, go to `~/innate-os/workspace/custom_agents/` and create a `hello_world.py` agent file:
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.wave import Wave
+from inputs.micro_input import MicroInput
 
 class HelloWorld(Agent):
     @property
@@ -29,13 +31,11 @@ class HelloWorld(Agent):
     def display_name(self) -> str:
         return "Hello World"
 
-    def get_skills(self) -> List[str]:
-        return [
-            "innate-os/navigate_to_position",
-            "innate-os/wave",
-        ]
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, Wave]
+
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """
@@ -90,9 +90,9 @@ As an example, let's give MARS a skill that reads your latest Gmail messages. Gr
 
 Then run the skill from an agent that can query it:
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, SkillRef
+from custom_skills.retrieve_emails import RetrieveEmails
 
 class EmailAssistant(Agent):
     @property
@@ -103,11 +103,8 @@ class EmailAssistant(Agent):
     def display_name(self) -> str:
         return "Email Assistant"
 
-    def get_skills(self) -> List[str]:
-        # Custom skills are namespaced "local/", shipped skills "innate-os/"
-        return [
-            "local/retrieve_emails"
-        ]
+    def get_skills(self) -> list[SkillRef]:
+        return [RetrieveEmails]
 
     def get_prompt(self) -> str:
         return """

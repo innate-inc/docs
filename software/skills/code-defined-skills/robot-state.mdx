@@ -10,7 +10,7 @@ Skills read sensor data — camera frames, odometry, the map, and more — as **
 
 One rule covers everything: annotate what you read.
 
-```python
+```innatepy
 from innate import Battery, MainImage, Odometry, Skill
 
 class MySkill(Skill):
@@ -33,7 +33,7 @@ Cameras must be declared — the server starts them per run (frame encoding is t
 
 An `Image` **is** the base64 JPEG text (it subclasses `str`, so anything that treated frames as base64 strings keeps working); `.jpeg` is the decoded bytes:
 
-```python
+```innatepy
 from innate import MainImage, Skill, WristImage
 
 class MySkill(Skill):
@@ -56,7 +56,7 @@ class MySkill(Skill):
 
 A flat 2D snapshot — MARS is a differential-drive base on flat ground, so its pose is fully `(x, y, theta)`:
 
-```python
+```innatepy
 from innate import Odometry, Skill
 
 class MySkill(Skill):
@@ -77,7 +77,7 @@ class MySkill(Skill):
 
 The occupancy grid:
 
-```python
+```innatepy
 from innate import Map, Skill
 
 class MySkill(Skill):
@@ -93,7 +93,7 @@ class MySkill(Skill):
 
 ## Other feeds
 
-```python
+```innatepy
 self.battery.percentage      # 0.0-1.0; also .voltage, .current, .charging
 self.lidar.min_range(-30, 30)   # closest valid return ahead, in meters
 self.arm.position            # end-effector (x, y, z); .gripper is the claw joint
@@ -103,11 +103,11 @@ self.head_position.pitch_degrees   # current head pitch (negative = down)
 
 ## Example: CaptureImages
 
-A skill that captures images while rotating. The first example spells out `guidelines()` explicitly; the camera and mobility are declared with bare annotations, so both are guaranteed inside `execute()`:
+Capture images while rotating. The camera and mobility are declared with bare annotations, so both are guaranteed inside `execute()`:
 
-```python
+```innatepy
 import math
-from innate import MainImage, Mobility, Skill, SkillResult, SkillReturn
+from innate import MainImage, Mobility, Skill, SkillReturn
 
 class CaptureImages(Skill):
     mobility: Mobility
@@ -121,43 +121,38 @@ class CaptureImages(Skill):
         rotation_step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            self.check_cancelled()
-
             images.append(self.image)  # latest frame at this heading
-            self.feedback(f"Captured {i+1}/{num_directions}")
+            self.feedback(f"Captured {i + 1}/{num_directions}")
 
             if i < num_directions - 1:
                 self.mobility.rotate(rotation_step)
 
-        return f"Captured {len(images)} images", SkillResult.SUCCESS
+        return f"Captured {len(images)} images"
 ```
 
 ## Example: MonitorPosition
 
-A skill that tracks robot movement:
+Track how far the robot moves over a window. `self.sleep()` is what makes the loop interruptible:
 
-```python
+```innatepy
 import math
 import time
 from innate import Odometry, Skill, SkillReturn
 
 class MonitorPosition(Skill):
-    """Use to monitor robot position for a duration."""
-
     odom: Odometry
+
+    def guidelines(self) -> str:
+        return "Use to monitor robot position for a duration."
 
     def execute(self, duration: float = 5.0) -> SkillReturn:
         start_x, start_y = self.odom.position
-        start_time = time.time()
+        deadline = time.time() + duration
 
-        while time.time() - start_time < duration:
-            self.check_cancelled()
-
+        while time.time() < deadline:
             x, y = self.odom.position
-            distance = math.hypot(x - start_x, y - start_y)
-
-            self.feedback(f"Moved {distance:.2f}m from start")
-            time.sleep(0.5)
+            self.feedback(f"Moved {math.hypot(x - start_x, y - start_y):.2f}m from start")
+            self.sleep(0.5)
 
         return "Monitoring complete"
 ```

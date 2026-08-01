@@ -4,7 +4,15 @@ title: "Starting an Agent"
 
 Once you've created an agent in `~/innate-os/workspace/custom_agents/`, it is picked up automatically — the runtime watches that directory and hot-reloads new files and edits within a second or two. No restart needed; if it ever doesn't show up, `innate service restart` is the reliable fallback.
 
-You can then activate it through the Controller App or directly on the robot.
+You can then activate it from the web app or the Controller App.
+
+## Using the web app
+
+Open the web app at `https://<robot-ip>` and go to the **Agent** page. Pick your agent from the dropdown and hit **Start**:
+
+![Starting an agent from the web app](/images/main/robots/web-app/starting-an-agent.png)
+
+The panel is live while the agent runs: **Active skill** shows what it's doing right now, **AI thoughts** streams its reasoning, and the box at the bottom sends it a message (sending also starts the agent). **Reset** clears the conversation without changing agents.
 
 ## Using the Controller App
 

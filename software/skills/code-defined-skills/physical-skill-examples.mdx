@@ -8,11 +8,11 @@ For a real production example, read `pick_any_object` (shipped in `~/innate-os/w
 
 ## ScanAndWave
 
-Rotate to find a person, then wave. The first example spells out `guidelines()` explicitly and shows the cancellation helpers:
+Rotate to find a person, then wave:
 
-```python
+```innatepy
 import math
-from innate import MainImage, Manipulation, Mobility, Head, Skill, SkillResult, SkillReturn
+from innate import MainImage, Manipulation, Mobility, Head, Skill, SkillReturn
 
 class ScanAndWave(Skill):
     mobility: Mobility
@@ -24,26 +24,22 @@ class ScanAndWave(Skill):
         return "Use when greeting someone in the room."
 
     def execute(self) -> SkillReturn:
-        # Stop the base the instant a cancel lands
-        self.on_cancel(lambda: self.mobility.send_cmd_vel(0.0, 0.0))
-
         # Look up to see faces
         self.head.set_position(10)
 
         # Scan 360 degrees
         for i in range(8):
-            self.check_cancelled()
-
-            self.feedback(f"Scanning direction {i+1}/8")
+            self.feedback(f"Scanning direction {i + 1}/8")
 
             # Check for person (simplified - use vision API in practice)
             if self._detect_person(self.image):
                 self._wave()
-                return "Found person and waved", SkillResult.SUCCESS
+                return "Found person and waved"
 
             self.mobility.rotate(math.pi / 4)
+            self.sleep(0.2)
 
-        return "No person found", SkillResult.SUCCESS
+        return "No person found"
 
     def _detect_person(self, image):
         # Intentionally stubbed for this example — swap in your own detector
@@ -63,7 +59,7 @@ class ScanAndWave(Skill):
 
 Position, look down, and prepare arm for pickup:
 
-```python
+```innatepy
 from innate import Manipulation, Mobility, Head, Skill, SkillReturn
 
 class PickupRoutine(Skill):
@@ -78,13 +74,9 @@ class PickupRoutine(Skill):
     READY_POSE = [0, -0.3, 1.0, -0.8, 0, 0]
 
     def execute(self, approach_distance: float = 0.3) -> SkillReturn:
-        self.on_cancel(lambda: self.mobility.send_cmd_vel(0.0, 0.0))
-
         # Step 1: Safe starting position
         self.feedback("Moving arm to safe position")
         self.manipulation.move_to_joint_positions(self.HOME_POSE, blocking=True)
-
-        self.check_cancelled()
 
         # Step 2: Look down at target area
         self.feedback("Looking at target area")
@@ -93,8 +85,6 @@ class PickupRoutine(Skill):
         # Step 3: Approach slowly
         self.feedback("Approaching target")
         self.mobility.send_cmd_vel(linear_x=0.05, angular_z=0, duration=approach_distance / 0.05)
-
-        self.check_cancelled()
 
         # Step 4: Move arm to ready position
         self.feedback("Preparing arm")
@@ -107,7 +97,7 @@ class PickupRoutine(Skill):
 
 Patrol between positions while monitoring camera:
 
-```python
+```innatepy
 import math
 import time
 from innate import MainImage, Mobility, Head, Skill, SkillReturn
@@ -120,20 +110,16 @@ class PatrolAndMonitor(Skill):
     image: MainImage
 
     def execute(self, positions: int = 4, duration: float = 30.0) -> SkillReturn:
-        self.on_cancel(lambda: self.mobility.send_cmd_vel(0.0, 0.0))
-
         images = []
         rotation_per_position = (2 * math.pi) / positions
         start_time = time.time()
 
         while time.time() - start_time < duration:
             for i in range(positions):
-                self.check_cancelled()
-
                 # Scan head up and down at each position
                 for angle in [-15, 0, 10]:
                     self.head.set_position(angle)
-                    time.sleep(0.5)
+                    self.sleep(0.5)   # not time.sleep — this one is interruptible
 
                     images.append(self.image)
                     self.feedback(f"Captured image {len(images)}")
@@ -148,7 +134,7 @@ class PatrolAndMonitor(Skill):
 
 Approach an object and examine it from multiple angles:
 
-```python
+```innatepy
 import math
 from innate import MainImage, Mobility, Head, Skill, SkillReturn
 
@@ -160,8 +146,6 @@ class InspectObject(Skill):
     image: MainImage
 
     def execute(self, angles: int = 4) -> SkillReturn:
-        self.on_cancel(lambda: self.mobility.send_cmd_vel(0.0, 0.0))
-
         images = []
         rotation_per_angle = (2 * math.pi) / angles
 
@@ -169,9 +153,7 @@ class InspectObject(Skill):
         self.head.set_position(-15)
 
         for i in range(angles):
-            self.check_cancelled()
-
-            self.feedback(f"Capturing angle {i+1}/{angles}")
+            self.feedback(f"Capturing angle {i + 1}/{angles}")
 
             # Capture from current angle
             images.append(self.image)
@@ -186,7 +168,7 @@ class InspectObject(Skill):
 
 Return to a safe home configuration:
 
-```python
+```innatepy
 from innate import Manipulation, Head, Skill, SkillReturn
 
 class GoHomePosition(Skill):
@@ -202,8 +184,6 @@ class GoHomePosition(Skill):
         # Arm first (priority for safety)
         self.feedback("Moving arm to home")
         self.manipulation.move_to_joint_positions(self.HOME_ARM, blocking=True)
-
-        self.check_cancelled()
 
         # Then head
         self.feedback("Centering head")

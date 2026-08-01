@@ -8,9 +8,12 @@ These examples demonstrate different agent patterns. Use them as starting points
   <Accordion title="Security Guard" defaultOpen={true}>
     A patrol agent that monitors for intruders and sends email alerts.
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.email.send_picture_via_email import SendPictureViaEmail
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.navigate_with_vision import NavigateWithVision
+from inputs.micro_input import MicroInput
 
 class SecurityGuardAgent(Agent):
     """Patrols the premises and alerts on unauthorized visitors."""
@@ -27,15 +30,11 @@ class SecurityGuardAgent(Agent):
     def display_icon(self) -> str:
         return "assets/security_guard.png"
 
-    def get_skills(self) -> List[str]:
-        return [
-            "navigate_to_position",
-            "open_door",
-            "send_email",
-        ]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, NavigateWithVision, SendPictureViaEmail]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """You are a security guard robot. Maintain a vigilant,
@@ -51,7 +50,6 @@ Patrol route:
 Patrol behavior:
 - Move deliberately through each area
 - Observe carefully before proceeding
-- Open doors that block your path
 - Identify anyone who shouldn't be present
 
 Intruder protocol:
@@ -68,9 +66,11 @@ Maintain professional alertness throughout your patrol."""
   <Accordion title="Object Collector">
     A task-focused agent that finds and collects specific items.
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.pick_socks import PickSocks
+from inputs.micro_input import MicroInput
 
 class SockCollector(Agent):
     """Collects socks from the floor and places them in the laundry basket."""
@@ -83,15 +83,12 @@ class SockCollector(Agent):
     def display_name(self) -> str:
         return "Sock Collector"
 
-    def get_skills(self) -> List[str]:
-        return [
-            "navigate_to_position",
-            "pick_up_object",
-            "drop_object",
-        ]
+    def get_skills(self) -> list[SkillRef]:
+        # PickSocks is a trained policy — listed exactly like a code skill.
+        return [NavigateToPosition, PickSocks]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """You are a tidying robot. Your task: find socks on the
@@ -118,9 +115,11 @@ Guidelines:
   <Accordion title="Tour Guide">
     An interactive agent that engages with visitors and provides guided tours.
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.wave import Wave
+from inputs.micro_input import MicroInput
 
 class TourGuide(Agent):
     """Welcomes visitors and provides guided tours of the space."""
@@ -133,11 +132,11 @@ class TourGuide(Agent):
     def display_name(self) -> str:
         return "Tour Guide"
 
-    def get_skills(self) -> List[str]:
-        return ["navigate_to_position", "wave"]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, Wave]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """You are a tour guide robot. Be warm, knowledgeable,
@@ -172,9 +171,10 @@ If a guest needs to leave early, thank them for visiting."""
   <Accordion title="Passive Observer">
     A minimal agent that monitors quietly and only engages when addressed.
 
-```python
-from typing import List
-from brain_client.agent_types import Agent
+```innatepy
+from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from inputs.micro_input import MicroInput
 
 class QuietObserver(Agent):
     """Observes the environment and responds only when addressed."""
@@ -187,11 +187,11 @@ class QuietObserver(Agent):
     def display_name(self) -> str:
         return "Quiet Observer"
 
-    def get_skills(self) -> List[str]:
-        return ["navigate_to_position"]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """You are an observant robot with a calm presence.

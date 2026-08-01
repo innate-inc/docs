@@ -33,7 +33,7 @@ Sends email notifications, typically for alerts or status updates. The guideline
 written out explicitly here — the agent-facing text carries usage policy ("emergency
 only") that goes beyond a one-line description:
 
-```python
+```innatepy
 from innate import Skill, SkillReturn
 
 class SendEmail(Skill):
@@ -46,7 +46,7 @@ class SendEmail(Skill):
         )
 
     def execute(self, subject: str, message: str, recipients: list[str] | None = None) -> SkillReturn:
-        # Send via SMTP; return a success message or self.fail(...)
+        ...  # Send via SMTP; return a success message or self.fail(...)
 ```
 
 The skill name defaults to the snake_cased class name, so `SendEmail` is callable as `send_email` — no `name` property needed.
@@ -59,7 +59,7 @@ The skill name defaults to the snake_cased class name, so `SendEmail` is callabl
 
 Sends an email with the robot's current camera view attached.
 
-```python
+```innatepy
 from innate import MainImage, Skill, SkillReturn
 
 class SendPictureViaEmail(Skill):
@@ -80,15 +80,14 @@ frame arrives, so `execute()` never needs a guard.
 
 Fetches recent emails from configured account.
 
-```python
+```innatepy
 class RetrieveEmails(Skill):
     """Use to retrieve recent emails from the configured email account.
     Provide the number of emails to retrieve (default is 5).
     Returns email subjects and content."""
 
     def execute(self, count: int = 5) -> SkillReturn:
-        # Connect to IMAP, fetch emails
-        # Return formatted email list
+        ...  # Connect to IMAP, fetch emails, return the formatted list
 ```
 
 Here the class docstring doubles as the guidelines — the idiomatic shorthand once
@@ -100,7 +99,7 @@ own account? There's a complete implementation in the
 
 ### Template
 
-```python
+```innatepy
 import os
 from innate import Skill, SkillReturn
 
@@ -126,9 +125,9 @@ class MyServiceSkill(Skill):
 
 ### Worked example: RetrieveEmails
 
-Here's a complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot, and reference it from an agent as `local/retrieve_emails` (custom skills are namespaced `local/`, shipped skills `innate-os/`):
+Here's a complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot, then list it in an agent with `from custom_skills.retrieve_emails import RetrieveEmails`:
 
-```python
+```innatepy
 import email
 import imaplib
 from innate import Skill, SkillReturn
@@ -170,7 +169,7 @@ class RetrieveEmails(Skill):
 
 **Error Handling**
 
-```python
+```innatepy
 def execute(self, query: str) -> SkillReturn:
     try:
         response = self.client.call(query, timeout=10)
@@ -199,7 +198,7 @@ def execute(self, query: str) -> SkillReturn:
 
 Skills declare sensor data dependencies with class-level type annotations:
 
-```python
+```innatepy
 from innate import MainImage, Odometry, Skill
 
 class MySkill(Skill):
@@ -221,9 +220,9 @@ See [Robot State](/software/skills/code-defined-skills/robot-state) for more det
 
 ## Cancellation
 
-Many service operations are atomic and cannot be meaningfully cancelled. If your skill has nothing to interrupt, just don't check for cancellation — a cancel that lands mid-run takes effect at the next `self.check_cancelled()` call, so a skill without checkpoints simply runs to completion. Mention it in the guidelines if the agent should know:
+Many service operations are atomic and cannot be meaningfully cancelled. A skill that never blocks on a framework call — no `self.sleep()`, no sub-skill — simply runs to completion, which is usually the right behavior for a network request. Mention it in the guidelines if the agent should know:
 
-```python
+```innatepy
 def guidelines(self) -> str:
     return "Sends the email immediately; cannot be cancelled once started."
 ```
