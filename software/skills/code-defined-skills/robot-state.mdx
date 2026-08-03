@@ -96,10 +96,12 @@ class MySkill(Skill):
 ```innatepy
 self.battery.percentage      # 0.0-1.0; also .voltage, .current, .charging
 self.lidar.min_range(-30, 30)   # closest valid return ahead, in meters
-self.arm.position            # end-effector (x, y, z); .gripper is the claw joint
+self.arm.position            # end-effector (x, y, z); .rpy / .pitch derived; .gripper is the claw joint
 self.joint_states.of("j4")   # (position, velocity, effort) for a named joint
 self.head_position.pitch_degrees   # current head pitch (negative = down)
 ```
+
+`arm: Arm` is the ambient 50 Hz feed; `self.manipulation.pose` returns the same `Arm` type on demand (and raises if the FK feed is down) — see [Body Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces).
 
 ## Example: CaptureImages
 

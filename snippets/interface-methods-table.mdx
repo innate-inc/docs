@@ -68,73 +68,80 @@ export const NavigationInterfaceMethods = () => {
 export const ManipulationInterfaceMethods = () => {
   const rows = [
     {
-      method: "move_to_cartesian_pose()",
+      method: "move_to()",
       params: [
         { name: "x", type: "float" },
         { name: "y", type: "float" },
         { name: "z", type: "float" },
-        { name: "roll", type: "float" },
-        { name: "pitch", type: "float" },
-        { name: "yaw", type: "float" },
-        { name: "duration", type: "float (seconds)" },
-        { name: "blocking", type: "bool" },
+        { name: "roll", type: "float = 0" },
+        { name: "pitch", type: "float = 0" },
+        { name: "yaw", type: "float = 0" },
+        { name: "duration", type: "float = 1.5" },
+        { name: "grip", type: "float | None" },
+        { name: "tol_xy", type: "float | None = 0.05" },
+        { name: "tol_z", type: "float | None = 0.10" },
       ],
-      desc: "Move the end-effector to a target Cartesian pose. duration is in seconds.",
+      desc: "Move the end-effector to a Cartesian pose (meters, radians), blocking. Verifies the arm tracked the target, auto-recovers once, and returns the settled Arm pose. Raises ArmFailed (unreachable) / ArmUnhealthy (servo fault). Pass tol_xy=None and tol_z=None for an unverified move.",
     },
     {
-      method: "move_to_joint_positions()",
+      method: "follow()",
       params: [
-        { name: "joint_positions", type: "list[float]" },
-        { name: "duration", type: "float (seconds)" },
-        { name: "blocking", type: "bool" },
+        { name: "waypoints", type: "Sequence[Waypoint]" },
+        { name: "grip", type: "float | None" },
       ],
-      desc: "Move the arm to a target joint configuration (6 values) with a smooth trajectory.",
+      desc: "Sweep through Cartesian waypoints as one smooth trajectory (no deceleration at intermediate points), starting from the current pose. Each Waypoint(x, y, z, roll, pitch, yaw, duration) paces its own segment. Returns the settled Arm pose.",
     },
     {
-      method: "open_gripper()",
+      method: "move_joints()",
       params: [
-        { name: "percent", type: "float" },
-        { name: "duration", type: "float (seconds)" },
-        { name: "blocking", type: "bool" },
+        { name: "joints", type: "Sequence[float]" },
+        { name: "duration", type: "float = 3.0" },
       ],
-      desc: "Open the claw; percent=100 is fully open.",
+      desc: "Move to joint positions (radians), blocking. 5 values command the arm and keep the current grip; 6 values command the gripper too.",
     },
     {
-      method: "close_gripper()",
+      method: "rest()",
+      params: [{ name: "duration", type: "float = 3.0" }],
+      desc: "Fold the arm to its rest pose, keeping the grip, and settle.",
+    },
+    {
+      method: "gripper_open()",
       params: [
-        { name: "strength", type: "float" },
-        { name: "duration", type: "float (seconds)" },
-        { name: "blocking", type: "bool" },
+        { name: "percent", type: "float = 100" },
+        { name: "duration", type: "float = 0.5" },
       ],
-      desc: "Close the claw; grip force is capped in hardware, strength sets the close depth.",
+      desc: "Open the claw, blocking; verifies it physically opened and reboot-retries a tripped servo once, else raises ArmUnhealthy.",
+    },
+    {
+      method: "gripper_close()",
+      params: [
+        { name: "strength", type: "float = 0" },
+        { name: "duration", type: "float = 0.5" },
+      ],
+      desc: "Close the claw, blocking. strength (radians past closed, capped) is the grip preload on an object — it becomes the standing grip target that every following move carries automatically.",
+    },
+    {
+      method: "pose",
+      params: [],
+      desc: "Property: the live end-effector pose as an Arm value (position, quaternion, .rpy / .pitch, .gripper). Raises ArmFailed if the FK feed is down.",
     },
     {
       method: "torque_on() / torque_off()",
       params: [],
-      desc: "Enable or disable arm servo torque. A torque-disabled servo won't move at all.",
+      desc: "Enable or disable arm servo torque (returns bool). A torque-disabled arm is limp, for manual positioning.",
     },
     {
-      method: "get_current_orientation_rpy()",
+      method: "recover()",
       params: [],
-      desc: "Get current end-effector orientation as roll/pitch/yaw values.",
+      desc: "Reboot the servos, re-enable torque, and settle (~2.5 s) — clears overcurrent trips and brownouts, keeping the standing grip target.",
     },
     {
-      method: "get_current_end_effector_pose()",
-      params: [],
-      desc: "Get current end-effector pose (position + quaternion).",
-    },
-    {
-      method: "solve_ik()",
+      method: "clamp_reach()",
       params: [
         { name: "x", type: "float" },
         { name: "y", type: "float" },
-        { name: "z", type: "float" },
-        { name: "roll", type: "float" },
-        { name: "pitch", type: "float" },
-        { name: "yaw", type: "float" },
-        { name: "timeout", type: "float" },
       ],
-      desc: "Solve inverse kinematics for a target pose without moving the arm.",
+      desc: "Clamp an (x, y) floor target into the arm's graspable reach box.",
     },
   ];
 
@@ -169,6 +176,46 @@ export const ManipulationInterfaceMethods = () => {
                 ) : (
                   <span className="interface-no-params">None</span>
                 )}
+              </td>
+              <td>{row.desc}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const ManipulationDeprecatedMethods = () => {
+  const rows = [
+    { method: "move_to_cartesian_pose()", params: [], desc: "Deprecated — use move_to(). Still works; warns once per process." },
+    { method: "move_to_joint_positions()", params: [], desc: "Deprecated — use move_joints()." },
+    { method: "move_cartesian_trajectory()", params: [], desc: "Deprecated — use follow() with Waypoints." },
+    { method: "open_gripper()", params: [], desc: "Deprecated — use gripper_open() (blocking, verifying, raising)." },
+    { method: "close_gripper()", params: [], desc: "Deprecated — use gripper_close()." },
+    { method: "get_current_end_effector_pose()", params: [], desc: "Deprecated — read the pose property (typed Arm value)." },
+    { method: "get_current_orientation_rpy()", params: [], desc: "Deprecated — read pose.rpy / pose.pitch." },
+    { method: "solve_ik()", params: [], desc: "Deprecated — clamp_reach() plus move_to() raising covers reachability." },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.method}>
+              <td>
+                <span className="interface-method-pill">{row.method}</span>
+              </td>
+              <td>
+                <span className="interface-no-params">unchanged</span>
               </td>
               <td>{row.desc}</td>
             </tr>

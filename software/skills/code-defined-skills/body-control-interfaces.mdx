@@ -4,6 +4,7 @@ title: "Body Control Interfaces"
 
 import {
   ManipulationInterfaceMethods,
+  ManipulationDeprecatedMethods,
   HeadInterfaceMethods,
   HeadTiltAnglesTable,
 } from '/snippets/interface-methods-table.mdx';
@@ -21,73 +22,101 @@ class MySkill(Skill):
     manipulation: Manipulation
 ```
 
+Every motion method blocks until the arm settles and raises `ArmFailed` (pose unreachable, command rejected) or `ArmUnhealthy` (servo fault) on failure — no return codes to check. Import the exceptions from `innate` when you want to handle them:
+
+```innatepy
+from innate import ArmFailed, ArmUnhealthy, Manipulation, Waypoint
+```
+
 ### Methods
 
 <ManipulationInterfaceMethods />
 
 ### Cartesian Control
 
-Move the end-effector to a specific position and orientation:
+Move the end-effector to a position and orientation (meters and radians, relative to `base_link`):
 
 ```innatepy
-# Move to position (x, y, z) with orientation (roll, pitch, yaw)
-self.manipulation.move_to_cartesian_pose(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    duration=2.0,   # motion duration in seconds (not milliseconds)
-    blocking=True,  # wait for the motion to finish
-)
+settled = self.manipulation.move_to(0.30, 0.0, 0.10, pitch=1.45, duration=2.0)
+self.logger.info(f"landed at z={settled.z:.3f}")
 ```
+
+`move_to` verifies by forward kinematics that the arm actually tracked the target, recovers (servo reboot + torque on) and retries once if it didn't, and returns the settled pose. A z shortfall usually means the fingers met the object or floor early — loosen or skip that axis with `tol_z=None` on expected-contact descents, or pass `tol_xy=None, tol_z=None` for a fully unverified move.
+
+### Trajectories
+
+Sweep through several poses as one smooth motion — the arm interpolates between waypoints without decelerating at each one:
+
+```innatepy
+from innate import Waypoint
+
+self.manipulation.follow([
+    Waypoint(0.30, 0.0, 0.20, pitch=1.45, duration=0.8),
+    Waypoint(0.30, 0.0, 0.12, pitch=1.45, duration=0.6),
+    Waypoint(0.30, 0.0, 0.06, pitch=1.45, duration=0.6),
+])
+```
+
+Each waypoint's `duration` paces the segment that reaches it, and the trajectory starts from wherever the arm currently is.
 
 ### Joint Control
 
-Move directly to joint angles (6 joints):
+Move directly to joint angles (radians):
 
 ```innatepy
-# Move to joint configuration [j1, j2, j3, j4, j5, j6]
-self.manipulation.move_to_joint_positions([0, -0.5, 1.5, -1.0, 0, 0], duration=2.0, blocking=True)
+# 6 values command all joints including the gripper (j6)
+self.manipulation.move_joints([0, -0.5, 1.5, -1.0, 0, 0], duration=2.0)
+
+# 5 values move the arm and leave the gripper as it is — safe while holding
+self.manipulation.move_joints([0, -0.5, 1.5, -1.0, 0], duration=2.0)
+
+# Fold to the built-in rest pose (keeps the grip)
+self.manipulation.rest()
 ```
 
 ### Gripper
 
-The claw is joint 6, driven through dedicated helpers. Grip force is enforced in hardware (current-based position control), so a deep close squeezes any object at a constant, safe force:
+The claw is joint 6, driven under current-based position control: grip force is enforced in hardware, so a deep close squeezes any object at a constant, safe force.
 
 ```innatepy
-self.manipulation.open_gripper(percent=100.0, duration=1.0, blocking=True)
-self.manipulation.close_gripper(strength=0.6, duration=1.5, blocking=True)
+self.manipulation.gripper_open()          # fully open, verified (self-heals a tripped servo)
+self.manipulation.gripper_close(0.4)      # close with 0.4 rad of grip preload
 ```
 
-The shipped `gripper_open` / `gripper_close` skills wrap these with servo-trip recovery — prefer [composing them](/software/skills/code-defined-skills/composing-skills) over calling the raw interface.
+The `strength` you close with becomes the **standing grip target**: every following `move_to` / `follow` / 5-joint `move_joints` carries it automatically, so a gripped object stays gripped with no extra bookkeeping. Grip once, then move freely.
 
 ### Reading State
 
-```innatepy
-# Get current end-effector pose
-pose = self.manipulation.get_current_end_effector_pose()
-# Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
-
-# Get orientation as roll/pitch/yaw
-rpy = self.manipulation.get_current_orientation_rpy()
-# Returns: {'roll': r, 'pitch': p, 'yaw': y}
-```
-
-For ambient arm state (live forward kinematics plus the gripper joint), declare `arm: Arm` instead — see [Robot State](/software/skills/code-defined-skills/robot-state).
-
-### Inverse Kinematics
-
-Check if a pose is reachable before moving:
+The `pose` property returns the live end-effector pose as a typed `Arm` value:
 
 ```innatepy
-joints = self.manipulation.solve_ik(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    timeout=1.0
-)
-if joints:
-    self.manipulation.move_to_joint_positions(joints)
-else:
-    self.fail("Pose unreachable")
+pose = self.manipulation.pose
+pose.position   # (x, y, z) in meters
+pose.rpy        # (roll, pitch, yaw) in radians — also pose.pitch etc.
+pose.gripper    # gripper joint (j6) position, radians
 ```
+
+For ambient arm state on a 50 Hz feed, declare `arm: Arm` instead — same type, pushed to you — see [Robot State](/software/skills/code-defined-skills/robot-state).
+
+### Reachability
+
+`clamp_reach(x, y)` pulls a floor target into the arm's graspable reach box; a pose IK can't solve raises `ArmFailed` from `move_to`, so an explicit pre-check is rarely needed:
+
+```innatepy
+x, y = self.manipulation.clamp_reach(x, y)
+try:
+    self.manipulation.move_to(x, y, 0.06, pitch=1.45)
+except ArmFailed:
+    self.fail("Target out of reach")
+```
+
+### Deprecated methods
+
+Skills written against the 0.6.0 API keep working — the old methods delegate to the new core and log a one-time deprecation warning per process:
+
+<ManipulationDeprecatedMethods />
+
+Migration is mechanical: `move_to_cartesian_pose(...) → move_to(...)`, `move_to_joint_positions(...) → move_joints(...)`, `move_cartesian_trajectory(...) → follow([...])`, `open_gripper/close_gripper → gripper_open/gripper_close`, `get_current_end_effector_pose()/get_current_orientation_rpy() → pose`. Note the new methods raise instead of returning `False`, and block by default.
 
 ## Head
 
@@ -119,7 +148,6 @@ self.head.set_position(10)   # Look up at faces
 A skill that waves the arm, with `guidelines()` written out explicitly:
 
 ```innatepy
-import time
 from innate import Manipulation, Skill, SkillReturn
 
 class Wave(Skill):
@@ -129,13 +157,13 @@ class Wave(Skill):
         return "Use to wave at someone in greeting."
 
     def execute(self, times: int = 3) -> SkillReturn:
-        # Wave positions
-        wave_left = [0.5, -0.3, 1.0, -0.5, 0.5, 0]
-        wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
+        # Wave positions (5 values: the gripper stays as it is)
+        wave_left = [0.5, -0.3, 1.0, -0.5, 0.5]
+        wave_right = [0.5, -0.3, 1.0, -0.5, -0.5]
 
         for _ in range(times):
-            self.manipulation.move_to_joint_positions(wave_left, duration=0.5, blocking=True)
-            self.manipulation.move_to_joint_positions(wave_right, duration=0.5, blocking=True)
+            self.manipulation.move_joints(wave_left, duration=0.5)
+            self.manipulation.move_joints(wave_right, duration=0.5)
 
         return f"Waved {times} times"
 ```

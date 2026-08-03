@@ -4,7 +4,7 @@ title: "Physical Skill Examples"
 
 Complete examples of skills that combine navigation, manipulation, and sensor data to create full-body robot behaviors.
 
-For a real production example, read `pick_any_object` (shipped in `~/innate-os/workspace/innate_skills/pick_any_object.py`): it localizes an object described in natural language with the head camera, drives above it, visual-servos the wrist, grasps, and verifies the grasp — chaining the shipped `gripper_open`, `gripper_close`, and `arm_rest_position` skills along the way.
+For a real production example, read `pick_any_object` (shipped in `~/innate-os/workspace/innate_skills/pick_any_object.py`): it localizes an object described in natural language with the head camera, drives above it, visual-servos the wrist, grasps with `gripper_open()` / `gripper_close()`, and verifies the grasp before folding to rest.
 
 ## ScanAndWave
 
@@ -51,8 +51,8 @@ class ScanAndWave(Skill):
         wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
 
         for _ in range(3):
-            self.manipulation.move_to_joint_positions(wave_left, blocking=True)
-            self.manipulation.move_to_joint_positions(wave_right, blocking=True)
+            self.manipulation.move_joints(wave_left, duration=0.5)
+            self.manipulation.move_joints(wave_right, duration=0.5)
 ```
 
 ## PickupRoutine
@@ -76,7 +76,7 @@ class PickupRoutine(Skill):
     def execute(self, approach_distance: float = 0.3) -> SkillReturn:
         # Step 1: Safe starting position
         self.feedback("Moving arm to safe position")
-        self.manipulation.move_to_joint_positions(self.HOME_POSE, blocking=True)
+        self.manipulation.move_joints(self.HOME_POSE)
 
         # Step 2: Look down at target area
         self.feedback("Looking at target area")
@@ -88,7 +88,7 @@ class PickupRoutine(Skill):
 
         # Step 4: Move arm to ready position
         self.feedback("Preparing arm")
-        self.manipulation.move_to_joint_positions(self.READY_POSE, blocking=True)
+        self.manipulation.move_joints(self.READY_POSE)
 
         return "Ready for pickup"
 ```
@@ -183,7 +183,7 @@ class GoHomePosition(Skill):
     def execute(self) -> SkillReturn:
         # Arm first (priority for safety)
         self.feedback("Moving arm to home")
-        self.manipulation.move_to_joint_positions(self.HOME_ARM, blocking=True)
+        self.manipulation.move_joints(self.HOME_ARM)
 
         # Then head
         self.feedback("Centering head")
