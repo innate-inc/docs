@@ -42,26 +42,9 @@ When a model downloads, the robot pre-builds an optimized **TensorRT** engine fo
 
 ## Run the skill from the app
 
-<Note>
-The web app doesn't run skills — use the phone app's **Manual Control** (below), or call the skill [from code](#run-the-skill-from-code).
-</Note>
+The simplest way to test a trained skill is to trigger it directly, with no agent involved — from the web app's **Teleop** page or the phone app's **Manual Control**. Both list only activated (non-training) skills; see [Manual Triggering](/software/skills/manual-triggering) for each surface.
 
-The simplest way to test your trained skill is from **Manual Control**.
-
-<Steps>
-  <Step title="Open Manual Control">
-    Go to the **Manual Control** screen from the app's main navigation.
-  </Step>
-  <Step title="Select the skill">
-    Open the skill dropdown and select your newly trained skill. Only activated (non-training) skills appear in this list.
-  </Step>
-  <Step title="Execute">
-    Tap the play button. The robot moves to the start pose and begins running the policy at 25 Hz — reading cameras, processing images, and outputting arm and base commands in real time.
-  </Step>
-  <Step title="Stop if needed">
-    Tap the stop button at any time to interrupt execution. The robot halts immediately.
-  </Step>
-</Steps>
+On selecting the skill and pressing play, the robot moves the arm to the learned start pose and begins running the policy at 25 Hz, reading cameras and streaming arm and base commands in real time. Stopping halts it immediately.
 
 ## Run the skill from code
 
@@ -129,7 +112,3 @@ Once the policy works in the original setup, introduce variation gradually — m
 <Tip>
 Invest in data variety and you'll spend less time debugging — see [how many episodes you need](/training/data-collection#tips-for-high-quality-data) for concrete numbers.
 </Tip>
-
-<Note>
-A measured version of this loop — scored rollouts with live inference charts, failure tags, and separate evaluation datasets — is taking shape on the web app's **Profiling** page, along with an opt-in `auto_stop` flag in a skill's `metadata.json` that ends a run when the policy's progress head says it's done. Both live on `innate-os` `main` and are **not in a released OS build yet**.
-</Note>
