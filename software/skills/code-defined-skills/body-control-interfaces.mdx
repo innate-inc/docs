@@ -22,7 +22,14 @@ class MySkill(Skill):
     manipulation: Manipulation
 ```
 
-Every motion method blocks until the arm settles and raises `ArmFailed` (pose unreachable, command rejected) or `ArmUnhealthy` (servo fault) on failure — no return codes to check. Import the exceptions from `innate` when you want to handle them:
+Every motion method blocks until the arm settles and raises on failure — no return codes to check:
+
+| Exception | Means |
+| --- | --- |
+| `ArmFailed` | The command was rejected or impossible — an unreachable pose, a failed IK solve, a trajectory the driver refused. |
+| `ArmUnhealthy` | The arm accepted the command but didn't get there, and a reboot-and-retry didn't fix it. The hardware needs attention. |
+
+Import them from `innate` (or `innate.exceptions`, which groups every exception a skill raises or catches) when you want to handle them. If you don't, the run reports `FAILURE` with the message, which is usually what you want:
 
 ```innatepy
 from innate import ArmFailed, ArmUnhealthy, Manipulation, Waypoint
@@ -41,7 +48,29 @@ settled = self.manipulation.move_to(0.30, 0.0, 0.10, pitch=1.45, duration=2.0)
 self.logger.info(f"landed at z={settled.z:.3f}")
 ```
 
-`move_to` verifies by forward kinematics that the arm actually tracked the target, recovers (servo reboot + torque on) and retries once if it didn't, and returns the settled pose. A z shortfall usually means the fingers met the object or floor early — loosen or skip that axis with `tol_z=None` on expected-contact descents, or pass `tol_xy=None, tol_z=None` for a fully unverified move.
+`move_to` verifies by forward kinematics that the arm actually tracked the target, recovers (servo reboot + torque on) and retries once if it didn't, and returns the settled pose. A z shortfall usually means the fingers met the object or floor early — loosen or skip that axis with `tolerance_z=None` on expected-contact descents, or pass `tolerance_xy=None, tolerance_z=None` for a fully unverified move.
+
+`move_by` nudges from the arm's **measured** pose rather than its last commanded one, which is what a visual-servoing loop wants:
+
+```innatepy
+self.manipulation.move_by(dx=0.01, dy=-0.005, duration=0.3)
+```
+
+### Doing something else while the arm moves
+
+Pass `block=False` to return as soon as the command is accepted, then join with `wait()`:
+
+```innatepy
+self.manipulation.move_to(0.30, 0.0, 0.25, duration=2.0, block=False)
+
+while self.manipulation.moving:
+    self.mobility.send_cmd_vel(linear_x=0.05, duration=0.3)
+    self.sleep(0.1)
+
+settled = self.manipulation.wait()   # raises if the motion failed
+```
+
+A non-blocking motion is **unverified until you join it** — `wait()` is what surfaces a failure. Issuing a new command supersedes a motion you never joined.
 
 ### Trajectories
 
@@ -79,11 +108,14 @@ self.manipulation.rest()
 The claw is joint 6, driven under current-based position control: grip force is enforced in hardware, so a deep close squeezes any object at a constant, safe force.
 
 ```innatepy
-self.manipulation.gripper_open()          # fully open, verified (self-heals a tripped servo)
-self.manipulation.gripper_close(0.4)      # close with 0.4 rad of grip preload
+self.manipulation.gripper_open()             # fully open, verified (self-heals a tripped servo)
+self.manipulation.gripper_open(percent=50)   # half
+self.manipulation.gripper_close(0.4)         # close with 0.4 rad of grip preload
 ```
 
-The `strength` you close with becomes the **standing grip target**: every following `move_to` / `follow` / 5-joint `move_joints` carries it automatically, so a gripped object stays gripped with no extra bookkeeping. Grip once, then move freely.
+`strength` is radians of preload past the closed stop, capped at `GRIPPER_MAX_STRENGTH` (0.6) — beyond that the servo overcurrent-trips on a real object.
+
+The strength you close with becomes the **standing grip target**: every following `move_to` / `follow` / 5-joint `move_joints` carries it automatically, so a gripped object stays gripped with no extra bookkeeping. Grip once, then move freely — you never thread a `gripper=` argument through a trajectory.
 
 ### Reading State
 
@@ -170,15 +202,16 @@ class Wave(Skill):
 
 ## Example: LookAtObject
 
-A skill that adjusts head to look at objects. Here the class docstring doubles as the guidelines — the idiomatic shorthand:
+A skill that adjusts head to look at objects:
 
 ```innatepy
 from innate import Head, Skill, SkillReturn
 
 class LookAtObject(Skill):
-    """Use to tilt camera to look at objects on the floor or shelves."""
-
     head: Head
+
+    def guidelines(self) -> str:
+        return "Use to tilt camera to look at objects on the floor or shelves."
 
     def execute(self, location: str = "floor") -> SkillReturn:
         angles = {

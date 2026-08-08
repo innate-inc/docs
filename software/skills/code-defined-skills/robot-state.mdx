@@ -19,7 +19,7 @@ class MySkill(Skill):
     battery: Battery | None    # optional: None when no reading is available
 ```
 
-A plain annotation is **required** — the server waits for the first value and fails the run up front if none arrives, so no `None` guards are needed inside `execute()`. Appending `| None` makes the feed **best effort** instead: injected when available, `None` otherwise, and every read must be guarded.
+A plain annotation is **required** — the server waits for the first value and fails the run up front if none arrives, so no `None` guards are needed inside `execute()`. The wait is 3 s for cameras, 6 s for the battery (it only publishes at ~0.2 Hz), 2 s for everything else. Appending `| None` makes the feed **best effort** instead: injected when available, `None` otherwise, and every read must be guarded.
 
 Reading an undeclared feed raises with a hint (`declare it on the class with a type annotation`), and your editor flags it before you ship.
 
@@ -71,7 +71,15 @@ class MySkill(Skill):
         # need more (real quaternion, covariances, full twist).
 ```
 
-`self.odom` drifts and resets every boot but is always available; for the persistent map frame (the coordinates `navigate_to_position` targets), declare `pose: Pose` — it reads `None` until the robot is localized, so declare it `Pose | None` unless localization is guaranteed.
+`pose: Pose` has the same shape in the map frame — the coordinates `navigate_to_position` targets. Which one you want depends on the frame:
+
+| | `odom: Odometry` | `pose: Pose` |
+| --- | --- | --- |
+| Frame | where the robot thinks it has driven | where localization says it is |
+| Behavior | drifts slowly, never jumps | corrects, so it *can* jump |
+| Use for | relative moves: "forward 0.4 m", "turn 90°" | absolute positions on the map |
+
+`odom` resets every boot but is always there. `pose` reads `None` until the robot is localized, so declare it `Pose | None` unless localization is guaranteed.
 
 ## Map
 
