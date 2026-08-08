@@ -15,6 +15,8 @@ Your agents live in `~/innate-os/workspace/custom_agents/` on the robot; shipped
 
 Edits hot-reload within a second or two, no restart required. (`innate service restart` remains the fallback if something doesn't get picked up.)
 
+Agents and skills share one import namespace: `from innate import Agent, InputRef, SkillRef`. (Older files that import from `brain_client.agents.types` still work — it's the same class.)
+
 ## Core Interface
 
 Every agent implements four methods:
@@ -30,7 +32,7 @@ Optional methods:
 The simplest possible agent:
 
 ```innatepy
-from brain_client.agents.types import Agent, SkillRef
+from innate import Agent, SkillRef
 
 class MyAgent(Agent):
     @property
@@ -55,7 +57,7 @@ It loads and runs, but does very little — no skills, and a minimal prompt.
 Skills, inputs, and a real prompt. **Import the skill classes and list them** — a typo or a renamed skill is then caught by your editor instead of at runtime on the robot:
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.wave import Wave
 from inputs.micro_input import MicroInput
@@ -114,6 +116,17 @@ IDs are namespaced by the package the skill lives in, and are matched exactly:
 | `local/` | your own skills (`workspace/custom_skills/`) |
 | `<package>/` | a skill pack you dropped into `workspace/` |
 
+## What your agent gets for free
+
+You never list these — every agent can already:
+
+* **Talk.** Plain replies are spoken aloud, sentence by sentence as they're written.
+* **Wait.** Do nothing when there's nothing to do.
+* **Stop a running skill**, when one is running.
+* **Drive to a spot it can see**, if `NavigateToPosition` is one of its skills — the model points at the floor in the camera frame and the robot goes there.
+
+See [The Innate Agent](/software/agent#skills-are-the-agents-tools) for how these fit into a turn.
+
 ## Enabling the Microphone
 
 To **talk to your agent**, enable the microphone input — it is not on by default:
@@ -140,7 +153,7 @@ A good prompt defines personality, goals, constraints, and strategy in plain lan
 Copy and modify this for new agents:
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.turn_in_place import TurnInPlace
 from inputs.micro_input import MicroInput

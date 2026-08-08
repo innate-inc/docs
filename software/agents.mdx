@@ -51,32 +51,28 @@ The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear 
 - [Chess (beta)](/software/agents/chess-beta)
 - [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta)
 
-## System Architecture
+## How an agent runs
 
-Agents integrate into the following architecture:
+The decision loop — [the Innate agent](/software/agent) — runs **on the robot**. Your agent file is what it reads to know who to be:
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        Cloud AI                                  │
-│            Processes vision and makes decisions                  │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ WebSocket
-┌────────────────────────────▼────────────────────────────────────┐
-│                    Brain Client (ROS 2)                          │
-│       Manages agents, executes skills, bridges cloud ↔ robot     │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-┌───────▼───────┐    ┌───────▼───────┐    ┌──────▼──────┐
-│    Agents     │    │    Skills     │    │   Inputs    │
-│ (Personality) │    │  (Actions)    │    │  (Sensors)  │
-└───────────────┘    └───────────────┘    └─────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    The Innate agent                          │
+│      on the robot: look → think → act, one turn at a time    │
+└───────────────────────────┬──────────────────────────────────┘
+                            │ reads
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+┌───────▼───────┐   ┌───────▼───────┐   ┌───────▼───────┐
+│  get_prompt() │   │ get_skills()  │   │ get_inputs()  │
+│   who it is   │   │  what it can  │   │ what it hears │
+│               │   │      do       │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
 ```
 
-The cloud AI receives camera feeds and input data. It reads the agent's prompt to understand the robot's role, checks available skills to know what actions are possible, then decides what to do. The robot executes accordingly.
+Every turn, the loop looks at the camera and at anything new (you spoke, a skill finished, a sensor fired), then picks an action. Your **prompt** tells it how to behave, your **skills** are the actions it can choose from, and your **inputs** decide what it can hear.
 
-Your agent is the contract between you and the AI—it defines who the robot is and what it can do.
+Only the model call leaves the robot — and even that is optional. See [The Innate Agent](/software/agent) for the loop in detail.
 
 ## Design Philosophy
 

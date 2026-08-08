@@ -65,7 +65,7 @@ Here's what each window runs:
 | --- | --- | --- | --- |
 | 0 | `app-bringup` | App controller | Hardware bringup (UART, battery) |
 | 1 | `arm-recorder` | Arm drivers + kinematics | Manipulation recorder |
-| 2 | `brain-nav` | Brain client (cloud connection) | Navigation stack |
+| 2 | `brain-nav` | Brain client (the agent loop) | Navigation stack |
 | 3 | `behaviors-inputs` | Behavior server (skills execution) | Input manager |
 | 4 | `cam-leader` | Camera pipeline | UDP leader receiver (teleoperation) |
 | 5 | `ik-logger` | Inverse kinematics solver | Telemetry logger |
@@ -97,7 +97,7 @@ Key packages to know:
 
 | Package | What it controls |
 | --- | --- |
-| `brain_client` | Cloud agent connection, agent orchestration |
+| `brain_client` | The agent loop, agent and skill orchestration |
 | `mars_bringup` | Hardware init (UART, battery, LEDs) |
 | `mars_arm` | Arm drivers, kinematics, MoveIt2 |
 | `mars_nav` | Nav2, SLAM, path planning |

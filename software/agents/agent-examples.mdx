@@ -9,7 +9,7 @@ These examples demonstrate different agent patterns. Use them as starting points
     A patrol agent that monitors for intruders and sends email alerts.
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.email.send_picture_via_email import SendPictureViaEmail
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.navigate_with_vision import NavigateWithVision
@@ -67,7 +67,7 @@ Maintain professional alertness throughout your patrol."""
     A task-focused agent that finds and collects specific items.
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.pick_socks import PickSocks
 from inputs.micro_input import MicroInput
@@ -116,7 +116,7 @@ Guidelines:
     An interactive agent that engages with visitors and provides guided tours.
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.wave import Wave
 from inputs.micro_input import MicroInput
@@ -172,7 +172,7 @@ If a guest needs to leave early, thank them for visiting."""
     A minimal agent that monitors quietly and only engages when addressed.
 
 ```innatepy
-from brain_client.agents.types import Agent, InputRef, SkillRef
+from innate import Agent, InputRef, SkillRef
 from innate_skills.navigate_to_position import NavigateToPosition
 from inputs.micro_input import MicroInput
 
