@@ -37,33 +37,26 @@ reload, the web app, and the simulated base.
     Create `workspace/custom_skills/victory_spin.py`:
 
     ```python
-    from brain_client.skill_types import Skill, SkillResult
-    from brain_client.skill_types import Interface, InterfaceType
+    from innate import Mobility, Skill
 
 
     class VictorySpin(Skill):
-        mobility = Interface(InterfaceType.MOBILITY)
+        """Spin the robot in place to celebrate. Use when something goes well
+        and the robot should show it — spins is how many full turns, 1 to 3."""
 
-        @property
-        def name(self):
-            return "victory_spin"
-
-        def guidelines(self):
-            return "Use to celebrate: the robot spins in place once."
+        mobility: Mobility
 
         def execute(self, spins: int = 1):
-            """Spin the robot in place to celebrate.
-
-            Args:
-                spins: How many full turns to make (1-3).
-            """
             for _ in range(2 * min(int(spins), 3)):
                 self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
-            return "Spun with joy", SkillResult.SUCCESS
+            return "Spun with joy"
     ```
 
-    The agent reads your `execute()` signature and docstring to learn how to
-    call the skill — type hints and the docstring are the API contract.
+    Three things come from that class with no boilerplate: the **class name**
+    is the skill name (`victory_spin`), the **docstring** is what the agent
+    reads to decide when to call it, and the **`execute()` signature** is the
+    parameter schema — so type hints and defaults are part of the contract.
+    `mobility: Mobility` is the whole wiring for the base.
   </Step>
   <Step title="Save — that's the whole deploy">
     The container watches `workspace/` and hot-reloads skills within a second
@@ -97,8 +90,8 @@ use them. Drop a minimal agent next door in
 `workspace/custom_agents/cheerful.py`:
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, SkillRef
+from custom_skills.victory_spin import VictorySpin
 
 
 class CheerfulAgent(Agent):
@@ -110,16 +103,17 @@ class CheerfulAgent(Agent):
     def display_name(self) -> str:
         return "Cheerful"
 
-    def get_skills(self) -> List[str]:
-        return ["local/victory_spin"]
+    def get_skills(self) -> list[SkillRef]:
+        return [VictorySpin]
 
     def get_prompt(self) -> str:
         return "You are an enthusiastic robot. Celebrate good news physically."
 ```
 
-Skill IDs are prefixed by where the skill comes from: your own skills in
-`workspace/custom_skills/` are `local/<name>`, shipped ones are
-`innate-os/<name>` — and `get_skills()` matches IDs exactly.
+Naming the class is preferred — your editor catches a rename or a typo before
+the robot does. Full ID strings work too (`"local/victory_spin"`), prefixed by
+where the skill comes from: your own skills in `workspace/custom_skills/` are
+`local/<name>`, shipped ones are `innate-os/<name>`.
 
 It hot-reloads the same way. Select **Cheerful** in the web app's agent
 picker, start it, and tell it in chat that you just merged a big PR — it

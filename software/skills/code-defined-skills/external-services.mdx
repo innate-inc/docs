@@ -17,13 +17,13 @@ authentication, errors, and connectivity.
 Talking to an external service is a more deterministic domain than acting in the physical
 world, but it comes with its own constraints:
 
-* **Protocol-based**: Follow defined APIs and standards
+* **Protocol-based**: follow defined APIs and standards
 
-* **Atomic**: Many operations cannot be cancelled once started
+* **Atomic**: many operations cannot be cancelled once started
 
-* **Reliable**: Once working, behavior is consistent
+* **Reliable**: once working, behavior is consistent
 
-* **Network-dependent**: Must handle connectivity issues
+* **Network-dependent**: must handle connectivity issues
 
 ## Built-in examples
 
@@ -33,21 +33,14 @@ Sends email notifications, typically for alerts or status updates.
 
 ```python
 class SendEmail(Skill):
-    @property
-    def name(self):
-        return "send_email"
+    """Send an emergency email notification. Provide a subject and message,
+    and optionally a list of recipients — otherwise the default list is used.
+    Use when a potential emergency is detected and assistance might be
+    required."""
 
-    def guidelines(self):
-        return (
-            "Use to send an emergency email notification. Provide a subject and "
-            "message. You can optionally provide a list of recipients, otherwise "
-            "it will be sent to the default list. This should be used when a "
-            "potential emergency is detected and assistance might be required."
-        )
-
-    def execute(self, subject: str, message: str, recipients: list[str] = None):
+    def execute(self, subject: str, message: str, recipients: list[str] | None = None):
         # Send via SMTP
-        # Returns (message, SkillResult)
+        return f"Sent to {len(recipients or DEFAULTS)} recipients"
 ```
 
 **Parameters:**
@@ -60,33 +53,30 @@ Sends an email with the robot's current camera view attached.
 
 ```python
 class SendPictureViaEmail(Skill):
-    # Declare camera image dependency - updated at 50Hz while skill runs
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+    """Send an email with a photo of what the robot can currently see."""
 
-    def execute(self, subject: str, message: str, recipient: str = None):
-        if not self.image:
-            return "No image available to send", SkillResult.FAILURE
-        # Attach image and send
+    image: MainImage        # guaranteed inside execute() — no None check needed
+
+    def execute(self, subject: str, message: str, recipient: str | None = None):
+        attachment = self.image.jpeg     # raw JPEG bytes
+        ...
 ```
 
-This skill demonstrates **state dependencies**—using the `RobotState` descriptor to declare required robot state that the system updates at 50Hz.
+This skill shows the value of a declared feed: `image: MainImage` makes the runtime wait
+for a real frame and fail the run up front if none arrives, so `execute()` never has to
+handle a missing picture.
 
 ### RetrieveEmails
 
-Fetches recent emails from configured account.
+Fetches recent emails from the configured account.
 
 ```python
 class RetrieveEmails(Skill):
-    def guidelines(self):
-        return (
-            "Use to retrieve recent emails from the configured email account. "
-            "Provide the number of emails to retrieve (default is 5). "
-            "Returns email subjects and content."
-        )
+    """Retrieve recent emails from the configured account. Provide how many to
+    fetch (default 5). Returns subjects and content."""
 
     def execute(self, count: int = 5):
-        # Connect to IMAP, fetch emails
-        # Returns formatted email list
+        ...
 ```
 
 Want to build your own version against your own account? There's a complete implementation in the [worked example](#worked-example-retrieveemails) below.
@@ -97,149 +87,144 @@ Want to build your own version against your own account? There's a complete impl
 
 ```python
 import os
-from brain_client.skill_types import Skill, SkillResult
+
+from innate import Skill
+
 
 class MyServiceSkill(Skill):
-    def __init__(self, logger):
-        super().__init__(logger)
-        self.api_key = os.environ.get("SERVICE_API_KEY")
-        if not self.api_key:
-            raise ValueError("SERVICE_API_KEY not configured")
-
-    @property
-    def name(self):
-        return "my_service_skill"
-
-    def guidelines(self):
-        return "Use when [describe appropriate use cases]"
+    """One tight paragraph telling the agent when to call this and what it
+    needs — this docstring is what the agent reads."""
 
     def execute(self, param: str):
-        try:
-            # Call external service
-            result = self._call_service(param)
-            return f"Success: {result}", SkillResult.SUCCESS
-        except TimeoutError:
-            return "Service timed out", SkillResult.FAILURE
-        except Exception as e:
-            return f"Error: {e}", SkillResult.FAILURE
+        api_key = os.environ.get("SERVICE_API_KEY")
+        if not api_key:
+            self.fail("SERVICE_API_KEY is not configured on this robot")
 
-    def cancel(self):
-        return "Operation cannot be cancelled"
+        try:
+            result = call_service(param, api_key, timeout=10)
+        except TimeoutError:
+            self.fail("The service timed out")
+
+        return f"Success: {result}"
 ```
+
+Read credentials inside `execute()`, not in an `__init__`: skill instances are built per
+run, and a constructor that raises takes the whole skill off the roster instead of
+failing one run with a message the agent can read.
 
 ### Worked example: RetrieveEmails
 
-Here's a complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot, and reference it from an agent as `local/retrieve_emails` (custom skills are namespaced `local/`, shipped skills `innate-os/`):
+A complete, runnable custom skill that fetches your latest Gmail messages over IMAP. Save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot. The class name is the skill name, so this is `local/retrieve_emails`.
 
 ```python
 import imaplib
-import email
-from brain_client.skill_types import Skill, SkillResult
+
+from innate import Skill
+
+IMAP_SERVER = "imap.gmail.com"
+ADDRESS = "your_email@gmail.com"
+# Use a Gmail App Password (https://myaccount.google.com/apppasswords),
+# not your main account password.
+PASSWORD = "your_app_password"
+
 
 class RetrieveEmails(Skill):
-    def __init__(self, logger):
-        super().__init__(logger)
-        self.imap_server = "imap.gmail.com"
-        self.email = "your_email@gmail.com"
-        # Use a Gmail App Password (https://myaccount.google.com/apppasswords),
-        # not your main account password.
-        self.password = "your_app_password"
-
-    @property
-    def name(self):
-        return "retrieve_emails"
-
-    def guidelines(self):
-        return "Use to retrieve recent emails. Provide count (default 5). Returns subjects and content."
+    """Retrieve recent emails from the configured account. Provide how many to
+    fetch (default 5, max 20). Returns subjects and content."""
 
     def execute(self, count: int = 5):
         count = min(max(1, count), 20)
         try:
-            mail = imaplib.IMAP4_SSL(self.imap_server, 993)
-            mail.login(self.email, self.password)
-            # ... fetch and process emails ...
-            email_data = "Email 1: Subject, From, Content..."
-            self._send_feedback(email_data)
-            return f"Retrieved {count} emails with subjects and content", SkillResult.SUCCESS
+            mail = imaplib.IMAP4_SSL(IMAP_SERVER, 993)
         except Exception as e:
-            return f"Failed to retrieve emails: {str(e)}", SkillResult.FAILURE
+            self.fail(f"Could not reach {IMAP_SERVER}: {e}")
 
-    def cancel(self):
-        # Every skill must implement cancel(); nothing long-running to
-        # interrupt here, so just report it.
-        return "Email retrieval cancelled"
+        try:
+            mail.login(ADDRESS, PASSWORD)
+            # ... fetch and process emails ...
+            self.feedback("Email 1: Subject, From, Content...")
+        except Exception as e:
+            self.fail(f"Failed to retrieve emails: {e}")
+        finally:
+            mail.logout()
+
+        return f"Retrieved {count} emails with subjects and content"
 ```
 
-### Best Practices
+### Best practices
 
 **Authentication**
 
-* Store credentials in environment variables or secret managers
+* Store credentials in environment variables or a secret manager
 
 * Never hardcode passwords or API keys
 
-* Validate credentials at initialization
+* Fail the run with a clear message when a credential is missing, so the agent can say so
 
-**Error Handling**
+**Error handling**
+
+Call `self.fail()` rather than returning an error — it raises, so there is no path where a
+failure silently reads as success:
 
 ```python
 def execute(self, query: str):
     try:
         response = self.client.call(query, timeout=10)
-        return f"Result: {response}", SkillResult.SUCCESS
     except RateLimitError:
-        return "Rate limit exceeded", SkillResult.FAILURE
+        self.fail("Rate limit exceeded")
     except NetworkError:
-        return "Network unavailable", SkillResult.FAILURE
-    except Exception as e:
-        return f"Unexpected error: {e}", SkillResult.FAILURE
+        self.fail("Network unavailable")
+    return f"Result: {response}"
 ```
+
+An uncaught exception also fails the run with its message, so you only catch what you can
+say something useful about.
 
 **Timeouts**
 
 * Always set explicit timeouts on network calls
 
-* Prevent blocking indefinitely on slow services
+* A blocking network call is **not** a cancel point — a Stop can't interrupt it, so keep
+  the timeout short enough that the robot stays responsive
 
 **Idempotency**
 
-* Design operations to be safely retryable when possible
+* Design operations to be safely retryable where possible
 
 * Consider partial failure scenarios
 
-## Requesting Robot State
+## Reading robot state
 
-Skills declare sensor data dependencies using the `RobotState` descriptor:
+A service skill often wants to send something the robot can see or know. Declare it the
+same way as any other feed:
 
 ```python
-from brain_client.skill_types import RobotState, RobotStateType
+from innate import MainImage, Pose, Skill
 
-class MySkill(Skill):
-    # Declare state dependencies at class level
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
-    odom = RobotState(RobotStateType.LAST_ODOM)
+
+class ReportPosition(Skill):
+    """Email a photo and the robot's current map position."""
+
+    image: MainImage
+    pose: Pose
 
     def execute(self):
-        if self.image:
-            # Use the latest camera frame
-            pass
+        body = f"I'm at ({self.pose.x:.1f}, {self.pose.y:.1f}) on the map."
+        send_email(body, attachment=self.image.jpeg)
+        return "Report sent"
 ```
 
-The system automatically updates declared state at 50Hz while your skill runs. Always check for `None` on first access.
-
-Available state types:
+Useful feeds for a service skill:
 
 <ServiceStateTypesTable />
 
-See [Robot State](/software/skills/code-defined-skills/robot-state) for more details on the RobotState system.
+See [Robot state](/software/skills/code-defined-skills/robot-state) for the full list.
 
 ## Cancellation
 
-Many service operations are atomic and cannot be meaningfully cancelled:
+Many service operations are atomic and can't be meaningfully interrupted. That's fine —
+you don't write anything for it. The framework latches the cancel, and the run reports
+`CANCELLED` once your call returns; a network request in flight simply finishes first.
 
-```python
-def cancel(self):
-    return "Email sending is an atomic operation that cannot be canceled once started"
-```
-
-The Innate agent understands this limitation and factors it into planning decisions.
+If a request is long enough that this matters, break the work into steps and call
+`self.check_cancelled()` between them so a Stop lands promptly.

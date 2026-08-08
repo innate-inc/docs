@@ -65,11 +65,12 @@ The simplest way to test your trained skill is from **Manual Control**.
 
 ## Run the skill from code
 
-Trained skills are available to agents and code-defined skills just like any other skill. Reference the skill by its ID in your agent's skill list:
+Trained skills are available to agents and code-defined skills just like any other skill. Once a skill is deployed, the robot generates a typed reference for it under `physical_skills`, so you can name it the same way you name a code skill:
 
 ```python
-from brain_client.agent_types import Agent
-from typing import List
+from innate import Agent, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from physical_skills import PickUpCup          # generated for this robot
 
 class TidyUpAgent(Agent):
     @property
@@ -80,15 +81,30 @@ class TidyUpAgent(Agent):
     def display_name(self) -> str:
         return "Tidy Up"
 
-    def get_skills(self) -> List[str]:
-        return ["pick_up_cup", "navigate_to_position"]
+    def get_skills(self) -> list[SkillRef]:
+        return [PickUpCup, NavigateToPosition]
 
     def get_prompt(self) -> str:
         return """You are a tidying robot. Use pick_up_cup to grab cups
         you see, then navigate to the kitchen to put them away."""
 ```
 
-The Innate agent calls your trained skill the same way it calls any other skill — the execution pipeline handles loading the checkpoint, running inference, and sending commands to the hardware.
+Full ID strings (`"local/pick_up_cup"`) still work, and are what you want when the skill isn't on this robot yet.
+
+A code-defined skill can run the policy directly, with the same call shape as any [sub-skill](/software/skills/code-defined-skills/composing-skills):
+
+```python
+class TidyUp(Skill):
+    """Pick up a cup and put it away."""
+
+    pick: PickUpCup
+
+    def execute(self):
+        self.pick(timeout=60)
+        return "Got the cup"
+```
+
+Either way the execution pipeline handles loading the checkpoint, running inference, and sending commands to the hardware.
 
 ## What happens during execution
 

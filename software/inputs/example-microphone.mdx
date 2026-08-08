@@ -9,9 +9,11 @@ MARS, in particular, can easily be augmented with a $50 microphone to be able to
 By default, a "micro" input device is available on MARS. If you have a microphone plugged in and are triggering an agent using it, you will be able to talk directly to MARS. See below the relevant part of the code in the hello world agent (same than in [Anatomy of an Agent](/software/agents/definitions)).
 
 ```python
-def get_inputs(self) -> List[str]:
+from inputs.micro_input import MicroInput
+
+    def get_inputs(self) -> list[InputRef]:
         # This agent can use an integrated microphone input to hear the user
-        return ["micro"] 
+        return [MicroInput]      # or the name string, "micro"
 ```
 
 The code for this input device is available in the innate-os repository at [`workspace/inputs/micro_input.py`](https://github.com/innate-inc/innate-os/blob/main/workspace/inputs/micro_input.py).

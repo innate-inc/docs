@@ -9,8 +9,7 @@ These examples demonstrate different agent patterns. Use them as starting points
     A patrol agent that monitors for intruders and sends email alerts.
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
 
 class SecurityGuardAgent(Agent):
     """Patrols the premises and alerts on unauthorized visitors."""
@@ -27,14 +26,14 @@ class SecurityGuardAgent(Agent):
     def display_icon(self) -> str:
         return "assets/security_guard.png"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return [
             "navigate_to_position",
             "open_door",
             "send_email",
         ]
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> list[InputRef]:
         return ["micro"]
 
     def get_prompt(self) -> str:
@@ -69,8 +68,7 @@ Maintain professional alertness throughout your patrol."""
     A task-focused agent that finds and collects specific items.
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
 
 class SockCollector(Agent):
     """Collects socks from the floor and places them in the laundry basket."""
@@ -83,14 +81,14 @@ class SockCollector(Agent):
     def display_name(self) -> str:
         return "Sock Collector"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return [
             "navigate_to_position",
             "pick_up_object",
             "drop_object",
         ]
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> list[InputRef]:
         return ["micro"]
 
     def get_prompt(self) -> str:
@@ -119,8 +117,7 @@ Guidelines:
     An interactive agent that engages with visitors and provides guided tours.
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
 
 class TourGuide(Agent):
     """Welcomes visitors and provides guided tours of the space."""
@@ -133,10 +130,10 @@ class TourGuide(Agent):
     def display_name(self) -> str:
         return "Tour Guide"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return ["navigate_to_position", "wave"]
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> list[InputRef]:
         return ["micro"]
 
     def get_prompt(self) -> str:
@@ -173,8 +170,7 @@ If a guest needs to leave early, thank them for visiting."""
     A minimal agent that monitors quietly and only engages when addressed.
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
 
 class QuietObserver(Agent):
     """Observes the environment and responds only when addressed."""
@@ -187,10 +183,10 @@ class QuietObserver(Agent):
     def display_name(self) -> str:
         return "Quiet Observer"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return ["navigate_to_position"]
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> list[InputRef]:
         return ["micro"]
 
     def get_prompt(self) -> str:

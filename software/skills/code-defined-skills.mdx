@@ -3,108 +3,199 @@ title: "Overview"
 ---
 
 import {
+  InterfacesAvailableTable,
   SkillCoreMethodsTable,
   SkillResultsTable,
 } from '/snippets/interface-methods-table.mdx';
 
-Code-defined skills are Python classes that implement robot behaviors with explicit logic. Three things make them easy to write:
-
-**The agent reads your code.** Your `execute()` signature and docstring are the API contract — the AI sees `execute(target: str, speed: float = 0.5)` plus the docstring and knows exactly how to call your skill. Type hints matter.
+A code-defined skill is a Python class that implements a robot behavior with explicit logic. One rule covers everything it consumes: **annotate it**.
 
 ```python
-def execute(self, target: str, speed: float = 0.5):
-    """Move toward the target object.
+from innate import MainImage, Mobility, Skill
 
-    Args:
-        target: Object to approach (e.g., "cup", "person")
-        speed: Movement speed in m/s
-    """
+
+class FindTheDog(Skill):
+    """Drive around until the dog is in frame. Use when the user asks
+    where the dog is."""
+
+    mobility: Mobility          # an interface — the base
+    image: MainImage            # a sensor feed — the head camera
+
+    def execute(self, max_turns: int = 8):
+        for _ in range(max_turns):
+            if looks_like_a_dog(self.image):
+                return "Found the dog"
+            self.mobility.rotate(0.8)
+        self.fail("No dog anywhere")
 ```
 
-**Dependencies are one-line class attributes.** Declare what you need and the system injects it — no wiring in `__init__`:
+Three things fall out of that class, and there is no boilerplate for any of them:
 
-```python
-class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)                    # hardware access
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)   # sensor data
-```
+**The class name is the skill name.** `class FindTheDog` becomes `find_the_dog`. Defining the class is what registers it — no `name` property, no registration call, no file scanning.
 
-**Then just use them.** No callbacks, no message passing:
+**The class docstring is the guidelines.** It is the text the agent reads to decide when to call the skill, so write it for the agent, not for a reviewer. A skill states its purpose exactly once.
 
-```python
-def execute(self):
-    if self.image:                    # Latest camera frame, updated at 50Hz
-        self.mobility.rotate(0.5)     # Rotate 0.5 radians
-```
-
-## The Skill Class
-
-Every code-defined skill extends `Skill` and implements these methods:
-
-```python
-from brain_client.skill_types import Skill, SkillResult
-
-class MySkill(Skill):
-    @property
-    def name(self):
-        return "my_skill"  # Unique identifier
-
-    def guidelines(self):
-        """Tell the agent when to use this skill."""
-        return "Use when you need to [do something specific]"
-
-    def execute(self, param1: str, param2: float = 1.0):
-        """Do the thing. Agent calls this with parsed arguments."""
-        # Your logic here
-        return "Result message", SkillResult.SUCCESS
-
-    def cancel(self):
-        """Stop gracefully when interrupted."""
-        return "Cancelled"
-```
+**The `execute()` signature is the parameter schema.** The agent sees `execute(self, max_turns: int = 8)` and knows what it may pass. Type hints and defaults are part of the contract, so annotate them.
 
 <SkillCoreMethodsTable />
 
-## Skill Results
+## Declaring what you need
 
-Return a tuple of `(message, status)` from `execute()`:
+Every feed — interfaces, cameras, robot state, other skills — is declared the same way: a bare type annotation on the class. The type identifies the feed, so there is nothing to wire in `__init__`.
 
 ```python
-from brain_client.skill_types import SkillResult
+from innate import Arm, Battery, Manipulation, Mobility, Odometry, Skill
+from innate_skills.arm_rest_position import ArmRestPosition
 
-def execute(self):
-    if success:
-        return "Task completed", SkillResult.SUCCESS
-    elif self._cancelled:
-        return "Interrupted by user", SkillResult.CANCELLED
-    else:
-        return "Something went wrong", SkillResult.FAILURE
+
+class TidyUp(Skill):
+    """Put the arm away and back off."""
+
+    mobility: Mobility               # interface
+    manipulation: Manipulation       # interface
+    odom: Odometry                   # robot state
+    arm: Arm                         # robot state
+    battery: Battery | None          # best effort — may be None
+    arm_rest: ArmRestPosition        # another skill, called like a method
 ```
+
+**A plain annotation is guaranteed.** The runtime waits for the first value before `execute()` starts and fails the run up front if none arrives, so a declared feed is never `None` inside `execute()` and needs no guard. The wait is bounded per feed — cameras get 3 s because they start with the run, the battery gets 6 s because it only publishes every few seconds, everything else 2 s.
+
+**`| None` makes it best effort.** `battery: Battery | None` is injected when a value is available and left `None` otherwise, and the run starts either way.
+
+Reading a feed you didn't declare raises immediately with the annotation to add, and because the annotations are real types your editor flags a typo before you ship.
+
+The four interfaces:
+
+<InterfacesAvailableTable />
+
+See [Robot state](/software/skills/code-defined-skills/robot-state) for the full list of state feeds, [Navigation interfaces](/software/skills/code-defined-skills/navigation-interfaces) and [Body control interfaces](/software/skills/code-defined-skills/body-control-interfaces) for what the interfaces do, and [Composing skills](/software/skills/code-defined-skills/composing-skills) for declaring other skills.
+
+## Returning a result
+
+`execute()` returns the message the agent will read:
+
+```python
+def execute(self):
+    return "Reached the counter"     # SUCCESS
+```
+
+Returning `None` is also success. To fail, call `self.fail(message)` — it raises, so there is no "and then return" to forget:
+
+```python
+if distance > 3.0:
+    self.fail(f"Target is {distance:.1f}m away — too far to reach safely")
+```
+
+To attach a structured payload for a skill that calls yours, return a `SkillOutput`:
+
+```python
+from pydantic import BaseModel
+
+from innate import Skill, SkillOutput
+
+
+class MoveResult(BaseModel):
+    traveled_m: float
+
+
+class MoveStraight(Skill):
+    """Move the robot straight forward or backward, in meters."""
+
+    def execute(self, distance: float):
+        ...
+        return SkillOutput(f"Moved {traveled:.2f}m", MoveResult(traveled_m=traveled))
+```
+
+A caller then reads `out.message`, `out.data`, `out.status` and `out.ok`. `SkillOutput` also takes `image=jpeg_bytes` to hand the agent a picture as evidence alongside the message.
 
 <SkillResultsTable />
 
-## Feedback
+<Note>
+The 0.6.x `return "message", SkillResult.SUCCESS` tuple still works and still normalizes correctly, but it is deprecated — new skills should return the message and call `self.fail()`.
+</Note>
 
-Send progress updates during long-running skills. The agent reads feedback in real-time and can act on it—for example, canceling the skill or triggering another one immediately:
+## Cancellation is the framework's job
+
+Write the loop as if cancel didn't exist. Every blocking framework call raises `SkillCancelled` the moment a Stop lands, the base is braked and the arm halted automatically, and the run reports `CANCELLED` — you don't catch it, and you don't need a `cancel()` method.
+
+<Warning>
+**In skill code, use `self.sleep(seconds)`. Never `time.sleep(seconds)`.**
+
+`self.sleep` wakes and raises the moment a Stop lands; `time.sleep` blocks to completion, so a skill that uses it keeps running — and keeps the robot moving — after the user pressed Stop. Sleeping is the only cancel point a loop needs.
 
 ```python
-def execute(self):
-    for i in range(10):
-        self._send_feedback(f"Step {i+1}/10")
-        # ... do work ...
-    return "Done", SkillResult.SUCCESS
+while traveled < target:
+    self.mobility.send_cmd_vel(linear_x=velocity, duration=0.5)
+    self.sleep(0.1)          # cancellable
+    # time.sleep(0.1)        # Stop is ignored until the sleep finishes
+    traveled = math.dist(self.odom.position, start)
 ```
 
-## Next Steps
+`time` itself is fine for *measuring* — `time.time()` and `time.monotonic()` for deadlines and elapsed checks. The rule is only about blocking.
+</Warning>
 
-* [**Navigation Interfaces**](/software/skills/code-defined-skills/navigation-interfaces) — Mobility control, rotation, velocity commands
+| Call | Use for |
+| --- | --- |
+| `self.sleep(seconds)` | Any pause in skill code |
+| `self.wait_for(read, timeout)` | Block until `read()` returns non-`None` |
+| `self.check_cancelled()` | A checkpoint with no sleep, e.g. right before an irreversible commit |
+| `self.cancelled` | Read the latch without raising |
 
-* [**Body Control Interfaces**](/software/skills/code-defined-skills/body-control-interfaces) — Arm manipulation, head movement, IK
+Cleanup belongs in a `try`/`finally` inside `execute()`. `self.on_cancel(hook)` exists only to forward a cancel to an external action goal — braking the base is already automatic. Overriding `cancel()` is rare enough that the base class handles it for you.
 
-* [**Robot State**](/software/skills/code-defined-skills/robot-state) — Camera, odometry, map, sensor data
+## Progress, speech and storage
 
-* [**Physical Skill Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Full-body behaviors combining navigation + manipulation
+**Feedback** streams a progress line to whoever launched the skill — the agent reads it live and can act on it, including cancelling you or triggering something else:
 
-* [**Composing Skills**](/software/skills/code-defined-skills/composing-skills) — Call skills from inside other skills to chain behaviors
+```python
+self.feedback(f"Step {i + 1}/10")
+```
 
-* [**External Services & APIs**](/software/skills/code-defined-skills/external-services) — APIs, email, web services
+**Speech** is fire-and-forget by default; `wait=True` blocks until playback ends:
+
+```python
+self.say("Starting the sweep.")
+self.say("All done!", wait=True)
+```
+
+**Storage** is a per-skill key-value store that survives restarts:
+
+```python
+runs = self.storage.get("runs", 0) + 1
+self.storage["runs"] = runs
+```
+
+## Expensive objects: `@resource`
+
+When a skill owns something costly to build, declare it with `@resource`. It is constructed on first access, cached for the run, and torn down at the end while the interfaces are still alive:
+
+```python
+from innate import Skill, resource
+
+
+class NavigateSomewhere(Skill):
+    """Drive to a map position."""
+
+    @resource
+    def controller(self):
+        c = Nav2Controller(self)
+        yield c
+        c.destroy()          # runs at the end of the run
+```
+
+Skill instances are **per-run**: constructed when the run starts, disposed when it ends. Don't stash state on `self` expecting it to survive — that's what `self.storage` is for.
+
+## Next steps
+
+* [**Navigation interfaces**](/software/skills/code-defined-skills/navigation-interfaces) — driving and rotating the base
+
+* [**Body control interfaces**](/software/skills/code-defined-skills/body-control-interfaces) — the arm SDK, the gripper, the head
+
+* [**Robot state**](/software/skills/code-defined-skills/robot-state) — cameras, odometry, map, lidar, battery
+
+* [**Composing skills**](/software/skills/code-defined-skills/composing-skills) — declaring and calling other skills, including trained policies
+
+* [**Physical skill examples**](/software/skills/code-defined-skills/physical-skill-examples) — full-body behaviors combining navigation and manipulation
+
+* [**External services & APIs**](/software/skills/code-defined-skills/external-services) — APIs, email, web services

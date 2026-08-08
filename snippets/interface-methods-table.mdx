@@ -3,24 +3,29 @@ export const NavigationInterfaceMethods = () => {
     {
       method: "rotate()",
       params: [{ name: "angle_radians", type: "float" }],
-      desc: "Rotate in place (blocking, uses Nav2).",
+      desc: "Rotate in place by an angle (positive = counter-clockwise). Blocking, runs through Nav2, returns True on success.",
     },
     {
       method: "send_cmd_vel()",
       params: [
-        { name: "linear_x", type: "float" },
-        { name: "angular_z", type: "float" },
-        { name: "duration", type: "float (seconds)" },
+        { name: "linear_x", type: "float (m/s)" },
+        { name: "angular_z", type: "float (rad/s)" },
+        { name: "duration", type: "float | None (seconds)" },
       ],
-      desc: "Publish velocity commands for duration seconds (non-blocking).",
+      desc: "Publish one velocity command (non-blocking). With duration set, a deadman stop fires after that many seconds — always pass it in a loop so the base halts if the loop dies.",
     },
     {
       method: "rotate_in_place()",
       params: [
-        { name: "angular_speed", type: "float" },
+        { name: "angular_speed", type: "float (rad/s)" },
         { name: "duration", type: "float (seconds)" },
       ],
-      desc: "Rotate at a fixed angular speed for a set duration in seconds.",
+      desc: "Spin at a fixed angular speed for a duration (non-blocking; sign sets direction).",
+    },
+    {
+      method: "stop()",
+      params: [],
+      desc: "Halt the base immediately. The framework already calls this at cancel and at run end, so you rarely need it.",
     },
   ];
 
@@ -68,45 +73,96 @@ export const NavigationInterfaceMethods = () => {
 export const ManipulationInterfaceMethods = () => {
   const rows = [
     {
-      method: "move_to_cartesian_pose()",
+      method: "move_to()",
       params: [
-        { name: "x", type: "float" },
-        { name: "y", type: "float" },
-        { name: "z", type: "float" },
-        { name: "roll", type: "float" },
-        { name: "pitch", type: "float" },
-        { name: "yaw", type: "float" },
+        { name: "x, y, z", type: "float (metres)" },
+        { name: "roll, pitch, yaw", type: "float (radians)" },
         { name: "duration", type: "float (seconds)" },
+        { name: "grip", type: "float | None" },
+        { name: "block", type: "bool" },
       ],
-      desc: "Move the end-effector to a target Cartesian pose. duration is in seconds.",
+      desc: "Move the end-effector to a pose in base_link and return the settled Arm. FK-verified: an off-target result recovers and retries once, then raises ArmUnhealthy. Unreachable raises ArmFailed.",
     },
     {
-      method: "goto_joint_state()",
-      params: [{ name: "joints", type: "list[float]" }],
-      desc: "Move the arm to a target joint configuration (6 values).",
-    },
-    {
-      method: "get_current_orientation_rpy()",
-      params: [],
-      desc: "Get current end-effector orientation as roll/pitch/yaw values.",
-    },
-    {
-      method: "get_current_end_effector_pose()",
-      params: [],
-      desc: "Get current end-effector pose (position + quaternion).",
-    },
-    {
-      method: "solve_ik()",
+      method: "move_by()",
       params: [
-        { name: "x", type: "float" },
-        { name: "y", type: "float" },
-        { name: "z", type: "float" },
-        { name: "roll", type: "float" },
-        { name: "pitch", type: "float" },
-        { name: "yaw", type: "float" },
-        { name: "timeout", type: "float" },
+        { name: "dx, dy, dz", type: "float (metres)" },
+        { name: "droll, dpitch, dyaw", type: "float (radians)" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "block", type: "bool" },
       ],
-      desc: "Solve inverse kinematics for a target pose without moving the arm.",
+      desc: "Nudge the end-effector by offsets from its measured pose — the shape a visual-servoing loop wants.",
+    },
+    {
+      method: "follow()",
+      params: [
+        { name: "waypoints", type: "Sequence[Waypoint]" },
+        { name: "grip", type: "float | None" },
+        { name: "block", type: "bool" },
+      ],
+      desc: "Sweep through waypoints as one smooth trajectory from wherever the arm is. Unverified — contact along the path is legitimate.",
+    },
+    {
+      method: "move_joints()",
+      params: [
+        { name: "joints", type: "Sequence[float] (5 or 6)" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "block", type: "bool" },
+      ],
+      desc: "Move to joint positions in radians. 5 values keep the standing grip; 6 set it.",
+    },
+    {
+      method: "rest()",
+      params: [{ name: "duration", type: "float (seconds)" }],
+      desc: "Fold to the rest pose, keeping the grip. Safe while holding an object.",
+    },
+    {
+      method: "gripper_open()",
+      params: [
+        { name: "percent", type: "float (0-100)" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "block", type: "bool" },
+      ],
+      desc: "Open the claw. A blocking open verifies the claw moved, rebooting and retrying once before raising ArmUnhealthy.",
+    },
+    {
+      method: "gripper_close()",
+      params: [
+        { name: "strength", type: "float (radians of preload)" },
+        { name: "duration", type: "float (seconds)" },
+        { name: "block", type: "bool" },
+      ],
+      desc: "Close the claw. strength is grip preload past the closed stop, clamped to GRIPPER_MAX_STRENGTH, and becomes the standing grip target.",
+    },
+    {
+      method: "wait()",
+      params: [{ name: "timeout", type: "float | None" }],
+      desc: "Join the in-flight block=False motion and return the settled Arm. Raises ArmFailed on failure or timeout.",
+    },
+    {
+      method: "moving",
+      params: [],
+      desc: "Property: True while a non-blocking motion is still in flight.",
+    },
+    {
+      method: "pose",
+      params: [],
+      desc: "Property: the current end-effector pose as an Arm — the same type as the ambient arm: Arm feed.",
+    },
+    {
+      method: "torque_on() / torque_off()",
+      params: [],
+      desc: "Power the servos on or off. Return bool rather than raising.",
+    },
+    {
+      method: "reboot_servos()",
+      params: [],
+      desc: "Reboot the servos to clear hardware errors; leaves torque off. Returns bool.",
+    },
+    {
+      method: "recover()",
+      params: [],
+      desc: "Reboot, re-enable torque and settle (~2.5 s), preserving the standing grip so a mid-pick retry keeps its preload.",
     },
   ];
 
@@ -155,8 +211,8 @@ export const HeadInterfaceMethods = () => {
   const rows = [
     {
       method: "set_position()",
-      params: [{ name: "angle", type: "int" }],
-      desc: "Set head tilt angle (from -25deg to +15deg).",
+      params: [{ name: "angle_degrees", type: "int" }],
+      desc: "Set head tilt angle (from -25deg to +15deg). Non-blocking — the head takes a moment to arrive, so self.sleep() after it if the next step needs the new view.",
     },
   ];
 
@@ -205,7 +261,7 @@ export const AgentCoreMethodsTable = () => {
   const rows = [
     { method: "id", returns: "str", purpose: "Unique identifier (snake_case)." },
     { method: "display_name", returns: "str", purpose: "Human-readable name shown in the app." },
-    { method: "get_skills()", returns: "List[str]", purpose: "Skills this agent can use." },
+    { method: "get_skills()", returns: "list[SkillRef]", purpose: "Skills this agent can use — the Skill class, a generated policy ref, or a full ID string." },
     { method: "get_prompt()", returns: "str", purpose: "Personality and behavioral instructions." },
   ];
 
@@ -242,7 +298,7 @@ export const AgentCoreMethodsTable = () => {
 export const AgentOptionalMethodsTable = () => {
   const rows = [
     { method: "display_icon", returns: "str", purpose: "Path to a 32x32 pixel icon." },
-    { method: "get_inputs()", returns: "List[str]", purpose: "Input devices to activate (for example: [\"micro\"])." },
+    { method: "get_inputs()", returns: "list[InputRef]", purpose: "Input devices to activate — the InputDevice class, or its name string (for example: [\"micro\"])." },
     { method: "uses_gaze()", returns: "bool", purpose: "Enable person-tracking eye movement." },
   ];
 
@@ -279,20 +335,28 @@ export const AgentOptionalMethodsTable = () => {
 export const SkillCoreMethodsTable = () => {
   const rows = [
     {
-      method: "name",
-      purpose: "Unique identifier the agent uses to call this skill.",
+      method: "class MySkill(Skill)",
+      purpose: "The class name is the skill name, snake_cased — class PickUpSock becomes pick_up_sock. Defining the class is the registration.",
     },
     {
-      method: "guidelines()",
-      purpose: "Natural language instructions for when and how to use the skill.",
+      method: "\"\"\"docstring\"\"\"",
+      purpose: "The class docstring is the agent-facing guidelines: when to use the skill and how. The agent reads it verbatim.",
+    },
+    {
+      method: "attr: Type",
+      purpose: "One annotation per thing the skill consumes — mobility: Mobility, image: MainImage, arm_rest: ArmRestPosition. The type identifies the feed.",
     },
     {
       method: "execute()",
-      purpose: "The actual behavior. The signature defines the skill parameters.",
+      purpose: "The behavior. Its signature defines the skill's parameters, so type hints and defaults are part of the agent-facing contract.",
+    },
+    {
+      method: "return / self.fail()",
+      purpose: "Return the message string (or SkillOutput, or None) for success; call self.fail(message) to end the run as a failure.",
     },
     {
       method: "cancel()",
-      purpose: "Clean shutdown when the user or agent interrupts.",
+      purpose: "Optional. The framework already latches the cancel, brakes the base and halts the arm — override only when teardown needs something a try/finally can't express.",
     },
   ];
 
@@ -301,8 +365,8 @@ export const SkillCoreMethodsTable = () => {
       <table className="interface-methods-table">
         <thead>
           <tr>
-            <th>Method</th>
-            <th>Purpose</th>
+            <th>Part</th>
+            <th>What it does</th>
           </tr>
         </thead>
         <tbody>
@@ -322,9 +386,9 @@ export const SkillCoreMethodsTable = () => {
 
 export const SkillResultsTable = () => {
   const rows = [
-    { status: "SUCCESS", meaning: "Skill completed its task." },
-    { status: "FAILURE", meaning: "Something went wrong." },
-    { status: "CANCELLED", meaning: "Skill was interrupted via cancel()." },
+    { status: "SUCCESS", meaning: "execute() returned — a string, a SkillOutput, or None." },
+    { status: "FAILURE", meaning: "self.fail(message) was called, or SkillFailed propagated out of a sub-skill call." },
+    { status: "CANCELLED", meaning: "A Stop landed. SkillCancelled was raised by self.sleep(), self.wait_for() or a sub-skill call, and the framework reported it." },
   ];
 
   return (
@@ -431,24 +495,59 @@ export const HeadTiltAnglesTable = () => {
 export const RobotStateAvailableTable = () => {
   const rows = [
     {
-      state: "Camera Image",
-      typeEnum: "RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64",
-      description: "Latest frame (base64 JPEG).",
+      state: "Main camera",
+      typeEnum: "image: MainImage",
+      description: "The latest frame. The value IS the base64 JPEG string; .jpeg gives raw bytes.",
+    },
+    {
+      state: "Wrist camera",
+      typeEnum: "wrist_image: WristImage",
+      description: "The same, from the camera on the gripper.",
+    },
+    {
+      state: "Depth",
+      typeEnum: "depth: DepthMap",
+      description: "A (height, width) numpy array of depth — uint16 millimetres from the stereo pipeline.",
     },
     {
       state: "Odometry",
-      typeEnum: "RobotStateType.LAST_ODOM",
-      description: "Position, orientation, and velocity.",
+      typeEnum: "odom: Odometry",
+      description: "x, y, theta in the odom frame plus linear_velocity / angular_velocity. Drifts, never jumps.",
+    },
+    {
+      state: "Map pose",
+      typeEnum: "pose: Pose",
+      description: "x, y, theta in the map frame, from localization. Corrects, so it can jump.",
+    },
+    {
+      state: "Battery",
+      typeEnum: "battery: Battery",
+      description: "percentage (0-1), voltage, current, charging.",
+    },
+    {
+      state: "Lidar",
+      typeEnum: "lidar: Lidar",
+      description: "One sweep: ranges, angle_min, angle_increment, plus a min_range(from_deg, to_deg) sector helper.",
+    },
+    {
+      state: "Arm pose",
+      typeEnum: "arm: Arm",
+      description: "End-effector x, y, z and orientation, with .rpy and .gripper.",
+    },
+    {
+      state: "Joint states",
+      typeEnum: "joint_states: JointStates",
+      description: "Parallel name / position / velocity / effort tuples, plus .of(\"joint2\").",
+    },
+    {
+      state: "Head position",
+      typeEnum: "head_position: HeadState",
+      description: "pitch_degrees, and the driver's limits when it reports them.",
     },
     {
       state: "Map",
-      typeEnum: "RobotStateType.LAST_MAP",
-      description: "Occupancy grid.",
-    },
-    {
-      state: "Head Position",
-      typeEnum: "RobotStateType.LAST_HEAD_POSITION",
-      description: "Head tilt angle.",
+      typeEnum: "map: Map",
+      description: "Occupancy grid metadata, with .grid decoded lazily into a numpy array.",
     },
   ];
 
@@ -457,9 +556,59 @@ export const RobotStateAvailableTable = () => {
       <table className="interface-methods-table">
         <thead>
           <tr>
-            <th>State</th>
-            <th>Type Enum</th>
-            <th>Description</th>
+            <th>Feed</th>
+            <th>Declare as</th>
+            <th>What you get</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.typeEnum}>
+              <td>{row.state}</td>
+              <td>
+                <span className="interface-param-badge">{row.typeEnum}</span>
+              </td>
+              <td>{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const InterfacesAvailableTable = () => {
+  const rows = [
+    {
+      state: "Base",
+      typeEnum: "mobility: Mobility",
+      description: "Drive and rotate the wheels.",
+    },
+    {
+      state: "Arm and gripper",
+      typeEnum: "manipulation: Manipulation",
+      description: "Cartesian and joint motion, trajectories, the claw, servo power.",
+    },
+    {
+      state: "Head",
+      typeEnum: "head: Head",
+      description: "Camera tilt.",
+    },
+    {
+      state: "Spatial memory",
+      typeEnum: "memory: SpatialMemory",
+      description: "Recall over the places the robot has seen on this map.",
+    },
+  ];
+
+  return (
+    <div className="interface-methods-table-wrap">
+      <table className="interface-methods-table">
+        <thead>
+          <tr>
+            <th>Interface</th>
+            <th>Declare as</th>
+            <th>What it controls</th>
           </tr>
         </thead>
         <tbody>
@@ -535,20 +684,20 @@ export const SendEmailParametersTable = () => {
 export const ServiceStateTypesTable = () => {
   const rows = [
     {
-      stateType: "LAST_MAIN_CAMERA_IMAGE_B64",
-      description: "Latest camera frame (base64 JPEG).",
+      stateType: "image: MainImage",
+      description: "The latest camera frame — already a base64 JPEG string, so it goes straight into a vision API body.",
     },
     {
-      stateType: "LAST_ODOM",
-      description: "Current odometry.",
+      stateType: "pose: Pose",
+      description: "Where the robot is on the map, to stamp a report or an alert.",
     },
     {
-      stateType: "LAST_MAP",
-      description: "Occupancy grid.",
+      stateType: "battery: Battery",
+      description: "State of charge, for status messages.",
     },
     {
-      stateType: "LAST_HEAD_POSITION",
-      description: "Head tilt angle.",
+      stateType: "map: Map",
+      description: "The occupancy grid, when a request needs the floor plan.",
     },
   ];
 
@@ -557,8 +706,8 @@ export const ServiceStateTypesTable = () => {
       <table className="interface-methods-table">
         <thead>
           <tr>
-            <th>State Type</th>
-            <th>Description</th>
+            <th>Declare as</th>
+            <th>Why a service skill wants it</th>
           </tr>
         </thead>
         <tbody>

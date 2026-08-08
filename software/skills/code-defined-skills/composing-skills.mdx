@@ -1,136 +1,181 @@
 ---
-title: "Composing Skills (pre-release)"
+title: "Composing Skills"
 ---
 
-<Warning>
-  Composing skills is a **pre-release feature**. The `innate.skills` calling
-  convention shown here is not part of a stable OS build yet, so the import path,
-  the result shape, and `SkillFailed` behavior may change without notice. Treat
-  this page as a preview, not a stable reference.
-</Warning>
+A skill can run other skills. You **declare** them the same way you declare a camera or the base — with a type annotation — and then call them like methods. This is how you build a high-level behavior out of capabilities you (and the platform) already have, without reimplementing navigation, manipulation, or speech.
 
-A skill can call other skills. Import them from `innate.skills` and call them like
-ordinary functions — the runtime runs each one to completion, then returns control to
-your code. This lets you build a high-level behavior out of the capabilities you (and
-the platform) already have, without re-implementing navigation, manipulation, or speech.
+## Declaring a sub-skill
 
-## The idea
+Import the skill's class and annotate an attribute with it:
 
-Every shipped and custom skill is exposed as a callable in `innate.skills`. Inside your
-own `execute()`, calling one:
+```python
+from innate import Skill
+from innate_skills.arm_rest_position import ArmRestPosition
+from innate_skills.head_emotion import HeadEmotion
 
-* **Blocks** until the sub-skill finishes — no callbacks or polling.
-* **Raises `SkillFailed`** if the sub-skill fails, so you can `try`/`except` around it.
-* **Returns a result** whose `.data` holds the sub-skill's typed output.
-* **Shows up as its own step** in the app timeline, so a composed routine is legible
-  while it runs.
 
-Learned policies and scripted skills share the exact same call shape — `pick_socks()`
-(an ACT policy) is called the same way as `turn_in_place()` (scripted). The caller
-doesn't need to know how the sub-skill is implemented.
+class PackUp(Skill):
+    """Fold the arm away and look pleased about it. Use at the end of a task."""
+
+    arm_rest: ArmRestPosition
+    head_emotion: HeadEmotion
+
+    def execute(self):
+        self.arm_rest()
+        self.head_emotion(emotion="proud")
+        return "Packed up"
+```
+
+Calling one:
+
+* **Blocks** until the sub-skill finishes — no callbacks, no polling.
+* **Raises `SkillFailed`** if it fails, and `SkillCancelled` if a Stop lands, so stop-on-first-failure is just Python.
+* **Returns a `SkillOutput`** — `.message`, `.data`, `.status`, `.ok`.
+* **Shows up as its own step** in the app, so a composed routine is legible while it runs.
+
+Parameters are keyword arguments, taken straight from the sub-skill's `execute()` signature. `timeout=` bounds how long a call may run:
+
+```python
+self.turn_in_place(angle_degrees=90)
+self.navigate(x=2.4, y=-1.1, timeout=120)
+```
+
+## Declaring a trained policy
+
+Physical skills — trained ACT policies and recorded replays — are data on disk, not classes you can import from your own code. They get the same declaration block and the same call shape, in either of two spellings.
+
+The robot generates a typed reference for each of its physical skills, so the readable spelling is:
+
+```python
+from innate import Skill
+from physical_skills import PickSocks
+
+
+class TidyRoom(Skill):
+    """Pick up socks from the floor. Use when the user asks to tidy up."""
+
+    pick: PickSocks
+
+    def execute(self):
+        self.pick(timeout=60)
+        return "Picked up the socks"
+```
+
+If the policy isn't on this robot yet — you're writing against one that's still training — declare it by ID instead:
+
+```python
+from innate import PhysicalSkill, Skill
+
+
+class TidyRoom(Skill):
+    """..."""
+
+    pick = PhysicalSkill("pick_socks")
+```
+
+Either way an unknown ID fails at **run start**, not halfway through the routine.
 
 ## A worked example
 
-This is `run_routine_demo`, a shipped skill you can read in full at
-`~/innate-os/workspace/innate_skills/run_routine_demo.py`. It talks, emotes, shuffles
-back and forth, turns, and attempts a learned pick — chaining six different skills.
-
 ```python
-from innate import RobotState, RobotStateType, Skill, SkillFailed, SkillResult
-from innate.skills import (
-    arm_zero_position,
-    head_emotion,
-    move_straight,
-    pick_socks,
-    turn_in_place,
-)
+from innate import Battery, Skill
+from innate.exceptions import SkillFailed
+from innate_skills.arm_rest_position import ArmRestPosition
+from innate_skills.head_emotion import HeadEmotion
+from innate_skills.move_straight import MoveStraight
+from innate_skills.turn_in_place import TurnInPlace
+from physical_skills import PickSocks
 
 
-class RunRoutineDemo(Skill):
-    """Demo of a chained routine: skills are imported functions, calls block,
-    failures raise SkillFailed, and each call is its own step in the app."""
+class DemoRoutine(Skill):
+    """Run the demo routine: talk, emote, shuffle, turn, and try to pick up a
+    sock. Use when the user asks for the demo."""
 
-    battery = RobotState(RobotStateType.LAST_BATTERY)
-
-    @property
-    def name(self):
-        return "run_routine_demo"
-
-    def guidelines(self):
-        return (
-            "Run the demo routine: talk, emote, shuffle, turn, and try to pick a "
-            "sock. Use when the user asks for the demo."
-        )
+    battery: Battery
+    arm_rest: ArmRestPosition
+    emote: HeadEmotion
+    move: MoveStraight
+    turn: TurnInPlace
+    pick: PickSocks
 
     def execute(self):
         runs = self.storage.get("runs", 0) + 1
         self.storage["runs"] = runs
 
-        arm_zero_position()
-        head_emotion(emotion="excited")
+        self.arm_rest()
+        self.emote(emotion="excited")
         self.say(f"Demo number {runs}. Watch this.", wait=True)
 
         for distance in (0.2, -0.2):
-            move_straight(distance=distance)
+            self.move(distance=distance)
 
-        turn = turn_in_place(angle_degrees=90)
-        self.say(f"I turned {turn.data.turned_degrees:.0f} degrees.")
-        turn_in_place(angle_degrees=-90, timeout=20)
+        out = self.turn(angle_degrees=90)
+        self.say(f"I turned {out.data.turned_degrees:.0f} degrees.")
+        self.turn(angle_degrees=-90, timeout=20)
 
         try:
-            pick_socks(timeout=60)  # learned policy, same call shape
+            self.pick(timeout=60)          # a trained policy, same call shape
         except SkillFailed:
-            head_emotion(emotion="disappointed")
+            self.emote(emotion="disappointed")
             self.say("No socks today.")
 
-        if self.battery:
-            self.say(f"Battery at {self.battery['percentage']:.0%}.")
-        head_emotion(emotion="proud")
-        self.say("All done!")
-        return "Demo complete", SkillResult.SUCCESS
+        self.say(f"Battery at {self.battery.percentage:.0%}.")
+        self.emote(emotion="proud")
+        return "Demo complete"
 ```
 
-## What each piece is doing
+### What each piece is doing
 
-**Import skills as functions.** `from innate.skills import arm_zero_position, …` pulls
-in the skills you want to chain. Anything installed on the robot — shipped or custom —
-is available here.
+**Sub-skills sit in the declaration block with everything else.** `battery: Battery` and `move: MoveStraight` are declared identically — the type says what it is. A code skill and a trained policy are indistinguishable at the call site, which is the point: the caller doesn't need to know how the sub-skill is implemented.
 
-**Pass parameters as keyword arguments.** A sub-skill's parameters are just function
-arguments: `move_straight(distance=distance)`, `turn_in_place(angle_degrees=90)`. Pass
-`timeout=` to bound how long a call may run (`turn_in_place(angle_degrees=-90,
-timeout=20)`).
+**Read structured output from `.data`.** `MoveStraight` and `TurnInPlace` return a `SkillOutput` carrying a typed payload, so `out.data.turned_degrees` reports how far the robot actually turned. A skill that returns a bare message has `.data` as `None`.
 
-**Read a sub-skill's output from `.data`.** Skills that return structured results expose
-them on the result object. Here `turn = turn_in_place(...)` and then
-`turn.data.turned_degrees` reports how far the robot actually turned.
-
-**Handle failures with `SkillFailed`.** A sub-skill that fails raises `SkillFailed`
-rather than returning an error tuple. Wrap fallible calls in `try`/`except` to recover —
-the demo shrugs off a missed pick and keeps going:
+**Handle failures with `SkillFailed`.** A failing sub-skill raises, so recovery is a plain `try`/`except`:
 
 ```python
 try:
-    pick_socks(timeout=60)
+    self.pick(timeout=60)
 except SkillFailed:
-    head_emotion(emotion="disappointed")
+    self.emote(emotion="disappointed")
     self.say("No socks today.")
 ```
 
-If you *don't* catch it, the exception propagates and your composing skill fails too —
-which is often exactly what you want for a step that must succeed.
+Don't catch it and the exception propagates, failing your skill too — which is usually what you want for a step that must succeed.
 
-**Everything else is a normal skill.** The composing skill is still an ordinary
-[code-defined skill](/software/skills/code-defined-skills): it declares
-[`RobotState`](/software/skills/code-defined-skills/robot-state) dependencies
-(`battery`), persists data across runs with `self.storage`, speaks with `self.say(...,
-wait=True)`, and returns a `(message, SkillResult)` tuple.
+**Cancellation propagates for free.** Every child shares the parent's cancel latch, so one Stop unwinds the whole routine: the running child raises `SkillCancelled`, the base is braked, the arm halted, and the run reports `CANCELLED`. Never catch `SkillCancelled` to keep going.
+
+**Everything else is a normal skill.** `DemoRoutine` is an ordinary [code-defined skill](/software/skills/code-defined-skills) — it declares state, persists counters with `self.storage`, speaks with `self.say(..., wait=True)`, and returns its message.
 
 <Tip>
-Because each sub-skill call is its own step, a composed routine is easy to follow in the
-app and easy to interrupt — the agent can cancel the routine between steps, or right in
-the middle of a long-running sub-skill.
+Because each sub-skill call is its own step, a composed routine is easy to follow in the app and easy to interrupt — the agent can cancel between steps or in the middle of a long-running one.
 </Tip>
+
+## Dynamic IDs
+
+When the skill to run is only known at runtime, use the invoker directly. It takes an ID string and **returns** a `SkillOutput` rather than raising on failure, so you check `.ok` yourself:
+
+```python
+out = self.skills.run("local/my_skill", timeout=30, some_param=3)
+if not out.ok:
+    self.fail(f"sub-skill failed: {out.message}")
+```
+
+A cancelled routine still raises `SkillCancelled` out of `run()` — you never handle `CANCELLED` by hand.
+
+Prefer the declared form everywhere else: a class reference is checked by your editor, an ID string isn't.
+
+## Overriding a sub-skill
+
+Composition runs the class you declared, so specializing a routine means subclassing it and re-declaring the attribute with your own class — never shadowing by name:
+
+```python
+class GentlePackUp(PackUp):
+    """Same routine, but with our slower arm-rest variant."""
+
+    arm_rest: SlowArmRest
+```
+
+A skill that declares itself, directly or through a descendant, is rejected when the run is wired — before `execute()` starts — rather than recursing on the robot.
 
 ## When to compose vs. write from scratch
 
@@ -138,8 +183,6 @@ the middle of a long-running sub-skill.
 | --- | --- |
 | The building blocks already exist as skills | You need low-level [interface](/software/skills/code-defined-skills/body-control-interfaces) control the sub-skills don't expose |
 | You want each step visible and separately cancellable | The steps are tightly coupled and shouldn't be interrupted mid-sequence |
-| You're mixing scripted skills and learned policies | Everything is a few interface calls with no reusable sub-behavior |
+| You're mixing scripted skills and trained policies | It's a few interface calls with no reusable sub-behavior |
 
-Composing skills is also how you turn a one-off demo into a reusable capability: name the
-routine, give it `guidelines()`, and the agent can trigger the whole chain with a single
-skill call.
+Composing is also how you turn a one-off demo into a reusable capability: give the class a name and a docstring, and the agent can trigger the whole chain with a single skill call.

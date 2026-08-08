@@ -7,13 +7,13 @@ import {
   NavigationUseCasesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
+`Mobility` gives you direct control over the robot base — rotation and velocity commands. Use it for custom navigation behaviors that complement the built-in navigation.
 
-## Core Navigation (Built-in)
+## Core navigation (built-in)
 
-The robot comes with built-in navigation that the agent calls *innately*. You don't need to implement this—it works out of the box.
+The robot comes with built-in navigation that the agent calls *innately*. You don't need to implement this — it works out of the box.
 
-**Do not modify** the core `navigate_to_position` skill. It's a system-level skill that the agent uses automatically. Modifying it could break navigation behavior.
+**Do not modify** the shipped `navigate_to_position` skill. It's a system-level skill the agent uses automatically, and changing it can break navigation.
 
 When you tell the robot "go to the kitchen," the agent automatically:
 
@@ -23,16 +23,21 @@ When you tell the robot "go to the kitchen," the agent automatically:
 
 3. Monitors progress and handles obstacles
 
-## MobilityInterface
+To send the robot somewhere from inside your own skill, don't reimplement any of that — [declare `navigate_to_position` as a sub-skill](/software/skills/code-defined-skills/composing-skills) and call it.
 
-Declare the interface at class level:
+## Declaring the base
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+from innate import Mobility, Skill
+
 
 class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    """..."""
+
+    mobility: Mobility
 ```
+
+That's the whole wiring. `self.mobility` is guaranteed inside `execute()`.
 
 ### Methods
 
@@ -43,51 +48,81 @@ class MySkill(Skill):
 ```python
 import math
 
-# Rotate 90 degrees (blocking)
+# Rotate 90 degrees (blocking, planned through Nav2)
 self.mobility.rotate(math.pi / 2)
 
-# Drive forward for 2 seconds (non-blocking)
+# Drive forward at 0.1 m/s, stopping itself after 2 seconds
 self.mobility.send_cmd_vel(linear_x=0.1, angular_z=0.0, duration=2.0)
 
-# Spin in place
+# Spin in place for 3 seconds
 self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 ```
 
-## When to Use
+<Warning>
+**Always pass `duration` to `send_cmd_vel`.** It arms a deadman stop, so if your loop dies or the process is killed mid-command the base halts on its own instead of driving away. Send a fresh command every iteration with a duration slightly longer than the loop period.
+</Warning>
+
+`self.mobility.rotate()` is blocking, so it is also a cancel point — it raises `SkillCancelled` and stops the base if a Stop lands mid-rotation. `send_cmd_vel` returns immediately, so a loop built on it needs `self.sleep()` to be interruptible.
+
+## When to use
 
 <NavigationUseCasesTable />
 
 ## Example: LookAround
 
-A skill that rotates to survey the environment:
-
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
 import math
 
+from innate import Mobility, Skill
+
+
 class LookAround(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    """Rotate in place through several headings to survey the room. Use when
+    the robot needs to see what's around it before deciding where to go."""
 
-    @property
-    def name(self):
-        return "look_around"
-
-    def guidelines(self):
-        return "Use when the robot needs to look in multiple directions."
+    mobility: Mobility
 
     def execute(self, num_directions: int = 4):
-        rotation_per_step = (2 * math.pi) / num_directions
+        num_directions = max(1, num_directions)
+        step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            if self._cancelled:
-                return "Survey cancelled", SkillResult.CANCELLED
+            self.feedback(f"Looking direction {i + 1}/{num_directions}")
+            self.mobility.rotate(step)
 
-            self._send_feedback(f"Looking direction {i+1}/{num_directions}")
-            self.mobility.rotate(rotation_per_step)
-
-        return "Survey complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Survey cancelled"
+        return "Survey complete"
 ```
+
+No `_cancelled` flag, no `cancel()` method, no result tuple: `rotate()` raises `SkillCancelled` on a Stop, the framework brakes the base and reports `CANCELLED`, and returning the message reports `SUCCESS`.
+
+## Example: creep forward until something is close
+
+Pairs the base with the [lidar feed](/software/skills/code-defined-skills/robot-state) — a shape that only works because the sleep is cancellable.
+
+```python
+import time
+
+from innate import Lidar, Mobility, Skill
+
+
+class CreepForward(Skill):
+    """Drive slowly forward until something is within a stop distance ahead.
+    Use to approach an object the robot can already see."""
+
+    mobility: Mobility
+    lidar: Lidar
+
+    def execute(self, stop_distance: float = 0.5, speed: float = 0.08, timeout: float = 20.0):
+        deadline = time.monotonic() + timeout
+
+        while time.monotonic() < deadline:
+            ahead = self.lidar.min_range(-20, 20)
+            if ahead is not None and ahead <= stop_distance:
+                return f"Stopped {ahead:.2f}m from the nearest obstacle"
+            self.mobility.send_cmd_vel(linear_x=speed, duration=0.5)
+            self.sleep(0.1)
+
+        self.fail(f"Nothing came within {stop_distance:.2f}m in {timeout:.0f}s")
+```
+
+`time.monotonic()` for the deadline, `self.sleep()` for the pause — measuring with `time` is fine, blocking with it is not. The base is braked automatically on both exits, so there is no trailing `stop()`.

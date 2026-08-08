@@ -30,8 +30,7 @@ Optional methods:
 The simplest possible agent:
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, SkillRef
 
 class MyAgent(Agent):
     @property
@@ -42,7 +41,7 @@ class MyAgent(Agent):
     def display_name(self) -> str:
         return "My Agent"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return []
 
     def get_prompt(self) -> str:
@@ -56,8 +55,10 @@ This agent loads and runs, but does very little—it has no skills and a minimal
 A functional agent with skills, inputs, and a detailed prompt:
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.wave import Wave
+from inputs.micro_input import MicroInput
 
 class HelloWorld(Agent):
     """Greets visitors with a friendly wave."""
@@ -74,11 +75,11 @@ class HelloWorld(Agent):
     def display_icon(self) -> str:
         return "assets/hello_world.png"
 
-    def get_skills(self) -> List[str]:
-        return ["innate-os/navigate_to_position", "innate-os/wave"]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, Wave]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]  # enables the microphone — see below
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]  # enables the microphone — see below
 
     def get_prompt(self) -> str:
         return """
@@ -96,25 +97,46 @@ You are a friendly robot who greets people.
 
 This agent combines navigation and waving skills, microphone input, a friendly prompt, and gaze tracking for more natural interaction.
 
-## Skill IDs
+## Naming skills
 
-`get_skills()` takes full skill IDs, prefixed by where each skill comes from:
+Prefer the **class** — an import is checked by your editor, so a rename or a typo fails
+before it reaches the robot:
+
+```python
+from custom_skills.my_skill import MySkill                          # yours
+from innate_skills.navigate_to_position import NavigateToPosition   # shipped code skill
+from physical_skills import PickSocks                               # trained policy
+
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition, PickSocks, MySkill]
+```
+
+Full ID strings still work and are the escape hatch when the ID is only known at runtime.
+They're namespaced by the package the skill comes from:
 
 | Prefix | Source |
 | --- | --- |
 | `innate-os/` | skills shipped with the OS |
 | `local/` | your own skills in `~/innate-os/workspace/custom_skills/` |
+| `<folder>/` | a [skill pack](/software/skills#skill-packages-and-ids) dropped into `workspace/` |
 
-IDs are matched exactly during registration — a custom skill named
-`victory_spin` must be listed as `"local/victory_spin"`, not bare.
+IDs are matched exactly — a custom skill named `victory_spin` must be listed as
+`"local/victory_spin"`, not bare.
+
+<Tip>
+An agent whose file fails to import no longer disappears from the picker. It shows up as a
+disabled option with its error, and clears when you fix it.
+</Tip>
 
 ## Enabling the Microphone
 
-If you want to **talk to your agent**, you must enable the microphone input — it is not on by default. Add `"micro"` to the list returned by `get_inputs()`:
+If you want to **talk to your agent**, you must enable the microphone input — it is not on by default. Return the microphone device from `get_inputs()`:
 
 ```python
-def get_inputs(self) -> List[str]:
-    return ["micro"]
+from inputs.micro_input import MicroInput
+
+def get_inputs(self) -> list[InputRef]:
+    return [MicroInput]      # or the name string, "micro"
 ```
 
 That's all: when the agent starts, the runtime opens MARS's built-in microphone and everything you say is streamed into the agent's context as chat input. Without this, the agent only reacts to what it sees and to messages typed in the app.
@@ -132,8 +154,11 @@ A good prompt defines personality, goals, constraints, and strategy in plain lan
 Copy and modify this template for new agents:
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Agent, InputRef, SkillRef
+from innate_skills.head_emotion import HeadEmotion
+from innate_skills.move_straight import MoveStraight
+from innate_skills.navigate_to_position import NavigateToPosition
+from inputs.micro_input import MicroInput
 
 class MyCustomAgent(Agent):
     """One-line description of what this agent does."""
@@ -150,15 +175,11 @@ class MyCustomAgent(Agent):
     def display_icon(self) -> str:
         return "assets/my_icon.png"  # Optional
 
-    def get_skills(self) -> List[str]:
-        return [
-            "innate-os/navigate_to_position",
-            "innate-os/wave",
-            "innate-os/turn_and_move",
-        ]
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, MoveStraight, HeadEmotion]
 
-    def get_inputs(self) -> List[str]:
-        return ["micro"]
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]
 
     def get_prompt(self) -> str:
         return """

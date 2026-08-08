@@ -8,168 +8,227 @@ import {
   HeadTiltAnglesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `ManipulationInterface` and `HeadInterface` give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
+`Manipulation` and `Head` control the robot's arm and head. Use them for manipulation tasks, gestures, and camera positioning.
 
-## ManipulationInterface
-
-Declare the interface at class level:
+## Manipulation
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+from innate import Manipulation, Skill
+
 
 class MySkill(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    """..."""
+
+    manipulation: Manipulation
 ```
+
+The arm SDK **blocks and raises**. Every motion returns only once the arm has settled, and a motion that fails raises rather than returning `False` — so the happy path reads as a straight line and a failure can't be silently ignored:
+
+| Exception | Means |
+| --- | --- |
+| `ArmFailed` | The command was rejected or impossible — an unreachable pose, a failed IK solve, a trajectory the driver refused. |
+| `ArmUnhealthy` | The arm accepted the command but didn't get there, and a reboot-and-retry didn't fix it. The hardware needs attention. |
+
+Both are importable from `innate.exceptions`. If you don't catch them, the run reports `FAILURE` with the message — usually exactly what you want.
 
 ### Methods
 
 <ManipulationInterfaceMethods />
 
-### Cartesian Control
+### Cartesian motion
 
-Move the end-effector to a specific position and orientation:
+Positions are metres in `base_link`, orientations are radians:
 
 ```python
-# Move to position (x, y, z) with orientation (roll, pitch, yaw)
-self.manipulation.move_to_cartesian_pose(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    duration=2.0  # motion duration in seconds (not milliseconds)
-)
+settled = self.manipulation.move_to(x=0.30, y=0.0, z=0.12, pitch=1.2, duration=1.5)
+self.logger.info(f"arm settled at z={settled.z:.3f}")
 ```
 
-### Joint Control
+`move_to` is **FK-verified**: after the motion it reads the real pose back, and if the arm is off target by more than the tolerance it recovers (reboot + torque on) and retries once before raising `ArmUnhealthy`. Pass `tolerance_xy=None, tolerance_z=None` to skip verification when contact is expected to stop the arm early.
 
-Move directly to joint angles (6 joints):
+`move_by` nudges from the arm's **measured** pose rather than its last commanded one, which is the shape a visual-servoing loop wants:
 
 ```python
-# Move to joint configuration [j1, j2, j3, j4, j5, j6]
-self.manipulation.goto_joint_state([0, -0.5, 1.5, -1.0, 0, 0])
+self.manipulation.move_by(dx=0.01, dy=-0.005, duration=0.3)
 ```
 
-### Reading State
+### Trajectories
+
+`follow()` sweeps through waypoints as one smooth motion, starting from wherever the arm currently is:
 
 ```python
-# Get current end-effector pose
-pose = self.manipulation.get_current_end_effector_pose()
-# Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
+from innate import Waypoint
 
-# Get orientation as roll/pitch/yaw
-rpy = self.manipulation.get_current_orientation_rpy()
-# Returns: {'roll': r, 'pitch': p, 'yaw': y}
+self.manipulation.follow([
+    Waypoint(x=0.30, y=0.00, z=0.20, duration=0.8),
+    Waypoint(x=0.34, y=0.06, z=0.14, duration=0.6),
+    Waypoint(x=0.34, y=0.00, z=0.10, duration=0.6),
+])
 ```
 
-### Inverse Kinematics
+A trajectory is deliberately **not** pose-verified: touching something along the path is legitimate. One smooth `follow()` also beats a chain of `move_to` calls for anything gesture-like — the stop-and-go between separate moves is visible.
 
-Check if a pose is reachable before moving:
+### Joint motion
 
 ```python
-joints = self.manipulation.solve_ik(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    timeout=1.0
-)
-if joints:
-    self.manipulation.goto_joint_state(joints)
-else:
-    return "Pose unreachable", SkillResult.FAILURE
+# 6 values set the claw, 5 keep whatever grip the arm is already holding
+self.manipulation.move_joints([0.0, -0.5, 1.5, -1.0, 0.0], duration=2.0)
+
+# Fold away, keeping the grip — safe while carrying something
+self.manipulation.rest()
+
+self.manipulation.JOINT_NAMES   # ("joint1", ..., "joint6")
+self.manipulation.REST          # the folded pose
 ```
 
-## HeadInterface
-
-Control camera tilt:
+### The gripper and the standing grip
 
 ```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+self.manipulation.gripper_open()               # fully open
+self.manipulation.gripper_open(percent=50)     # half
+self.manipulation.gripper_close(strength=0.4)  # close with grip preload
+```
+
+`strength` is radians of preload past the closed stop, clamped to `GRIPPER_MAX_STRENGTH` (0.6) — beyond that the servo overcurrent-trips on a real object.
+
+<Note>
+The claw runs under current-based position control, so the standing position error **is** the grip force. The interface remembers the last commanded claw position and carries it through every later motion, so an object stays held while the arm travels. You never thread a `gripper=` argument through a trajectory, and re-reading the measured claw position — which would drop the object — is not something you can accidentally do.
+</Note>
+
+A blocking `gripper_open()` verifies the claw actually moved, since a tripped servo can stay shut, and reboots and retries once before raising `ArmUnhealthy`.
+
+### Doing something else while the arm moves
+
+Pass `block=False` to return as soon as the command is accepted, then join with `wait()`:
+
+```python
+self.manipulation.move_to(x=0.30, y=0.0, z=0.25, duration=2.0, block=False)
+
+while self.manipulation.moving:
+    self.mobility.send_cmd_vel(linear_x=0.05, duration=0.3)
+    self.sleep(0.1)
+
+settled = self.manipulation.wait()      # raises if the motion failed
+```
+
+A non-blocking motion is **unverified until joined** — `wait()` is what surfaces a failure. Issuing a new command supersedes an unjoined motion.
+
+### Reading the arm
+
+`self.manipulation.pose` returns an `Arm` — the same type as the ambient `arm: Arm` [state feed](/software/skills/code-defined-skills/robot-state), so a control loop reads one shape everywhere:
+
+```python
+cur = self.manipulation.pose
+cur.x, cur.y, cur.z      # metres
+cur.rpy                  # (roll, pitch, yaw), radians
+cur.gripper              # claw joint, radians
+```
+
+### Servo power and recovery
+
+```python
+self.manipulation.torque_on()
+self.manipulation.torque_off()
+self.manipulation.reboot_servos()   # clears hardware errors, leaves torque off
+self.manipulation.recover()         # reboot + torque on + settle, keeping the grip
+```
+
+These return `bool` rather than raising. `move_to` and `gripper_open` already call `recover()` for you on their retry path.
+
+<Warning>
+**Committed physical actions must not be cancellable.** Once the gripper has closed on an object, unwinding mid-grip drops it on the floor. In a section like that — and only there — use `time.sleep` deliberately and say so in a comment, or the next reader will "fix" it back to `self.sleep` and reintroduce the bug. Everywhere else, `self.sleep`.
+</Warning>
+
+## Head
+
+```python
+from innate import Head, Skill
+
 
 class MySkill(Skill):
-    head = Interface(InterfaceType.HEAD)
+    """..."""
+
+    head: Head
 ```
 
 ### Methods
 
 <HeadInterfaceMethods />
 
-### Tilt Angles
+### Tilt angles
 
 <HeadTiltAnglesTable />
 
 ```python
-self.head.set_position(-15)  # Look down at objects
-self.head.set_position(0)    # Look straight ahead
-self.head.set_position(10)   # Look up at faces
+self.head.set_position(-15)   # look down at objects
+self.head.set_position(0)     # look straight ahead
+self.head.set_position(10)    # look up at faces
 ```
 
-## Example: Wave
-
-A skill that waves the arm:
+`set_position` returns immediately; the head takes a moment to arrive. If the next step depends on the new view, sleep first:
 
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
-import time
+self.head.set_position(-20)
+self.sleep(1.0)               # let the head settle before reading the camera
+```
+
+Read the current tilt back with the [`head_position: HeadState`](/software/skills/code-defined-skills/robot-state) feed.
+
+## Example: a two-stroke wave
+
+```python
+from innate import Manipulation, Skill, Waypoint
+
 
 class Wave(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    """Wave the arm at someone. Use when greeting a person the robot can see."""
 
-    @property
-    def name(self):
-        return "wave"
+    manipulation: Manipulation
 
-    def guidelines(self):
-        return "Use to wave at someone in greeting."
+    UP = (0.22, 0.00, 0.30)
 
     def execute(self, times: int = 3):
-        # Wave positions
-        wave_left = [0.5, -0.3, 1.0, -0.5, 0.5, 0]
-        wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
+        self.manipulation.move_to(*self.UP, duration=1.0)
 
-        for i in range(times):
-            if self._cancelled:
-                return "Wave cancelled", SkillResult.CANCELLED
+        for _ in range(max(1, times)):
+            self.manipulation.follow([
+                Waypoint(x=0.22, y=0.10, z=0.30, duration=0.35),
+                Waypoint(x=0.22, y=-0.10, z=0.30, duration=0.35),
+            ])
 
-            self.manipulation.goto_joint_state(wave_left)
-            time.sleep(0.3)
-            self.manipulation.goto_joint_state(wave_right)
-            time.sleep(0.3)
-
-        return f"Waved {times} times", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Wave cancelled"
+        self.manipulation.rest()
+        return f"Waved {times} times"
 ```
 
-## Example: LookAtObject
+One `follow()` per stroke rather than two `move_to` calls, so the arm sweeps instead of stopping at each end. No `cancel()` method and no cancellation checks: a Stop raises out of the blocking motion, and the framework halts the arm.
 
-A skill that adjusts head to look at objects:
+## Example: look, then pick
 
 ```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+from innate import Manipulation, Head, Skill
+from innate.exceptions import ArmFailed
 
-class LookAtObject(Skill):
-    head = Interface(InterfaceType.HEAD)
 
-    @property
-    def name(self):
-        return "look_at_object"
+class GrabInFront(Skill):
+    """Reach down and grab whatever is directly in front of the robot on the
+    floor. Use only when the object is already within reach."""
 
-    def guidelines(self):
-        return "Use to tilt camera to look at objects on the floor or shelves."
+    manipulation: Manipulation
+    head: Head
 
-    def execute(self, location: str = "floor"):
-        angles = {
-            "floor": -25,
-            "table": -10,
-            "ahead": 0,
-            "face": 10,
-            "shelf": 15
-        }
+    def execute(self, height: float = 0.03):
+        self.head.set_position(-20)
+        self.sleep(1.0)
 
-        angle = angles.get(location, 0)
-        self.head.set_position(angle)
+        self.manipulation.gripper_open()
+        try:
+            self.manipulation.move_to(x=0.34, y=0.0, z=height, pitch=1.4, duration=1.5)
+        except ArmFailed:
+            self.fail("That spot is outside the arm's reach")
 
-        return f"Looking at {location}", SkillResult.SUCCESS
-
-    def cancel(self):
-        return "Cannot cancel head movement"
+        self.manipulation.gripper_close(strength=0.4)
+        self.manipulation.move_to(x=0.30, y=0.0, z=0.20, duration=1.0)
+        return "Grabbed it"
 ```
+
+The lift after the close carries the object because the standing grip travels with the motion — nothing re-commands the claw.
