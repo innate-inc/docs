@@ -7,7 +7,14 @@ SSH gives you a terminal directly on the robot. Everything below assumes you kno
 | | |
 | --- | --- |
 | **Username** | `jetson1` |
-| **Password** | `goodbot` |
+| **Password** | `goodbot<number>` — your robot's number (plain `goodbot` if it has none) |
+
+Robots ship named `MARS the <number>th`, so the hostname is `mars-the-<number>th.local`:
+
+| Robot | SSH command | Password |
+| --- | --- | --- |
+| MARS the 21st | `ssh jetson1@mars-the-21st.local` | `goodbot21` |
+| MARS the 27th | `ssh jetson1@mars-the-27th.local` | `goodbot27` |
 
 ## Via Wi-Fi
 
@@ -23,9 +30,11 @@ SSH gives you a terminal directly on the robot. Everything below assumes you kno
   <Step title="Connect">
     ```bash
     ssh jetson1@<hostname>.local
+    # e.g. ssh jetson1@mars-the-21st.local
+    #      ssh jetson1@mars-the-27th.local
     ```
 
-    Enter the password `goodbot` when prompted.
+    Enter the password `goodbot<number>` when prompted — `goodbot21` for MARS the 21st, `goodbot27` for MARS the 27th.
   </Step>
 </Steps>
 
