@@ -2,11 +2,11 @@
 title: "MARS Quick Development"
 ---
 
-Learn to create your first agent, train your first manipulation model, give MARS the ability to read emails, and put the pieces together
+Learn to write your first code-defined skill, hand it to your first agent, train your first manipulation model, and put the pieces together
 
-## Create your first agent
+## Create your first code-defined skill
 
-Now that you know the basics, you can create your first agent for MARS using the SDK. On the app, go to **Configuration** -> **WiFi** and read the IP of the robot.
+Now that you know the basics, you can start building for MARS with the SDK. On the app, go to **Configuration** -> **WiFi** and read the IP of the robot.
 
 All your code lives and runs **on the robot**, so the comfortable way to work is to open your editor (VSCode, Cursor, Windsurf, ...) directly on MARS over Remote SSH — full file tree, search, and terminal, as if the robot's filesystem were local. [Development Setup](/software/development-setup) gets you there in a few minutes. In a hurry? A plain terminal works too:
 
@@ -14,45 +14,73 @@ All your code lives and runs **on the robot**, so the comfortable way to work is
 ssh jetson1@<YOUR-ROBOT-IP>
 ```
 
-Either way, go to `~/innate-os/workspace/custom_agents/` and create a `hello_world.py` agent file:
+Skills are Python classes the agent can call, and they can run any code you want — query an API online, or drive the robot's own body. Let's give MARS a victory spin. Create `~/innate-os/workspace/custom_skills/victory_spin.py`:
 
 ```python
-from typing import List
-from brain_client.agent_types import Agent
+from innate import Mobility, Skill
 
-class HelloWorld(Agent):
+
+class VictorySpin(Skill):
+    """Spin the robot in place to celebrate. Use when something goes well
+    and the robot should show it — spins is how many full turns, 1 to 3."""
+
+    mobility: Mobility
+
+    def execute(self, spins: int = 1):
+        for _ in range(2 * min(int(spins), 3)):
+            self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
+        return "Spun with joy"
+```
+
+Three things come from that class with no boilerplate: the **class name** is the skill name (`victory_spin`), the **docstring** is what the agent reads to decide when to call it, and the **`execute()` signature** is the parameter schema. `mobility: Mobility` is the whole wiring for the base.
+
+Save the file — the runtime watches this directory and hot-reloads it within a second or two (the same goes for any later edits). Open the app's **Skills** tab and run `victory_spin` ([manual triggering](/software/skills/manual-triggering)) to watch it move, with no agent involved yet.
+
+Skills can also reach off the robot: for one that queries an external API, see the [`RetrieveEmails` worked example](/software/skills/code-defined-skills/external-services#worked-example-retrieveemails), a copy-paste-ready skill that reads your latest Gmail messages.
+
+## Create your first agent
+
+Skills get interesting when an agent decides on its own to use them. Next door in `~/innate-os/workspace/custom_agents/`, create a `cheerful_greeter.py` agent file:
+
+```python
+from innate import Agent, InputRef, SkillRef
+from custom_skills.victory_spin import VictorySpin
+
+class CheerfulGreeter(Agent):
     @property
     def id(self) -> str:
-        return "hello_world"
+        return "cheerful_greeter"
 
     @property
     def display_name(self) -> str:
-        return "Hello World"
+        return "Cheerful Greeter"
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[SkillRef]:
         return [
+            VictorySpin,
             "innate-os/navigate_to_position",
             "innate-os/wave",
         ]
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> list[InputRef]:
         return ["micro"]
 
     def get_prompt(self) -> str:
         return """
-You are a friendly greeting robot whose sole purpose is to say hello world to the user!
+You are a friendly greeting robot whose sole purpose is to welcome the user and celebrate with them!
 
 Your personality:
 - You are a nice and cheerful robot.
 
 Instructions:
 - When you see a user in front of you, say "hello world" and wave at the user.
+- When they tell you good news, celebrate it physically with a victory spin.
 - Don't navigate, just turn around if you don't see the user.
 """
 ```
 
-"*wave*" and "*navigate\_to\_position*" are basic skills that come already created for the robot. This agent makes use of them to act autonomously.
+"*wave*" and "*navigate\_to\_position*" are basic skills that come already created for the robot; `VictorySpin` is the one you just wrote. Naming the class is preferred — your editor catches a rename or a typo before the robot does. Full ID strings work too (`"local/victory_spin"`), prefixed by where the skill comes from: your own skills are `local/<name>`, shipped ones are `innate-os/<name>`.
 
-Save the file — the runtime watches this directory and hot-reloads it within a second or two (the same goes for any later edits). Open the app, and your agent appears on the Home screen (pull down to refresh if needed): start it, sit in front of the robot, and observe! If it ever doesn't show up, `innate service restart` is the reliable fallback.
+Agents hot-reload the same way skills do. Open the app, and your agent appears on the Home screen (pull down to refresh if needed): start it, sit in front of the robot, and observe! Tell it in chat that you just merged a big PR, and it should decide on its own that the situation calls for a victory spin. If it ever doesn't show up, `innate service restart` is the reliable fallback.
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/b7cNKEcER24" title="Run your first agent demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
@@ -81,40 +109,6 @@ Below, an example of training the arm to pick up a cherry.
 Once you collected around 50 episodes, you can start considering stopping data collection. We can easily train your dataset for you if you go to the Training tab and press Train with whole dataset. You can also use the episodes for yourself by ssh-ing in the robot and getting them there.
 
 Once the model is trained (which takes up to 4 hours), you can get it back on your robot and then trigger it from Manual Control Screen!
-
-## Create your first code-defined skill
-
-Innate robots can also run any kind of code in the embodied Innate agent, which can be used to query APIs online or run custom routines onboard.
-
-As an example, let's give MARS a skill that reads your latest Gmail messages. Grab the complete `RetrieveEmails` implementation from the [External Services worked example](/software/skills/code-defined-skills/external-services#worked-example-retrieveemails) and save it as `~/innate-os/workspace/custom_skills/retrieve_emails.py` on the robot — it's copy-paste-ready, you only need to fill in your Gmail address and an app password.
-
-Then run the skill from an agent that can query it:
-
-```python
-from typing import List
-from brain_client.agent_types import Agent
-
-class EmailAssistant(Agent):
-    @property
-    def id(self) -> str:
-        return "email_assistant"
-
-    @property
-    def display_name(self) -> str:
-        return "Email Assistant"
-
-    def get_skills(self) -> List[str]:
-        # Custom skills are namespaced "local/", shipped skills "innate-os/"
-        return [
-            "local/retrieve_emails"
-        ]
-
-    def get_prompt(self) -> str:
-        return """
-You are an email assistant. 
-When the user sits in front of you, you should tell them what their last email is
-"""
-```
 
 To learn more about the Skills SDK and go further:
 
