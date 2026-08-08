@@ -1,5 +1,5 @@
 ---
-title: "Physical Skill Examples"
+title: "Full-Body Examples"
 ---
 
 Complete examples of skills that combine navigation, manipulation, and sensor data to create full-body robot behaviors.
@@ -63,8 +63,6 @@ Position, look down, and prepare arm for pickup:
 from innate import Manipulation, Mobility, Head, Skill, SkillReturn
 
 class PickupRoutine(Skill):
-    """Use to prepare for picking up an object in front of the robot."""
-
     mobility: Mobility
     manipulation: Manipulation
     head: Head
@@ -72,6 +70,9 @@ class PickupRoutine(Skill):
     # Safe arm positions
     HOME_POSE = [0, -0.5, 1.5, -1.0, 0, 0]
     READY_POSE = [0, -0.3, 1.0, -0.8, 0, 0]
+
+    def guidelines(self) -> str:
+        return "Use to prepare for picking up an object in front of the robot."
 
     def execute(self, approach_distance: float = 0.3) -> SkillReturn:
         # Step 1: Safe starting position
@@ -103,11 +104,12 @@ import time
 from innate import MainImage, Mobility, Head, Skill, SkillReturn
 
 class PatrolAndMonitor(Skill):
-    """Use for surveillance - rotates and captures images at each position."""
-
     mobility: Mobility
     head: Head
     image: MainImage
+
+    def guidelines(self) -> str:
+        return "Use for surveillance - rotates and captures images at each position."
 
     def execute(self, positions: int = 4, duration: float = 30.0) -> SkillReturn:
         images = []
@@ -139,11 +141,12 @@ import math
 from innate import MainImage, Mobility, Head, Skill, SkillReturn
 
 class InspectObject(Skill):
-    """Use to examine an object from multiple angles. Robot should be near the object."""
-
     mobility: Mobility
     head: Head
     image: MainImage
+
+    def guidelines(self) -> str:
+        return "Use to examine an object from multiple angles. Robot should be near the object."
 
     def execute(self, angles: int = 4) -> SkillReturn:
         images = []
@@ -172,13 +175,14 @@ Return to a safe home configuration:
 from innate import Manipulation, Head, Skill, SkillReturn
 
 class GoHomePosition(Skill):
-    """Use to return the robot's arm and head to safe home positions.
-    Do not use if carrying something."""
-
     manipulation: Manipulation
     head: Head
 
     HOME_ARM = [0, -0.5, 1.5, -1.0, 0, 0]
+
+    def guidelines(self) -> str:
+        return ("Use to return the robot's arm and head to safe home positions. "
+                "Do not use if carrying something.")
 
     def execute(self) -> SkillReturn:
         # Arm first (priority for safety)

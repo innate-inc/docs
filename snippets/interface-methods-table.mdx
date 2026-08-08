@@ -22,6 +22,27 @@ export const NavigationInterfaceMethods = () => {
       ],
       desc: "Rotate at a fixed angular speed for a set duration in seconds.",
     },
+    {
+      method: "stop()",
+      params: [],
+      desc: "Stop the base now. Rarely needed — the framework brakes for you at the end of every run and on cancel.",
+    },
+    {
+      method: "drive()",
+      params: [
+        { name: "get_xyt", type: "callable" },
+        { name: "dist", type: "float (meters)" },
+      ],
+      desc: "Drive straight by dist, closed on odometry (negative = backwards). Returns True once within tolerance, False on timeout or odometry loss. get_xyt is a zero-arg reader returning (x, y, theta) — build one with the odom_xyt() helper.",
+    },
+    {
+      method: "rotate_by()",
+      params: [
+        { name: "get_xyt", type: "callable" },
+        { name: "angle", type: "float (radians)" },
+      ],
+      desc: "Rotate by angle, closed on odometry yaw (positive = counter-clockwise). Same return contract as drive().",
+    },
   ];
 
   return (
@@ -78,10 +99,25 @@ export const ManipulationInterfaceMethods = () => {
         { name: "yaw", type: "float = 0" },
         { name: "duration", type: "float = 1.5" },
         { name: "grip", type: "float | None" },
-        { name: "tol_xy", type: "float | None = 0.05" },
-        { name: "tol_z", type: "float | None = 0.10" },
+        { name: "tolerance_xy", type: "float | None = 0.05" },
+        { name: "tolerance_z", type: "float | None = 0.10" },
       ],
-      desc: "Move the end-effector to a Cartesian pose (meters, radians), blocking. Verifies the arm tracked the target, auto-recovers once, and returns the settled Arm pose. Raises ArmFailed (unreachable) / ArmUnhealthy (servo fault). Pass tol_xy=None and tol_z=None for an unverified move.",
+      desc: "Move the end-effector to a Cartesian pose (meters, radians), blocking. Verifies the arm tracked the target, auto-recovers once, and returns the settled Arm pose. Raises ArmFailed (unreachable) / ArmUnhealthy (servo fault). Pass tolerance_xy=None and tolerance_z=None for an unverified move.",
+    },
+    {
+      method: "move_by()",
+      params: [
+        { name: "dx", type: "float = 0" },
+        { name: "dy", type: "float = 0" },
+        { name: "dz", type: "float = 0" },
+        { name: "duration", type: "float = 0.5" },
+      ],
+      desc: "Nudge the end-effector by an offset from its measured pose (not its last commanded one) — the shape a visual-servoing loop wants. Also takes droll/dpitch/dyaw; same verification and tolerances as move_to().",
+    },
+    {
+      method: "wait()",
+      params: [{ name: "timeout", type: "float | None" }],
+      desc: "Join an in-flight block=False motion and return the settled Arm pose; raises ArmFailed if it failed or timed out. The `moving` property is True while one is still in flight.",
     },
     {
       method: "follow()",

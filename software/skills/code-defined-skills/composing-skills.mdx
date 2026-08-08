@@ -1,12 +1,10 @@
 ---
-title: "Composing Skills (pre-release)"
+title: "Composing Skills"
 ---
 
-<Warning>
-  Composing skills is a **pre-release feature**: it isn't in a stable OS build yet,
-  so the declaration syntax and result shape may still change. Treat this page as a
-  preview, not a stable reference.
-</Warning>
+<Note>
+  Requires **OS 0.7.0** or newer.
+</Note>
 
 A skill can call other skills. Declare the one you want as a type annotation, then call
 it like a method — the runtime runs it to completion and returns control to your code.
@@ -57,6 +55,9 @@ from innate_skills.wave import Wave              # a recorded demonstration
 class TidyUp(Skill):
     pick: PickSocks
     wave: Wave
+
+    def guidelines(self) -> str:
+        return "Use to greet the room and then pick up any socks on the floor."
 
     def execute(self) -> SkillReturn:
         self.wave()

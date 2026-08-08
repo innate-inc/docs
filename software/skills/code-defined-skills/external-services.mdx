@@ -82,18 +82,17 @@ Fetches recent emails from configured account.
 
 ```innatepy
 class RetrieveEmails(Skill):
-    """Use to retrieve recent emails from the configured email account.
-    Provide the number of emails to retrieve (default is 5).
-    Returns email subjects and content."""
+    def guidelines(self) -> str:
+        return """Use to retrieve recent emails from the configured email account.
+        Provide the number of emails to retrieve (default is 5).
+        Returns email subjects and content."""
 
     def execute(self, count: int = 5) -> SkillReturn:
         ...  # Connect to IMAP, fetch emails, return the formatted list
 ```
 
-Here the class docstring doubles as the guidelines — the idiomatic shorthand once
-you're comfortable with the explicit form. Want to build your own version against your
-own account? There's a complete implementation in the
-[worked example](#worked-example-retrieveemails) below.
+Want to build your own version against your own account? There's a complete
+implementation in the [worked example](#worked-example-retrieveemails) below.
 
 ## Building a service skill
 
