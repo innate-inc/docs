@@ -170,23 +170,6 @@ Replay skills are created by **recording the motion once** — no hand-written m
 
 Unlike learned skills, replay skills also capture **head movement**, so the robot reproduces where it was looking during the recording.
 
-## Using a policy from code
-
-A physical skill is data, not a class — but the skill catalog generates a typed reference for it inside its own folder, so it imports like any other skill:
-
-```innatepy
-from innate_skills.pick_socks import PickSocks
-
-class TidyUp(Skill):
-    pick: PickSocks             # declare it...
-
-    def execute(self) -> SkillReturn:
-        self.pick(timeout=60)   # ...then call it
-        return "Tidied up"
-```
-
-The same reference goes in an [agent's](/software/agents/definitions) `get_skills()` list. Calling a learned policy and calling a scripted skill look identical — see [Composing Skills](/software/skills/code-defined-skills/composing-skills).
-
 ## Demonstration Quality
 
 The quality of learned skills depends directly on demonstration quality:

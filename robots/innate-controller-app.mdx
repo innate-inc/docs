@@ -14,40 +14,45 @@ The Innate Controller App is your phone-side cockpit for MARS: drive the robot, 
   Both apps are still in beta. Reach out on [Discord](https://discord.com/invite/KtkyT97kc7) to get access.
 </Note>
 
-## Current versions
+## What you can do with it
 
-<CurrentVersions />
+* **Drive and control** — joystick base driving with [Slow/Med/Fast/Mad speed modes](/robots/mars/control-and-connectivity#drive-speed-modes), plus head and arm control
+* **Leader arm teleoperation** — attach the leader arm to your phone over USB-C for direct arm control
+* **Train manipulation skills** — [record episodes, launch cloud training runs, and deploy trained skills](/training/overview) end to end
+* **Navigation** — map-free navigation, mapping mode, and go-to mode with trajectory visualization
+* **Agents and skills** — start and stop [agents](/software/agents/starting-an-agent) from the home screen, and [trigger skills directly](/software/skills/manual-triggering) with input validation and live feedback
+* **Recording** — capture robot sessions with native iOS/Android video, then share or export with metadata
 
-## Key features
-
-* **Robot Control** — Drive the robot and control the arm using your phone, with [Slow/Med/Fast/Mad speed modes](/robots/mars/control-and-connectivity#drive-speed-modes) and smoothed joystick drive
-
-* **Leader Arm Teleoperation** — Attach the leader arm to your phone for intuitive arm control
-
-* **Dataset Recording & Policy Training** — [Record demonstration episodes, launch cloud training runs, and deploy trained skills](/training/overview) directly from the app
-
-* **Navigation** — Map-free navigation, mapping mode, and go-to mode with trajectory visualization
-
-* **Video Recording** — Record robot sessions with native iOS/Android capture
-
-* **Recording Export** — Share recordings directly or export with metadata
-
-* **Agent Management** — Start and stop agents from the home screen
-
-* **Skills UI** — Execute skills with input validation and real-time feedback
-
-* **Action Cancellation** — Stop navigation with the dedicated stop button
-
-* **Low Battery Warnings** — Visual alerts when the robot needs charging
-
-* **Version Compatibility** — Automatic checks with guided update instructions
-
-* **Arm Restart Notifications** — Quick recovery from arm issues via push notifications
+The app also handles the housekeeping: low-battery alerts, arm-restart notifications, and OS version compatibility checks with guided update instructions.
 
 <IosLeaderArmWarning />
 
-## Next step
+It's the phone counterpart to the [web app](/robots/web-app), which is better on a laptop for data collection, training, and debugging on a larger screen.
 
-<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app/connecting-to-a-robot">
-  Pair over Bluetooth, put the robot on your Wi-Fi, and connect.
-</Card>
+## Connecting to a robot
+
+The app connects to your robot over Wi-Fi — including your phone's hotspot. The first time, it walks you through an onboarding flow:
+
+1. **Bluetooth pairing** — the app discovers your robot over Bluetooth Low Energy (BLE) to configure its network settings
+2. **Wi-Fi configuration** — tell the robot which network to join
+3. **Connection** — once you're both on the same network, the app connects over Wi-Fi
+
+The robot publishes its hostname with a `.local` suffix (e.g. `mars-robot.local`), so the connection survives an IP address change.
+
+<Frame caption="Press on the robot when it appears to connect via bluetooth">
+  <img src="/images/main/robots/innate-controller-app/connect-step-1.png" width="375" />
+</Frame>
+
+<Frame caption="If it's already on the same network than your phone, you can connect">
+  <img src="/images/main/robots/innate-controller-app/connect-step-2.png" />
+</Frame>
+
+<Frame caption="Otherwise, select &#x22;Change Robot WiFi&#x22; to pick another network to connect it to">
+  <img src="/images/main/robots/innate-controller-app/connect-step-3.png" width="375" />
+</Frame>
+
+Once connected, **Configuration → WiFi** shows the robot's current IP on the network — which you'll need for [SSH](/robots/mars/connecting-via-ssh) and the [web app](/robots/web-app).
+
+## Current versions
+
+<CurrentVersions />

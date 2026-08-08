@@ -61,8 +61,7 @@
           {
             "group": "Controller App",
             "pages": [
-              "robots/innate-controller-app",
-              "robots/innate-controller-app/connecting-to-a-robot"
+              "robots/innate-controller-app"
             ]
           },
           {
@@ -113,14 +112,7 @@
                   "software/skills/manual-triggering"
                 ]
               },
-              {
-                "group": "Inputs",
-                "pages": [
-                  "software/inputs",
-                  "software/inputs/definition",
-                  "software/inputs/example-microphone"
-                ]
-              },
+              "software/inputs",
               "software/agent"
             ]
           },
@@ -141,8 +133,6 @@
               "training/data-collection",
               "training/train-act-policy",
               "training/deploy-trained-skill",
-              "training/evaluate",
-              "training/rollout-evaluation",
               "training/dataset-format",
               "training/training-cli"
             ]
@@ -161,7 +151,6 @@
             "group": "Troubleshooting & Support",
             "pages": [
               "robots/mars/troubleshooting",
-              "robots/mars/faq",
               "support/contact-discord"
             ]
           },
@@ -189,6 +178,34 @@
     "dark": "/images/logo-dark.png"
   },
   "redirects": [
+    {
+      "source": "/training/evaluate",
+      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+    },
+    {
+      "source": "/training/rollout-evaluation",
+      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+    },
+    {
+      "source": "/software/inputs/definition",
+      "destination": "/software/inputs#write-an-input-device"
+    },
+    {
+      "source": "/software/inputs/example-microphone",
+      "destination": "/software/inputs#example-the-built-in-microphone"
+    },
+    {
+      "source": "/robots/innate-controller-app/connecting-to-a-robot",
+      "destination": "/robots/innate-controller-app#connecting-to-a-robot"
+    },
+    {
+      "source": "/robots/mars/faq",
+      "destination": "/robots/mars/troubleshooting"
+    },
+    {
+      "source": "/robots/mars/troubleshooting/critical-fix-before-jan-16",
+      "destination": "/robots/mars/troubleshooting#find-your-mars-id"
+    },
     {
       "source": "/robots/web-app/debugging",
       "destination": "/robots/web-app/logging"
@@ -275,7 +292,7 @@
     },
     {
       "source": "/welcome/frequently-asked-questions",
-      "destination": "/robots/mars/faq"
+      "destination": "/robots/mars/troubleshooting"
     }
   ]
 }

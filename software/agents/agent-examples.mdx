@@ -1,12 +1,13 @@
 ---
 title: "Agent Examples"
+description: "Four agent patterns to start from — patrol + alert, search + manipulate, navigate + interact, observe + respond."
 ---
 
-These examples demonstrate different agent patterns. Use them as starting points for your own implementations.
+Every agent has the same shape: an id, a display name, a skill list, an input list, and a prompt ([the full structure](/software/agents/definitions)). What actually distinguishes one agent from another is **which skills it gets and what the prompt tells it to do** — so the first example is written out in full, and the rest show only those two parts.
 
-<AccordionGroup>
-  <Accordion title="Security Guard" defaultOpen={true}>
-    A patrol agent that monitors for intruders and sends email alerts.
+## Security Guard
+
+A patrol agent that monitors for intruders and sends email alerts.
 
 ```innatepy
 from innate import Agent, InputRef, SkillRef
@@ -60,38 +61,18 @@ Intruder protocol:
 Maintain professional alertness throughout your patrol."""
 ```
 
-    Key pattern: the prompt includes a specific route, clear behavior guidelines, and explicit edge-case handling.
-  </Accordion>
+**Key pattern:** the prompt includes a specific route, clear behavior guidelines, and explicit edge-case handling.
 
-  <Accordion title="Object Collector">
-    A task-focused agent that finds and collects specific items.
+## Object Collector
+
+A task-focused agent that finds and collects specific items. `PickSocks` is a trained policy — listed exactly like a code skill.
 
 ```innatepy
-from innate import Agent, InputRef, SkillRef
-from innate_skills.navigate_to_position import NavigateToPosition
-from innate_skills.pick_socks import PickSocks
-from inputs.micro_input import MicroInput
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition, PickSocks]
 
-class SockCollector(Agent):
-    """Collects socks from the floor and places them in the laundry basket."""
-
-    @property
-    def id(self) -> str:
-        return "sock_collector"
-
-    @property
-    def display_name(self) -> str:
-        return "Sock Collector"
-
-    def get_skills(self) -> list[SkillRef]:
-        # PickSocks is a trained policy — listed exactly like a code skill.
-        return [NavigateToPosition, PickSocks]
-
-    def get_inputs(self) -> list[InputRef]:
-        return [MicroInput]
-
-    def get_prompt(self) -> str:
-        return """You are a tidying robot. Your task: find socks on the
+def get_prompt(self) -> str:
+    return """You are a tidying robot. Your task: find socks on the
 floor and place them in the laundry basket.
 
 Procedure:
@@ -109,37 +90,21 @@ Guidelines:
 - Perform a final sweep when you believe you're done"""
 ```
 
-    Key pattern: single-purpose objective with a concrete procedure and practical fallback rules.
-  </Accordion>
+**Key pattern:** single-purpose objective with a concrete procedure and practical fallback rules.
 
-  <Accordion title="Tour Guide">
-    An interactive agent that engages with visitors and provides guided tours.
+## Tour Guide
+
+An interactive agent that engages with visitors. Overriding `uses_gaze()` makes the robot track and look at whoever it's talking to.
 
 ```innatepy
-from innate import Agent, InputRef, SkillRef
-from innate_skills.navigate_to_position import NavigateToPosition
-from innate_skills.wave import Wave
-from inputs.micro_input import MicroInput
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition, Wave]
 
-class TourGuide(Agent):
-    """Welcomes visitors and provides guided tours of the space."""
+def uses_gaze(self) -> bool:
+    return True
 
-    @property
-    def id(self) -> str:
-        return "tour_guide"
-
-    @property
-    def display_name(self) -> str:
-        return "Tour Guide"
-
-    def get_skills(self) -> list[SkillRef]:
-        return [NavigateToPosition, Wave]
-
-    def get_inputs(self) -> list[InputRef]:
-        return [MicroInput]
-
-    def get_prompt(self) -> str:
-        return """You are a tour guide robot. Be warm, knowledgeable,
+def get_prompt(self) -> str:
+    return """You are a tour guide robot. Be warm, knowledgeable,
 and attentive to your guests.
 
 Greeting:
@@ -160,41 +125,23 @@ Interaction style:
 - Maintain eye contact during conversation
 
 If a guest needs to leave early, thank them for visiting."""
-
-    def uses_gaze(self) -> bool:
-        return True
 ```
 
-    Key pattern: gaze-enabled social interaction with route and dialogue structure.
-  </Accordion>
+**Key pattern:** gaze-enabled social interaction with route and dialogue structure.
 
-  <Accordion title="Passive Observer">
-    A minimal agent that monitors quietly and only engages when addressed.
+## Passive Observer
+
+A minimal agent that monitors quietly and only engages when addressed.
 
 ```innatepy
-from innate import Agent, InputRef, SkillRef
-from innate_skills.navigate_to_position import NavigateToPosition
-from inputs.micro_input import MicroInput
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition]
 
-class QuietObserver(Agent):
-    """Observes the environment and responds only when addressed."""
+def uses_gaze(self) -> bool:
+    return True
 
-    @property
-    def id(self) -> str:
-        return "quiet_observer"
-
-    @property
-    def display_name(self) -> str:
-        return "Quiet Observer"
-
-    def get_skills(self) -> list[SkillRef]:
-        return [NavigateToPosition]
-
-    def get_inputs(self) -> list[InputRef]:
-        return [MicroInput]
-
-    def get_prompt(self) -> str:
-        return """You are an observant robot with a calm presence.
+def get_prompt(self) -> str:
+    return """You are an observant robot with a calm presence.
 
 Behavior:
 - Remain quiet unless directly addressed
@@ -203,20 +150,12 @@ Behavior:
 - Do not navigate away unless requested
 
 Maintain a non-intrusive presence in the room."""
-
-    def uses_gaze(self) -> bool:
-        return True
 ```
 
-    Key pattern: minimal skill set with a restrained prompt for passive behavior.
-  </Accordion>
-</AccordionGroup>
+**Key pattern:** minimal skill set with a restrained prompt for passive behavior.
 
 ## Combining Patterns
 
-These examples represent reusable patterns you can mix depending on your use case: patrol + alert, search + manipulate, navigate + interact, and observe + respond. In practice, most production agents combine at least two of these patterns.
+These are reusable patterns you can mix: patrol + alert, search + manipulate, navigate + interact, observe + respond. Most real agents combine at least two.
 
-For chess-specific setup and calibration:
-
-- [Chess (beta)](/software/agents/chess-beta)
-- [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta)
+For chess-specific setup and calibration, see [Chess (beta)](/software/agents/chess-beta) and [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).

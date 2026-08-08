@@ -136,9 +136,20 @@ Avoid running system updates or intensive operations when the battery is low.
 
 ***
 
-## Early units (MARS IDs 1-11)
+## Find your MARS ID
 
-If you have one of the first eleven MARS units, it needed a [one-time setup fix](/robots/mars/troubleshooting/critical-fix-before-jan-16) before first use. Every robot from MARS ID 12 onwards shipped with this fix already applied, so chances are you can ignore this entirely.
+Some fixes and shipped-hardware questions depend on which unit you have. Two ways to find its ID:
+
+* **Via Bluetooth** — turn the robot on and look for it in the Innate app's Bluetooth connections screen. It appears as **"MARS the 1st"**, **"MARS the 5th"**, **"MARS the 12th"** — the number in the name is your MARS ID.
+* **Via SSH** — read the `robot_id` field from the robot info file:
+
+```bash
+cat ~/innate-os-data/robot_info.json
+```
+
+<Note>
+The first eleven units (MARS IDs 1–11, shipped before January 2026) needed a one-time setup fix before first use. Every robot from ID 12 onwards shipped with it already applied. If you have an early unit that was never set up, reach out on [Discord](https://discord.com/invite/KtkyT97kc7).
+</Note>
 
 ***
 

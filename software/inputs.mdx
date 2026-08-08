@@ -1,23 +1,73 @@
 ---
 title: "Inputs"
+description: "Send live data into a running agent — added sensors, network events, robot status."
 ---
 
 Inputs let you send additional data asynchronously to the Innate agent while an agent is running.
 
-They are useful when integrating external signals such as added sensors (for example directional microphone or air-quality sensor), network events (for example incoming emails or webhook alerts), and internal robot status events. The most important part is that an input can send live feedback to the Innate agent while the agent is executing.
+They are useful when integrating external signals such as added sensors (for example a directional microphone or air-quality sensor), network events (for example incoming emails or webhook alerts), and internal robot status events. The most important part is that an input can send live feedback to the Innate agent **while the agent is executing**.
 
 An input device is a small Python class with three pieces: a `name` property (how agents reference it), `on_open()` (called when an agent using it starts), and `on_close()` (called when it stops). In between, you call `self.send_data(...)` whenever you have something to report — that's the whole interface.
+
+## Write an input device
+
+Drop the file into `~/innate-os/workspace/inputs/`. This template sends data every second, as if the user were talking:
+
+```innatepy
+import threading
+
+from brain_client.inputs.types import InputDevice
+
+class MyInput(InputDevice):
+    def __init__(self):
+        super().__init__()
+        self._stop_evt = threading.Event()
+
+    @property
+    def name(self) -> str:
+        return "my_input"  # used by agents
+
+    def on_open(self):
+        self._stop_evt.clear()
+
+        def timer_loop():
+            while not self._stop_evt.is_set():
+                self.send_data({"text": "tick!"}, data_type="chat_in")
+                self._stop_evt.wait(timeout=1.0)
+
+        threading.Thread(target=timer_loop, daemon=True).start()
+
+    def on_close(self):
+        self._stop_evt.set()
+```
+
+### Data types
+
+The Innate agent performs better with properly formatted inputs, so `send_data` takes a `data_type` to route data onto the right channel. It is either `chat_in` or `custom`, and in both cases expects a dictionary:
+
+* `chat_in` — text input as if the user was talking, e.g. `{"text": "Hello robot"}`. You can include extra keys such as `confidence` or `source`.
+* `custom` — any other structured data, e.g. `{"air_quality": 42, "unit": "AQI"}`.
 
 ## Attach it to an agent
 
 ```innatepy
-def get_inputs(self) -> list[str]:
-    return ["my_input"]
+def get_inputs(self) -> list[InputRef]:
+    return [MyInput]
 ```
 
 When the agent starts, `on_open()` is called and the Innate agent begins receiving your input's updates.
 
-## Go deeper
+## Example: the built-in microphone
 
-* [Definition](/software/inputs/definition) — the full interface, a copy-paste template, and the data types you can send
-* [Example: Microphone](/software/inputs/example-microphone) — how the built-in `micro` input works under the hood
+MARS ships with a `MicroInput` device. If a microphone is plugged in and the running agent lists it, you can talk directly to MARS — this is the same wiring used by the hello world agent in [Anatomy of an Agent](/software/agents/definitions):
+
+```innatepy
+from inputs.micro_input import MicroInput
+
+def get_inputs(self) -> list[InputRef]:
+    return [MicroInput]
+```
+
+Its source is in the innate-os repository at [`workspace/inputs/micro_input.py`](https://github.com/innate-inc/innate-os/blob/main/workspace/inputs/micro_input.py) — the best reference for a real input device. MARS has a built-in microphone in the arm; for better directional pickup you can add a USB one (see [Extending MARS](/robots/mars/extending-mars)).
+
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/Da_vpacFfvM" title="Microphone input demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
