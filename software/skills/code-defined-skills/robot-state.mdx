@@ -51,7 +51,9 @@ class MySkill(Skill):
 
 ## Odometry
 
-Current position, orientation, and velocity:
+Where the robot is and how it is moving, as an `innate.Odometry` object. MARS
+is a differential-drive base on flat ground, so you get a flat 2D pose —
+`x`, `y`, and a yaw angle — directly, no quaternion math needed:
 
 ```python
 class MySkill(Skill):
@@ -59,12 +61,125 @@ class MySkill(Skill):
 
     def execute(self):
         if self.odom:
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            # orientation as quaternion
-            qz = self.odom.pose.pose.orientation.z
-            qw = self.odom.pose.pose.orientation.w
+            x, y = self.odom.position          # meters, odom frame
+            heading = self.odom.theta_degrees  # yaw, counter-clockwise positive
+            speed = self.odom.linear_velocity  # m/s, forward
 ```
+
+| Attribute | Type | Description |
+| --- | --- | --- |
+| `x`, `y` | `float` | Position in meters, odom frame |
+| `position` | `tuple[float, float]` | `(x, y)` shorthand |
+| `theta` | `float` | Yaw in radians, counter-clockwise positive, wrapped to `(-pi, pi]` |
+| `theta_degrees` | `float` | Yaw in degrees (matches `navigate_to_position`'s `theta_degrees`) |
+| `linear_velocity` | `float` | Forward speed in m/s (negative when reversing) |
+| `angular_velocity` | `float` | Turn rate in rad/s, counter-clockwise positive |
+| `stamp` | `float` | Sensor timestamp in seconds |
+| `raw` | `dict` | The full `nav_msgs/Odometry` as plain data |
+
+Always check for `None` on first access — the first odometry message is one
+publish period away when a skill starts.
+
+### Closing a loop on odometry
+
+Declared state refreshes at 50 Hz while your skill runs, so you can read the
+attributes in a loop to close a control loop. This drives forward a fixed
+distance by watching `position`:
+
+```python
+import math
+import time
+from innate import Interface, InterfaceType, RobotState, RobotStateType, Skill, SkillResult
+
+class DriveMeters(Skill):
+    mobility = Interface(InterfaceType.MOBILITY)
+    odom = RobotState(RobotStateType.LAST_ODOM)
+
+    @property
+    def name(self):
+        return "drive_meters"
+
+    def execute(self, distance: float = 0.5):
+        if self.odom is None:
+            return "No odometry", SkillResult.FAILURE
+
+        start = self.odom.position                      # (x, y) snapshot
+        while math.dist(self.odom.position, start) < distance:
+            if self._cancelled:
+                self.mobility.send_cmd_vel(linear_x=0.0)
+                return "Cancelled", SkillResult.CANCELLED
+            # duration acts as a deadman: if this loop dies, the base stops
+            self.mobility.send_cmd_vel(linear_x=0.15, duration=0.5)
+            time.sleep(0.1)
+
+        self.mobility.send_cmd_vel(linear_x=0.0)
+        return f"Drove {distance:.2f}m", SkillResult.SUCCESS
+```
+
+For heading, `theta_degrees` is already wrapped to `(-180, 180]`. Accumulate
+wrapped deltas so a turn across the ±180° seam still counts correctly:
+
+```python
+last = self.odom.theta_degrees
+turned = 0.0
+while turned < 90.0:
+    self.mobility.send_cmd_vel(angular_z=0.5, duration=0.5)
+    time.sleep(0.05)
+    now = self.odom.theta_degrees
+    turned += (now - last + 180.0) % 360.0 - 180.0      # signed shortest-arc delta
+    last = now
+```
+
+### Checking freshness
+
+Use `stamp` (seconds) to skip a reading that has gone stale — for example
+after a feed hiccup, when the 50 Hz refresh would otherwise hand you a frozen
+value:
+
+```python
+age = time.time() - self.odom.stamp
+if age > 0.5:
+    return f"Odometry stale ({age:.1f}s old)", SkillResult.FAILURE
+```
+
+### Need more than the 2D pose?
+
+`odom.raw` carries the complete odometry message with rosbridge-style keys —
+the real quaternion, `z`, covariances, and the full twist — for skills doing
+their own filtering or fusion:
+
+```python
+class FusePose(Skill):
+    odom = RobotState(RobotStateType.LAST_ODOM)
+
+    @property
+    def name(self):
+        return "fuse_pose"
+
+    def execute(self):
+        if self.odom is None:
+            return "No odometry", SkillResult.FAILURE
+
+        raw = self.odom.raw                              # full nav_msgs/Odometry as a dict
+        quat = raw["pose"]["pose"]["orientation"]        # {"x", "y", "z", "w"} — true quaternion
+        z = raw["pose"]["pose"]["position"]["z"]         # height (not on the flat API)
+        pose_cov = raw["pose"]["covariance"]             # 36 floats, row-major 6x6
+        lateral = raw["twist"]["twist"]["linear"]["y"]   # sideways velocity
+
+        # e.g. reject a fix whose position variance is too high
+        if pose_cov[0] > 0.25:                           # var(x) > 0.25 m²
+            return "Pose too uncertain", SkillResult.FAILURE
+
+        return f"z={z:.3f} lateral={lateral:.3f}", SkillResult.SUCCESS
+```
+
+<Note>
+Skills written for **0.3.0 through 0.6.x** read odometry as a raw-message
+dict (`self.odom["theta_degrees"]`, `self.odom["pose"]["pose"]["position"]`).
+Dict-style access is kept as a permanent compatibility layer — those skills
+keep working with no scheduled removal. New skills should use the attributes
+above.
+</Note>
 
 ## Map
 
@@ -164,17 +279,14 @@ class MonitorPosition(Skill):
         if not self.odom:
             return "Odometry not available", SkillResult.FAILURE
 
-        start_x = self.odom.pose.pose.position.x
-        start_y = self.odom.pose.pose.position.y
+        start = self.odom.position
         start_time = time.time()
 
         while time.time() - start_time < duration:
             if self._cancelled:
                 return "Monitoring cancelled", SkillResult.CANCELLED
 
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            distance = math.sqrt((x - start_x)**2 + (y - start_y)**2)
+            distance = math.dist(self.odom.position, start)
 
             self._send_feedback(f"Moved {distance:.2f}m from start")
             time.sleep(0.5)
