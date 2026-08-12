@@ -9,13 +9,16 @@ Everything runs on the robot. You SSH in, edit code, restart. That's it.
 
 <Steps>
   <Step title="Find your robot's IP">
-    Open the Innate app. Go to **Configuration** → **WiFi**. Note the IP address.
+    Open the Innate app. Go to **Configuration** → **WiFi**. Note the IP address — and the hostname, which usually works just as well and is easier to remember.
   </Step>
   <Step title="SSH in">
     ```bash
     ssh jetson1@<YOUR-ROBOT-IP>
+
+    # e.g. for MARS the 21st:
+    ssh jetson1@mars-the-21st.local
     ```
-    Default password: `goodbot`. See [Connecting via SSH](/robots/mars/connecting-via-ssh) for hostname, Ethernet, and USB-C options.
+    Password: `goodbot<number>` — `goodbot21` for MARS the 21st, `goodbot27` for MARS the 27th. See [Connecting via SSH](/robots/mars/connecting-via-ssh) for hostname, Ethernet, and USB-C options.
   </Step>
   <Step title="Open your IDE over SSH (don't skip this)">
     <Warning>
@@ -26,7 +29,7 @@ Everything runs on the robot. You SSH in, edit code, restart. That's it.
 
     1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`).
     2. Run **Remote-SSH: Connect to Host...**.
-    3. Enter `jetson1@<YOUR-ROBOT-IP>`.
+    3. Enter `jetson1@<YOUR-ROBOT-IP>` (e.g. `jetson1@mars-the-21st.local`).
     4. Open the folder `/home/jetson1/innate-os/`.
 
     Once connected, your editor behaves exactly as if the robot's filesystem were local: file tree, search, extensions, and the integrated terminal all run on MARS.
@@ -38,6 +41,7 @@ Set up SSH keys to skip the password prompt every time:
 
 ```bash
 ssh-copy-id jetson1@<YOUR-ROBOT-IP>
+# e.g. ssh-copy-id jetson1@mars-the-27th.local
 ```
 </Tip>
 

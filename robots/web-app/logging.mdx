@@ -4,29 +4,21 @@ title: "Logging"
 
 The **Logging** page is a live, structured view of the robot's entire console — every node and process, in one place, in your browser. It's the fastest way to see what the robot is doing (or why it isn't) without SSH.
 
+![The web app's Logging page](/images/main/robots/web-app/logging.png)
+
 ## Why it's more complete than `/rosout`
 
 Robot logs are usually scattered: each program prints in its own format, and a lot of output — library messages, the launch system, low-level connection errors — never reaches the standard ROS log topic at all. The Logging page reads the robot's raw console instead, which is a complete superset, and structures it for you. So things that would otherwise be invisible off-robot show up here.
 
 ## The log view
 
-The main pane is a chronological log with a column for each part of a line:
-
-* **Time**, **Level** (a colored badge), **Source**, and the **Message** (tinted for warnings and errors).
-* **Severity filter** and **text search** to narrow things down.
-* **Raw / Clean** toggle — raw shows the original line; clean shows the parsed message.
-* **Live / Pause** — Live tails new output; scrolling up pauses autoscroll so you can read, and resumes when you scroll back down.
-* **Clear**, plus a shown/total count.
+Two behaviors aren't obvious from looking at it: **Clean** parses each line down to its message, while raw keeps the original text; and **Live** tails new output, pausing autoscroll when you scroll up so you can read, then resuming when you scroll back down.
 
 ## Log sources
 
-The panel on the right is a navigator that re-pivots the same logs three ways:
+The panel on the right re-pivots the same logs three ways — the full **launch file → process → node → logger** hierarchy, flat by **process**, or flat by **node/logger**. Click a source to scope the log view to it.
 
-* **Launch file -> process -> node -> logger** — the full hierarchy.
-* **Process** — flat, expandable to nodes.
-* **Node / Logger** — flat.
-
-Each entry carries a health tint rolled up from the worst severity beneath it, so a subsystem with errors stands out at a glance, with worded counts like `11 errors` / `3 warnings`. Click a source to scope the log view to it. There's also an **All logs** entry and a filter field.
+Each entry carries a health tint rolled up from the worst severity beneath it, so a subsystem with errors stands out before you've read a single line.
 
 <Note>
   Per-connection loggers (one per client that connects to the robot) are grouped together so they don't flood the source list — each line still shows its specific source in the log's Source column.

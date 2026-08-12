@@ -1,0 +1,132 @@
+---
+title: "Spatial Memory"
+---
+
+<Note>
+  Requires **OS 0.7.0** or newer.
+</Note>
+
+As the robot drives around, it keeps the views worth keeping — each one tied to a spot on the map and to when it was seen. That's its **spatial memory**, and your skills can search it.
+
+![Remembered views on the map, in the web app's Nav page](/images/main/software/skills/spatial-memory-nav.png)
+
+You ask in plain language ("the kitchen", "a banana", "where you saw my airpods"), a vision model reviews everything remembered on this map, and you get back the best match — with an image, map coordinates, and a timestamp.
+
+## Declaring it
+
+Like any other interface, one annotation:
+
+```innatepy
+from innate import Skill, SpatialMemory
+
+class FindIt(Skill):
+    memory: SpatialMemory
+```
+
+## Searching
+
+A search takes a while — a model is reading through a lot of pictures. So `begin()` starts it and hands you back a **reader**, which you wait on with `self.wait_for()`:
+
+```innatepy
+def execute(self, query: str):
+    recall = self.memory.begin(query)
+    verdict = self.wait_for(recall, timeout=150.0)
+    if verdict is None:
+        self.fail("memory search timed out")
+    return verdict.message
+```
+
+Waiting through `self.wait_for()` is what keeps **Stop** responsive — press it mid-search and the skill unwinds like any other. Give it a generous timeout; a well-travelled map can take a couple of minutes.
+
+## What comes back
+
+A `RecallVerdict`:
+
+| Field | What it holds |
+| --- | --- |
+| `found` | Whether anything matched. |
+| `message` | The answer, written for the agent to read out. |
+| `image` | JPEG bytes of the remembered view, or `None`. |
+| `x`, `y`, `theta` | Where the robot was standing when it saw it — feed these straight to navigation. |
+| `seen_stamp` | When it was seen. |
+| `explanation` | Why the model picked this view (or why nothing matched). |
+| `error` | Non-empty if the *search itself* broke. |
+
+**`found=False` is not an error.** It means the search worked and the answer is "nowhere" — worth saying out loud. Check `error` separately:
+
+```innatepy
+if verdict.error:
+    self.fail(verdict.message)      # the search broke
+if not verdict.found:
+    return "I don't remember seeing that."   # the search worked; nothing there
+```
+
+## Driving to what you found
+
+```innatepy
+from innate import Skill, SpatialMemory
+from innate_skills.navigate_to_position import NavigateToPosition
+
+class GoToRemembered(Skill):
+    memory: SpatialMemory
+    navigate: NavigateToPosition
+
+    def guidelines(self) -> str:
+        return "Find a place or thing the robot has seen before, and drive there."
+
+    def execute(self, query: str):
+        verdict = self.wait_for(self.memory.begin(query), timeout=150.0)
+        if verdict is None or verdict.error:
+            self.fail("memory search failed")
+        if not verdict.found:
+            return f"I don't remember seeing {query}."
+
+        self.say(f"I remember. {verdict.message}")
+        self.navigate(x=verdict.x, y=verdict.y, local_frame=False)
+        return f"Went to where I last saw {query}"
+```
+
+Remembered coordinates are in the **map** frame, not relative to where the robot stands now — that's what `local_frame=False` says.
+
+<Warning>
+`verdict.theta` is in **radians**, but `navigate_to_position` takes `theta_degrees`. Convert with `math.degrees()` if you want the robot to face the way it was facing — or leave it out, as above.
+</Warning>
+
+## The shipped skill
+
+`search_memory` already does the basic version, in full:
+
+```innatepy
+from innate import Skill, SkillOutput, SpatialMemory
+
+class SearchMemory(Skill):
+    """Search the robot's long-term memory of places it has seen on this map. ..."""
+
+    memory: SpatialMemory
+
+    def execute(self, query: str):
+        recall = self.memory.begin(query)
+        verdict = self.wait_for(recall, timeout=150.0)
+        if verdict is None:
+            self.fail("memory search timed out")
+        if verdict.error:
+            self.fail(verdict.message)
+        return SkillOutput(verdict.message, image=verdict.image)
+```
+
+`image=` is the useful bit: it hands the remembered photo to the agent along with the words, so it can *look* at what was found rather than take the sentence on faith.
+
+(It writes its guidelines as a class docstring — [the shorthand](/software/skills/code-defined-skills#the-skill-class) shipped skills use.)
+
+Add it to an agent and the robot will search before claiming it hasn't seen something:
+
+```innatepy
+from innate_skills.search_memory import SearchMemory
+
+def get_skills(self) -> list[SkillRef]:
+    return [NavigateToPosition, SearchMemory]
+```
+
+## Where the memory lives
+
+On the robot, one set per map — remembering is automatic while it drives. Browse or clear them from the web app's **Nav** page, above.

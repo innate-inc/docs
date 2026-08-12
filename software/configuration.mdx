@@ -82,6 +82,10 @@ Prefer SSH, or need a knob the Settings page doesn't show? Edit `config/settings
 `/**` applies the value to **every** node that uses that parameter (e.g. one `motion_control.max_speed` reaches the joystick, the keyboard, and the app at once). A named section like `mars_arm:` targets a single node.
 </Tip>
 
+<Note>
+`motion_control.speed_scale` is the [speed mode](/robots/mars/control-and-connectivity#drive-speed-modes) multiplier. The app and web app write it live, so setting it here only changes what the robot boots into.
+</Note>
+
 ## What you can tune
 
 A few of the most common knobs (see the file itself for the full list and per-key comments):
@@ -89,6 +93,7 @@ A few of the most common knobs (see the file itself for the full list and per-ke
 | Section | What it controls |
 | --- | --- |
 | `motion_control` | Manual driving speed (joystick, keyboard, app) |
+| `mars_app` → `drive_smoothing` | How fast the joystick ramps to that speed |
 | `nav` | Autonomous (nav2) driving speed |
 | `bringup` → `battery` | Low-battery warning / critical levels |
 | `bringup` → `safety` | Hard `/cmd_vel` speed clamp at the motors |

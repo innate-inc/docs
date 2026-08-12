@@ -7,7 +7,7 @@ import {
   NavigationUseCasesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `MobilityInterface` gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
+The `Mobility` interface gives you direct control over the robot base—rotation, velocity commands, and movement. Use it for custom navigation behaviors that complement the built-in navigation.
 
 ## Core Navigation (Built-in)
 
@@ -23,15 +23,15 @@ When you tell the robot "go to the kitchen," the agent automatically:
 
 3. Monitors progress and handles obstacles
 
-## MobilityInterface
+## Mobility
 
-Declare the interface at class level:
+Declare the interface with a class-level type annotation. Declaring is requiring — the run fails up front if the base is unavailable, so `self.mobility` is guaranteed inside `execute()`:
 
-```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+```innatepy
+from innate import Mobility, Skill
 
 class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    mobility: Mobility
 ```
 
 ### Methods
@@ -40,18 +40,42 @@ class MySkill(Skill):
 
 ### Examples
 
-```python
+```innatepy
 import math
 
 # Rotate 90 degrees (blocking)
 self.mobility.rotate(math.pi / 2)
 
-# Drive forward for 2 seconds (non-blocking)
+# Drive forward for 2 seconds (non-blocking; stops after duration)
 self.mobility.send_cmd_vel(linear_x=0.1, angular_z=0.0, duration=2.0)
 
 # Spin in place
 self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 ```
+
+### Closed-loop moves
+
+`send_cmd_vel` is open loop — it commands a speed and hopes. When you need the robot to actually *arrive*, `drive()` and `rotate_by()` watch odometry and correct until they get there:
+
+```innatepy
+from innate import Mobility, Odometry, Skill
+
+class NudgeForward(Skill):
+    mobility: Mobility
+    odom: Odometry
+
+    def guidelines(self) -> str:
+        return "Use to shuffle the robot forward a short, precise distance."
+
+    def execute(self):
+        # pass a reader; they poll it as they go
+        arrived = self.mobility.drive(lambda: self.mobility.odom_xyt(self.odom), 0.25)
+        return "Nudged forward" if arrived else "Couldn't get there"
+```
+
+`odom_xyt()` turns the odometry feed into the plain `(x, y, theta)` tuple these take.
+
+Both return `True` on arrival and `False` on timeout or lost odometry — they never raise. They stop the base on the way out, whatever happened.
 
 ## When to Use
 
@@ -59,35 +83,27 @@ self.mobility.rotate_in_place(angular_speed=0.5, duration=3.0)
 
 ## Example: LookAround
 
-A skill that rotates to survey the environment:
+A skill that rotates to survey the environment, written with every agent-facing method explicit:
 
-```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+```innatepy
 import math
+from innate import Mobility, Skill, SkillReturn
 
 class LookAround(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
+    mobility: Mobility
 
-    @property
-    def name(self):
-        return "look_around"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use when the robot needs to look in multiple directions."
 
-    def execute(self, num_directions: int = 4):
+    def execute(self, num_directions: int = 4) -> SkillReturn:
         rotation_per_step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            if self._cancelled:
-                return "Survey cancelled", SkillResult.CANCELLED
-
-            self._send_feedback(f"Looking direction {i+1}/{num_directions}")
+            self.feedback(f"Looking direction {i + 1}/{num_directions}")
             self.mobility.rotate(rotation_per_step)
+            self.sleep(0.2)
 
-        return "Survey complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Survey cancelled"
+        return "Survey complete"
 ```
+
+Cancellation needs no plumbing: `self.sleep()` raises the moment the user or agent interrupts, the base is braked for you, and the run reports `CANCELLED`.

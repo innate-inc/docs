@@ -9,10 +9,10 @@ import {
 
 Code-defined skills are Python classes that implement robot behaviors with explicit logic. Three things make them easy to write:
 
-**The agent reads your code.** Your `execute()` signature and docstring are the API contract — the AI sees `execute(target: str, speed: float = 0.5)` plus the docstring and knows exactly how to call your skill. Type hints matter.
+**The agent reads your code.** Your `guidelines()` and your `execute()` signature are the API contract — the agent sees `execute(target: str, speed: float = 0.5)` and knows exactly how to call your skill. Type hints matter.
 
-```python
-def execute(self, target: str, speed: float = 0.5):
+```innatepy
+def execute(self, target: str, speed: float = 0.5) -> SkillReturn:
     """Move toward the target object.
 
     Args:
@@ -21,78 +21,146 @@ def execute(self, target: str, speed: float = 0.5):
     """
 ```
 
-**Dependencies are one-line class attributes.** Declare what you need and the system injects it — no wiring in `__init__`:
+**Dependencies are one-line type annotations.** Declare what you need and the system injects it — no wiring in `__init__`:
 
-```python
+```innatepy
+from innate import MainImage, Mobility, Skill
+
 class MySkill(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)                    # hardware access
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)   # sensor data
+    mobility: Mobility    # hardware access
+    image: MainImage      # latest main-camera frame
 ```
 
-**Then just use them.** No callbacks, no message passing:
+**Then just use them.** No callbacks, no message passing, no `None` checks — a declared feed is guaranteed before `execute()` starts:
 
-```python
+```innatepy
 def execute(self):
-    if self.image:                    # Latest camera frame, updated at 50Hz
-        self.mobility.rotate(0.5)     # Rotate 0.5 radians
+    frame = self.image.jpeg       # Latest frame as JPEG bytes, updated at 50Hz
+    self.mobility.rotate(0.5)     # Rotate 0.5 radians
 ```
 
 ## The Skill Class
 
-Every code-defined skill extends `Skill` and implements these methods:
+Every code-defined skill extends `Skill` and needs two things: `guidelines()`, which tells the agent when to use the skill, and `execute()`, which does the work.
 
-```python
-from brain_client.skill_types import Skill, SkillResult
+`guidelines()` is the prompt the agent reads about your skill, so write it out explicitly — it's the part you'll come back and tune when the robot calls your skill at the wrong moment.
+
+```innatepy
+from innate import Mobility, Skill, SkillReturn
 
 class MySkill(Skill):
-    @property
-    def name(self):
-        return "my_skill"  # Unique identifier
+    mobility: Mobility
 
-    def guidelines(self):
-        """Tell the agent when to use this skill."""
+    def guidelines(self) -> str:
         return "Use when you need to [do something specific]"
 
-    def execute(self, param1: str, param2: float = 1.0):
-        """Do the thing. Agent calls this with parsed arguments."""
-        # Your logic here
-        return "Result message", SkillResult.SUCCESS
-
-    def cancel(self):
-        """Stop gracefully when interrupted."""
-        return "Cancelled"
+    def execute(self, param1: str, param2: float = 1.0) -> SkillReturn:
+        """Do the thing. The agent calls this with parsed arguments."""
+        if not self._ready():
+            self.fail("Could not do the thing")   # ends the run as FAILURE
+        return "Result message"                   # a string means SUCCESS
 ```
+
+The class name is the skill name: `MySkill` is callable as `my_skill`. Put it in any `.py` file in a [workspace package](/software/skills#where-skills-live) — the file name doesn't matter, and one file can define several skills.
 
 <SkillCoreMethodsTable />
 
+<Accordion title="Shorthand: the docstring as guidelines">
+Once you've written a few skills, you can drop `guidelines()` and let the class docstring stand in for it — the two mean exactly the same thing to the agent:
+
+```innatepy
+class MySkill(Skill):
+    """Use when you need to [do something specific]"""  # = guidelines()
+```
+
+Most shipped skills are written this way, so you'll see it when you read them. It's shorter, but it hides the fact that this text is a prompt going to a model. Prefer the explicit `guidelines()` until that's second nature.
+</Accordion>
+
 ## Skill Results
 
-Return a tuple of `(message, status)` from `execute()`:
+Return the message. A plain string is success:
 
-```python
-from brain_client.skill_types import SkillResult
-
-def execute(self):
-    if success:
-        return "Task completed", SkillResult.SUCCESS
-    elif self._cancelled:
-        return "Interrupted by user", SkillResult.CANCELLED
-    else:
-        return "Something went wrong", SkillResult.FAILURE
+```innatepy
+return "Moved 2 meters"      # SUCCESS with that message
+return None                  # SUCCESS with a generated message
 ```
+
+To fail, call `self.fail()` — it raises, so there's no error branch to thread back through your code:
+
+```innatepy
+if distance > MAX_RANGE:
+    self.fail(f"Target is {distance:.1f}m away, out of range")
+```
+
+When the message isn't enough, return a `SkillOutput` — the same type either way, with two optional extras:
+
+```innatepy
+from innate import SkillOutput
+
+# .data — a payload for a skill that called yours
+return SkillOutput("Moved 2.00m forward", MoveResult(traveled_m=2.0))
+
+# image — a JPEG the agent sees alongside the message, so the skill
+# can show what it found instead of only describing it
+return SkillOutput("Found it in the kitchen", image=jpeg_bytes)
+```
+
+`.data` is anything you like — a dict, or a small `pydantic` model when you want the caller's editor to know the fields. The shipped `move_straight` and `turn_in_place` skills both do this, which is why a caller can write `result.data.traveled_m`.
 
 <SkillResultsTable />
 
+## Cancellation
+
+The user or agent can stop a running skill at any time. **Cancellation is the framework's job, not yours** — write your loops as if it couldn't happen.
+
+The only rule: use `self.sleep()` instead of `time.sleep()`.
+
+```innatepy
+def execute(self):
+    for step in range(10):
+        self.mobility.rotate(0.5)
+        self.sleep(0.2)      # raises SkillCancelled the moment a Stop lands
+    return "Done"
+```
+
+Every blocking call the framework gives you raises `SkillCancelled` on a stop. The base is braked and the arm halted automatically, and the run reports `CANCELLED` — you don't catch it, and you don't need a `cancel()` method.
+
+| Call | Use for |
+| --- | --- |
+| `self.sleep(seconds)` | Any pause in skill code |
+| `self.wait_for(read, timeout)` | Block until `read()` returns non-`None` |
+| `self.check_cancelled()` | A checkpoint with no sleep, e.g. right before an irreversible commit |
+| `self.cancelled` | Read the latch without raising |
+
+Cleanup belongs in a `try`/`finally` inside `execute()`. `self.on_cancel(hook)` exists only to forward a cancel to an external action goal.
+
+`time` is still fine for *measuring* — `time.time()` and `time.monotonic()` for deadlines and elapsed checks. The rule is only about blocking.
+
 ## Feedback
 
-Send progress updates during long-running skills. The agent reads feedback in real-time and can act on it—for example, canceling the skill or triggering another one immediately:
+Send progress updates during long-running skills. The agent reads feedback in real time and can act on it — for example, canceling the skill or triggering another one immediately:
 
-```python
+```innatepy
 def execute(self):
     for i in range(10):
-        self._send_feedback(f"Step {i+1}/10")
+        self.feedback(f"Step {i+1}/10")
         # ... do work ...
-    return "Done", SkillResult.SUCCESS
+    return "Done"
+```
+
+## Speech, storage, and waiting
+
+The base class also provides:
+
+```innatepy
+self.say("Found it!", wait=True)       # speak through the robot's voice;
+                                       # wait=True blocks until playback ends
+
+runs = self.storage.get("runs", 0)     # persistent per-skill key-value store
+self.storage["runs"] = runs + 1        # (a JSON file; survives restarts)
+
+frame = self.wait_for(lambda: self.image, timeout=5.0)  # block until a
+                                       # read returns non-None (or timeout)
 ```
 
 ## Next Steps
@@ -103,7 +171,9 @@ def execute(self):
 
 * [**Robot State**](/software/skills/code-defined-skills/robot-state) — Camera, odometry, map, sensor data
 
-* [**Physical Skill Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Full-body behaviors combining navigation + manipulation
+* [**Spatial Memory**](/software/skills/code-defined-skills/spatial-memory) — Search everywhere the robot has been
+
+* [**Full-Body Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Behaviors combining navigation + manipulation
 
 * [**Composing Skills**](/software/skills/code-defined-skills/composing-skills) — Call skills from inside other skills to chain behaviors
 

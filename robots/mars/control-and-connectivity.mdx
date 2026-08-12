@@ -15,7 +15,7 @@ MARS is controllable from the [phone app](/robots/innate-controller-app) and the
   <Tab title="Phone app">
     <AppDownloadCards />
 
-    For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
+    Drive from the on-screen joystick, and pick a [speed mode](#drive-speed-modes) to set how fast the stick can go. For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
 
     Every MARS robot comes with a leader arm attachable to your phone:
 
@@ -28,7 +28,7 @@ MARS is controllable from the [phone app](/robots/innate-controller-app) and the
     <IosLeaderArmWarning />
   </Tab>
   <Tab title="Web app">
-    Open the web app at `https://<robot-ip>` (its IP address — the `.local` hostname works too but is slower; see the [web app overview](/robots/web-app)) and use the **Teleop** page: live video, an on-screen joystick (or `WASD` / arrow keys), head tilt, and robot speech (type a line and the robot says it). You can also **listen to the robot's microphone** — toggle the mic button on the video to hear what it hears (it starts muted). To teleoperate the arm, plug the leader arm into the computer running the browser, click **Connect arm**, then **Engage follow** — the robot's arm mirrors the leader. The panel also has **Reboot servos** and a **Torque** toggle.
+    Open the web app at `https://<robot-ip>` (its IP address — the `.local` hostname works too but is slower; see the [web app overview](/robots/web-app)) and use the **Teleop** page: live video, an on-screen joystick (or `WASD` / arrow keys), a [speed picker](#drive-speed-modes), head tilt, and robot speech (type a line and the robot says it). You can also **listen to the robot's microphone** — toggle the mic button on the video to hear what it hears (it starts muted). To teleoperate the arm, plug the leader arm into the computer running the browser, click **Connect arm**, then **Engage follow** — the robot's arm mirrors the leader. The panel also has **Reboot servos** and a **Torque** toggle.
 
     <Warning>
     Leader-arm teleop needs **Chrome or Edge** (it uses WebSerial), on the robot's HTTPS page. Driving, video, and speech work in any modern browser.
@@ -37,6 +37,35 @@ MARS is controllable from the [phone app](/robots/innate-controller-app) and the
     See the [web app overview](/robots/web-app) for details.
   </Tab>
 </Tabs>
+
+## Drive speed modes
+
+Manual driving has four speed modes. They scale the robot's configured top speed rather than replacing it, so picking a mode changes the ceiling the joystick maps onto:
+
+| Mode | Multiplier | Top speed (default config) |
+| --- | --- | --- |
+| **Slow** | 0.35× | 0.14 m/s |
+| **Med** | 0.65× | 0.26 m/s |
+| **Fast** | 1.0× | 0.4 m/s — the configured maximum |
+| **Mad** | 2.0× | 0.8 m/s |
+
+Acceleration scales with the mode too, so time-to-top-speed stays about the same — Slow is a lower ceiling, not a lazier ramp.
+
+<Warning>
+**Mad exceeds the configured limits.** Every other mode stays at or below `motion_control.max_speed` from [settings.yaml](/software/configuration); Mad doubles it, and the bringup safety clamp becomes the real ceiling. Use it in open space.
+</Warning>
+
+In the **web app**, the picker sits on the teleop right rail:
+
+![The speed mode picker on the web app's teleop right rail](/images/main/robots/web-app/speed-modes.png)
+
+In the **phone app**, it's the same Slow/Med/Fast/Mad control on the manual control screen.
+
+Speed mode is **robot state, not app state** — one setting shared by every client. Change it in the web app and the phone app follows a second later, and vice versa. Recording an episode or a map temporarily holds the robot at **Med** and restores your choice when you leave the screen.
+
+<Note>
+Joystick driving is ramped rather than applied instantly: the app sends a target velocity and the robot accelerates toward it on its own 50 Hz loop. Releasing the stick — or losing Wi-Fi — decelerates under the same limits instead of cutting out.
+</Note>
 
 ### What the leader arm is (and isn't)
 
@@ -54,7 +83,7 @@ In other words, the leader arm is how you *demonstrate* a task; the picking, see
 
 The app discovers the robot over Bluetooth, puts it on your Wi-Fi (a phone hotspot works too), then connects over the network. The full flow, with screenshots, lives here:
 
-<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app/connecting-to-a-robot">
+<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app#connecting-to-a-robot">
   Bluetooth pairing, Wi-Fi setup, and what to do when the robot changes network.
 </Card>
 

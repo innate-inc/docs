@@ -4,184 +4,165 @@ title: "Robot State"
 
 import { RobotStateAvailableTable } from '/snippets/interface-methods-table.mdx';
 
-The `RobotState` descriptor gives you access to sensor data—camera images, odometry, maps, and more. Declared state is **automatically updated at 50Hz** while your skill runs.
+Skills read sensor data — camera frames, odometry, the map, and more — as **typed ambient state**. Declare what you read as a class-level type annotation and the system injects it, then keeps it **updated at 50Hz** while your skill runs.
 
 ## Declaration
 
-Declare state dependencies as class attributes:
+One rule covers everything: annotate what you read.
 
-```python
-from brain_client.skill_types import Skill, RobotState, RobotStateType
+```innatepy
+from innate import Battery, MainImage, Odometry, Skill
 
 class MySkill(Skill):
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
-    odom = RobotState(RobotStateType.LAST_ODOM)
+    image: MainImage           # required: guaranteed before execute() starts
+    odom: Odometry             # required
+    battery: Battery | None    # optional: None when no reading is available
 ```
 
-The system injects and updates these values automatically. Always check for `None` on first access.
+A plain annotation is **required** — the server waits for the first value and fails the run up front if none arrives, so no `None` guards are needed inside `execute()`. The wait is 3 s for cameras, 6 s for the battery (it only publishes at ~0.2 Hz), 2 s for everything else. Appending `| None` makes the feed **best effort** instead: injected when available, `None` otherwise, and every read must be guarded.
+
+Reading an undeclared feed raises with a hint (`declare it on the class with a type annotation`), and your editor flags it before you ship.
 
 ## Available State
 
 <RobotStateAvailableTable />
 
-## Camera Image
+## Camera Frames
 
-The main camera image as a base64-encoded JPEG:
+Cameras must be declared — the server starts them per run (frame encoding is too expensive to keep warm). A required camera fails the run if no frame arrives within a short grace period; an optional (`| None`) camera never delays the start — wait for it in `execute()` if you need to (`self.wait_for(lambda: self.image)`).
 
-```python
+An `Image` **is** the base64 JPEG text (it subclasses `str`, so anything that treated frames as base64 strings keeps working); `.jpeg` is the decoded bytes:
+
+```innatepy
+from innate import MainImage, Skill, WristImage
+
 class MySkill(Skill):
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+    image: MainImage
+    wrist_image: WristImage | None
 
     def execute(self):
-        if not self.image:
-            return "No image available", SkillResult.FAILURE
-
-        # Decode base64 to bytes
-        import base64
-        image_bytes = base64.b64decode(self.image)
-
-        # Use with PIL
+        # As bytes, e.g. for PIL:
+        from io import BytesIO
         from PIL import Image
-        import io
-        img = Image.open(io.BytesIO(image_bytes))
+        img = Image.open(BytesIO(self.image.jpeg))
 
-        # Or send to vision API
+        # As base64 text, e.g. for a vision API:
         response = vision_api.analyze(self.image)
 ```
 
+`DepthMap` is a `(height, width)` numpy array (uint16 mm or float32 m), declared as `depth: DepthMap`.
+
 ## Odometry
 
-Current position, orientation, and velocity:
+A flat 2D snapshot — MARS is a differential-drive base on flat ground, so its pose is fully `(x, y, theta)`:
 
-```python
+```innatepy
+from innate import Odometry, Skill
+
 class MySkill(Skill):
-    odom = RobotState(RobotStateType.LAST_ODOM)
+    odom: Odometry
 
     def execute(self):
-        if self.odom:
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            # orientation as quaternion
-            qz = self.odom.pose.pose.orientation.z
-            qw = self.odom.pose.pose.orientation.w
+        x, y = self.odom.position           # meters, odom frame
+        heading = self.odom.theta           # radians, wrapped to [-pi, pi]
+        heading_deg = self.odom.theta_degrees
+        speed = self.odom.linear_velocity   # m/s, negative when reversing
+        # self.odom.raw is the full nav_msgs/Odometry as a dict if you
+        # need more (real quaternion, covariances, full twist).
 ```
+
+`pose: Pose` has the same shape in the map frame — the coordinates `navigate_to_position` targets. Which one you want depends on the frame:
+
+| | `odom: Odometry` | `pose: Pose` |
+| --- | --- | --- |
+| Frame | where the robot thinks it has driven | where localization says it is |
+| Behavior | drifts slowly, never jumps | corrects, so it *can* jump |
+| Use for | relative moves: "forward 0.4 m", "turn 90°" | absolute positions on the map |
+
+`odom` resets every boot but is always there. `pose` reads `None` until the robot is localized, so declare it `Pose | None` unless localization is guaranteed.
 
 ## Map
 
-The occupancy grid map:
+The occupancy grid:
 
-```python
+```innatepy
+from innate import Map, Skill
+
 class MySkill(Skill):
-    map_data = RobotState(RobotStateType.LAST_MAP)
+    map: Map
 
     def execute(self):
-        if self.map_data:
-            width = self.map_data.info.width
-            height = self.map_data.info.height
-            resolution = self.map_data.info.resolution
-            data = self.map_data.data  # 1D array of occupancy values
+        grid = self.map.grid            # (height, width) int8 array:
+                                        # -1 unknown, 0 free, 100 occupied
+        meters_per_cell = self.map.resolution
+        # cell (row, col) covers world point
+        # (origin_x + col * resolution, origin_y + row * resolution)
 ```
 
-## Head Position
+## Other feeds
 
-Current head tilt angle:
-
-```python
-class MySkill(Skill):
-    head_pos = RobotState(RobotStateType.LAST_HEAD_POSITION)
-
-    def execute(self):
-        if self.head_pos:
-            current_angle = self.head_pos
-            # Returns int: -25 to +15
+```innatepy
+self.battery.percentage      # 0.0-1.0; also .voltage, .current, .charging
+self.lidar.min_range(-30, 30)   # closest valid return ahead, in meters
+self.arm.position            # end-effector (x, y, z); .rpy / .pitch derived; .gripper is the claw joint
+self.joint_states.of("j4")   # (position, velocity, effort) for a named joint
+self.head_position.pitch_degrees   # current head pitch (negative = down)
 ```
+
+`arm: Arm` is the ambient 50 Hz feed; `self.manipulation.pose` returns the same `Arm` type on demand (and raises if the FK feed is down) — see [Body Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces).
 
 ## Example: CaptureImages
 
-A skill that captures images while rotating:
+Capture images while rotating. The camera and mobility are declared with bare annotations, so both are guaranteed inside `execute()`:
 
-```python
-from brain_client.skill_types import (
-    Skill, SkillResult, Interface, InterfaceType, RobotState, RobotStateType
-)
+```innatepy
 import math
+from innate import MainImage, Mobility, Skill, SkillReturn
 
 class CaptureImages(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
-    image = RobotState(RobotStateType.LAST_MAIN_CAMERA_IMAGE_B64)
+    mobility: Mobility
+    image: MainImage
 
-    @property
-    def name(self):
-        return "capture_images"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to capture images from multiple directions."
 
-    def execute(self, num_directions: int = 4):
+    def execute(self, num_directions: int = 4) -> SkillReturn:
         images = []
         rotation_step = (2 * math.pi) / num_directions
 
         for i in range(num_directions):
-            if self._cancelled:
-                return "Capture cancelled", SkillResult.CANCELLED
+            images.append(self.image)  # latest frame at this heading
+            self.feedback(f"Captured {i + 1}/{num_directions}")
 
-            # Capture current frame
-            if self.image:
-                images.append(self.image)
-                self._send_feedback(f"Captured {i+1}/{num_directions}")
-
-            # Rotate to next position
             if i < num_directions - 1:
                 self.mobility.rotate(rotation_step)
 
-        return f"Captured {len(images)} images", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Capture cancelled"
+        return f"Captured {len(images)} images"
 ```
 
 ## Example: MonitorPosition
 
-A skill that tracks robot movement:
+Track how far the robot moves over a window. `self.sleep()` is what makes the loop interruptible:
 
-```python
-from brain_client.skill_types import Skill, SkillResult, RobotState, RobotStateType
+```innatepy
 import math
 import time
+from innate import Odometry, Skill, SkillReturn
 
 class MonitorPosition(Skill):
-    odom = RobotState(RobotStateType.LAST_ODOM)
+    odom: Odometry
 
-    @property
-    def name(self):
-        return "monitor_position"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to monitor robot position for a duration."
 
-    def execute(self, duration: float = 5.0):
-        if not self.odom:
-            return "Odometry not available", SkillResult.FAILURE
+    def execute(self, duration: float = 5.0) -> SkillReturn:
+        start_x, start_y = self.odom.position
+        deadline = time.time() + duration
 
-        start_x = self.odom.pose.pose.position.x
-        start_y = self.odom.pose.pose.position.y
-        start_time = time.time()
+        while time.time() < deadline:
+            x, y = self.odom.position
+            self.feedback(f"Moved {math.hypot(x - start_x, y - start_y):.2f}m from start")
+            self.sleep(0.5)
 
-        while time.time() - start_time < duration:
-            if self._cancelled:
-                return "Monitoring cancelled", SkillResult.CANCELLED
-
-            x = self.odom.pose.pose.position.x
-            y = self.odom.pose.pose.position.y
-            distance = math.sqrt((x - start_x)**2 + (y - start_y)**2)
-
-            self._send_feedback(f"Moved {distance:.2f}m from start")
-            time.sleep(0.5)
-
-        return f"Monitoring complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Monitoring cancelled"
+        return "Monitoring complete"
 ```

@@ -4,21 +4,35 @@ title: "Body Control Interfaces"
 
 import {
   ManipulationInterfaceMethods,
+  ManipulationDeprecatedMethods,
   HeadInterfaceMethods,
   HeadTiltAnglesTable,
 } from '/snippets/interface-methods-table.mdx';
 
-The `ManipulationInterface` and `HeadInterface` give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
+The `Manipulation` and `Head` interfaces give you direct control over the robot's arm and head. Use these for manipulation tasks, gestures, and camera positioning.
 
-## ManipulationInterface
+## Manipulation
 
-Declare the interface at class level:
+Declare the interface with a class-level type annotation — it's injected and guaranteed before `execute()` starts:
 
-```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+```innatepy
+from innate import Manipulation, Skill
 
 class MySkill(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    manipulation: Manipulation
+```
+
+Every motion method blocks until the arm settles and raises on failure — no return codes to check:
+
+| Exception | Means |
+| --- | --- |
+| `ArmFailed` | The command was rejected or impossible — an unreachable pose, a failed IK solve, a trajectory the driver refused. |
+| `ArmUnhealthy` | The arm accepted the command but didn't get there, and a reboot-and-retry didn't fix it. The hardware needs attention. |
+
+Import them from `innate` (or `innate.exceptions`, which groups every exception a skill raises or catches) when you want to handle them. If you don't, the run reports `FAILURE` with the message, which is usually what you want:
+
+```innatepy
+from innate import ArmFailed, ArmUnhealthy, Manipulation, Waypoint
 ```
 
 ### Methods
@@ -27,63 +41,124 @@ class MySkill(Skill):
 
 ### Cartesian Control
 
-Move the end-effector to a specific position and orientation:
+Move the end-effector to a position and orientation (meters and radians, relative to `base_link`):
 
-```python
-# Move to position (x, y, z) with orientation (roll, pitch, yaw)
-self.manipulation.move_to_cartesian_pose(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    duration=2.0  # motion duration in seconds (not milliseconds)
-)
+```innatepy
+settled = self.manipulation.move_to(0.30, 0.0, 0.10, pitch=1.45, duration=2.0)
+self.logger.info(f"landed at z={settled.z:.3f}")
 ```
+
+`move_to` verifies by forward kinematics that the arm actually tracked the target, recovers (servo reboot + torque on) and retries once if it didn't, and returns the settled pose. A z shortfall usually means the fingers met the object or floor early — loosen or skip that axis with `tolerance_z=None` on expected-contact descents, or pass `tolerance_xy=None, tolerance_z=None` for a fully unverified move.
+
+`move_by` nudges from the arm's **measured** pose rather than its last commanded one, which is what a visual-servoing loop wants:
+
+```innatepy
+self.manipulation.move_by(dx=0.01, dy=-0.005, duration=0.3)
+```
+
+### Doing something else while the arm moves
+
+Pass `block=False` to return as soon as the command is accepted, then join with `wait()`:
+
+```innatepy
+self.manipulation.move_to(0.30, 0.0, 0.25, duration=2.0, block=False)
+
+while self.manipulation.moving:
+    self.mobility.send_cmd_vel(linear_x=0.05, duration=0.3)
+    self.sleep(0.1)
+
+settled = self.manipulation.wait()   # raises if the motion failed
+```
+
+A non-blocking motion is **unverified until you join it** — `wait()` is what surfaces a failure. Issuing a new command supersedes a motion you never joined.
+
+### Trajectories
+
+Sweep through several poses as one smooth motion — the arm interpolates between waypoints without decelerating at each one:
+
+```innatepy
+from innate import Waypoint
+
+self.manipulation.follow([
+    Waypoint(0.30, 0.0, 0.20, pitch=1.45, duration=0.8),
+    Waypoint(0.30, 0.0, 0.12, pitch=1.45, duration=0.6),
+    Waypoint(0.30, 0.0, 0.06, pitch=1.45, duration=0.6),
+])
+```
+
+Each waypoint's `duration` paces the segment that reaches it, and the trajectory starts from wherever the arm currently is.
 
 ### Joint Control
 
-Move directly to joint angles (6 joints):
+Move directly to joint angles (radians):
 
-```python
-# Move to joint configuration [j1, j2, j3, j4, j5, j6]
-self.manipulation.goto_joint_state([0, -0.5, 1.5, -1.0, 0, 0])
+```innatepy
+# 6 values command all joints including the gripper (j6)
+self.manipulation.move_joints([0, -0.5, 1.5, -1.0, 0, 0], duration=2.0)
+
+# 5 values move the arm and leave the gripper as it is — safe while holding
+self.manipulation.move_joints([0, -0.5, 1.5, -1.0, 0], duration=2.0)
+
+# Fold to the built-in rest pose (keeps the grip)
+self.manipulation.rest()
 ```
+
+### Gripper
+
+The claw is joint 6, driven under current-based position control: grip force is enforced in hardware, so a deep close squeezes any object at a constant, safe force.
+
+```innatepy
+self.manipulation.gripper_open()             # fully open, verified (self-heals a tripped servo)
+self.manipulation.gripper_open(percent=50)   # half
+self.manipulation.gripper_close(0.4)         # close with 0.4 rad of grip preload
+```
+
+`strength` is radians of preload past the closed stop, capped at `GRIPPER_MAX_STRENGTH` (0.6) — beyond that the servo overcurrent-trips on a real object.
+
+The strength you close with becomes the **standing grip target**: every following `move_to` / `follow` / 5-joint `move_joints` carries it automatically, so a gripped object stays gripped with no extra bookkeeping. Grip once, then move freely — you never thread a `gripper=` argument through a trajectory.
 
 ### Reading State
 
-```python
-# Get current end-effector pose
-pose = self.manipulation.get_current_end_effector_pose()
-# Returns: {'position': [x, y, z], 'orientation': [qx, qy, qz, qw]}
+The `pose` property returns the live end-effector pose as a typed `Arm` value:
 
-# Get orientation as roll/pitch/yaw
-rpy = self.manipulation.get_current_orientation_rpy()
-# Returns: {'roll': r, 'pitch': p, 'yaw': y}
+```innatepy
+pose = self.manipulation.pose
+pose.position   # (x, y, z) in meters
+pose.rpy        # (roll, pitch, yaw) in radians — also pose.pitch etc.
+pose.gripper    # gripper joint (j6) position, radians
 ```
 
-### Inverse Kinematics
+For ambient arm state on a 50 Hz feed, declare `arm: Arm` instead — same type, pushed to you — see [Robot State](/software/skills/code-defined-skills/robot-state).
 
-Check if a pose is reachable before moving:
+### Reachability
 
-```python
-joints = self.manipulation.solve_ik(
-    x=0.2, y=0.0, z=0.3,
-    roll=0.0, pitch=0.0, yaw=0.0,
-    timeout=1.0
-)
-if joints:
-    self.manipulation.goto_joint_state(joints)
-else:
-    return "Pose unreachable", SkillResult.FAILURE
+`clamp_reach(x, y)` pulls a floor target into the arm's graspable reach box; a pose IK can't solve raises `ArmFailed` from `move_to`, so an explicit pre-check is rarely needed:
+
+```innatepy
+x, y = self.manipulation.clamp_reach(x, y)
+try:
+    self.manipulation.move_to(x, y, 0.06, pitch=1.45)
+except ArmFailed:
+    self.fail("Target out of reach")
 ```
 
-## HeadInterface
+### Deprecated methods
+
+Skills written against the 0.6.0 API keep working — the old methods delegate to the new core and log a one-time deprecation warning per process:
+
+<ManipulationDeprecatedMethods />
+
+Migration is mechanical: `move_to_cartesian_pose(...) → move_to(...)`, `move_to_joint_positions(...) → move_joints(...)`, `move_cartesian_trajectory(...) → follow([...])`, `open_gripper/close_gripper → gripper_open/gripper_close`, `get_current_end_effector_pose()/get_current_orientation_rpy() → pose`. Note the new methods raise instead of returning `False`, and block by default.
+
+## Head
 
 Control camera tilt:
 
-```python
-from brain_client.skill_types import Skill, Interface, InterfaceType
+```innatepy
+from innate import Head, Skill
 
 class MySkill(Skill):
-    head = Interface(InterfaceType.HEAD)
+    head: Head
 ```
 
 ### Methods
@@ -94,7 +169,7 @@ class MySkill(Skill):
 
 <HeadTiltAnglesTable />
 
-```python
+```innatepy
 self.head.set_position(-15)  # Look down at objects
 self.head.set_position(0)    # Look straight ahead
 self.head.set_position(10)   # Look up at faces
@@ -102,61 +177,43 @@ self.head.set_position(10)   # Look up at faces
 
 ## Example: Wave
 
-A skill that waves the arm:
+A skill that waves the arm, with `guidelines()` written out explicitly:
 
-```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
-import time
+```innatepy
+from innate import Manipulation, Skill, SkillReturn
 
 class Wave(Skill):
-    manipulation = Interface(InterfaceType.MANIPULATION)
+    manipulation: Manipulation
 
-    @property
-    def name(self):
-        return "wave"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to wave at someone in greeting."
 
-    def execute(self, times: int = 3):
-        # Wave positions
-        wave_left = [0.5, -0.3, 1.0, -0.5, 0.5, 0]
-        wave_right = [0.5, -0.3, 1.0, -0.5, -0.5, 0]
+    def execute(self, times: int = 3) -> SkillReturn:
+        # Wave positions (5 values: the gripper stays as it is)
+        wave_left = [0.5, -0.3, 1.0, -0.5, 0.5]
+        wave_right = [0.5, -0.3, 1.0, -0.5, -0.5]
 
-        for i in range(times):
-            if self._cancelled:
-                return "Wave cancelled", SkillResult.CANCELLED
+        for _ in range(times):
+            self.manipulation.move_joints(wave_left, duration=0.5)
+            self.manipulation.move_joints(wave_right, duration=0.5)
 
-            self.manipulation.goto_joint_state(wave_left)
-            time.sleep(0.3)
-            self.manipulation.goto_joint_state(wave_right)
-            time.sleep(0.3)
-
-        return f"Waved {times} times", SkillResult.SUCCESS
-
-    def cancel(self):
-        self._cancelled = True
-        return "Wave cancelled"
+        return f"Waved {times} times"
 ```
 
 ## Example: LookAtObject
 
 A skill that adjusts head to look at objects:
 
-```python
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+```innatepy
+from innate import Head, Skill, SkillReturn
 
 class LookAtObject(Skill):
-    head = Interface(InterfaceType.HEAD)
+    head: Head
 
-    @property
-    def name(self):
-        return "look_at_object"
-
-    def guidelines(self):
+    def guidelines(self) -> str:
         return "Use to tilt camera to look at objects on the floor or shelves."
 
-    def execute(self, location: str = "floor"):
+    def execute(self, location: str = "floor") -> SkillReturn:
         angles = {
             "floor": -25,
             "table": -10,
@@ -168,8 +225,5 @@ class LookAtObject(Skill):
         angle = angles.get(location, 0)
         self.head.set_position(angle)
 
-        return f"Looking at {location}", SkillResult.SUCCESS
-
-    def cancel(self):
-        return "Cannot cancel head movement"
+        return f"Looking at {location}"
 ```

@@ -12,35 +12,31 @@ Skills are defined in one of two ways.
 
 <AccordionGroup>
   <Accordion title="Code-Defined Skills" defaultOpen={true}>
-    Code-defined skills are Python classes with explicit logic. The runtime injects declared interfaces, and the Innate agent reads your signature/docstrings to call the skill correctly.
+    Code-defined skills are Python classes with explicit logic. Declare what the skill needs as type annotations and the runtime injects it; the Innate agent reads your `guidelines()` and `execute()` signature to call the skill correctly.
 
-```python
+```innatepy
 import math
-from brain_client.skill_types import Skill, SkillResult, Interface, InterfaceType
+from innate import Head, Mobility, Skill, SkillReturn
 
 class LookAround(Skill):
-    mobility = Interface(InterfaceType.MOBILITY)
-    head = Interface(InterfaceType.HEAD)
+    # Declared feeds are injected and guaranteed before execute() starts.
+    mobility: Mobility
+    head: Head
 
-    @property
-    def name(self):
-        return "look_around"
+    def guidelines(self) -> str:
+        # What the agent reads to decide when to call this skill.
+        return "Use when the robot needs to scan its surroundings."
 
-    def execute(self, num_directions: int = 4):
-        """Rotate and scan the environment."""
-        if self.mobility is None or self.head is None:
-            return "Required interfaces not available", SkillResult.FAILURE
-
+    def execute(self, num_directions: int = 4) -> SkillReturn:
         num_directions = max(1, num_directions)
         self.head.set_position(-15)
-        self.mobility.rotate((2 * math.pi) / num_directions)
-        return "Scan complete", SkillResult.SUCCESS
-
-    def cancel(self):
-        return "Cancelled"
+        for _ in range(num_directions):
+            self.mobility.rotate((2 * math.pi) / num_directions)
+            self.sleep(0.2)
+        return "Scan complete"
 ```
 
-    Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
+    The class name (snake_cased) is the skill name, so `LookAround` is callable as `look_around`. Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
   </Accordion>
 
   <Accordion title="Policy-Defined Skills (End-to-End)">
@@ -62,41 +58,76 @@ class LookAround(Skill):
   </Accordion>
 </AccordionGroup>
 
-## Where to Put Your Skills
+## Where skills live
 
-<Warning>
-**Your skills go in `~/innate-os/workspace/custom_skills/` on the robot.** This is the directory the system scans for your skills — files placed anywhere else will not load. Getting this path right is the single most common stumbling block when a skill "doesn't appear".
-</Warning>
+**Your skills go in `~/innate-os/workspace/custom_skills/` on the robot.**
 
-* **Code-defined skill** → a single Python file: `~/innate-os/workspace/custom_skills/my_skill.py`
-* **Policy-defined (physical) skill** → a directory with its metadata and checkpoint: `~/innate-os/workspace/custom_skills/my_skill/metadata.json`
-
-No registration required. Drop the file in place and it hot-reloads within seconds — the directory is watched while the robot runs, for new files and edits alike.
-
-## Skill IDs: `local/` vs `innate-os/`
-
-<Info>
-**Skill IDs are namespaced by origin, and agents must use the full ID:**
-
-* `local/<name>` — **your skills** (anything in `custom_skills/`)
-* `innate-os/<name>` — shipped skills (in `innate_skills/`)
-
-So in an agent, write `"local/my_skill"`, not `"my_skill"`:
-
-```python
-def get_skills(self) -> List[str]:
-    return [
-        "local/my_skill",              # your skill
-        "innate-os/navigate_to_position",  # shipped skill
-    ]
+```
+workspace/
+  innate_skills/   Shipped skills. Tracked in git, updated by `git pull`.
+  custom_skills/   Your skills. Gitignored, survives OS updates.
+  innate_agents/   Shipped agents.
+  custom_agents/   Your agents.
 ```
 
-A bare name without the prefix won't resolve — this is the second most common reason a skill "doesn't work" after putting the file in the wrong directory.
-</Info>
+Every directory under `workspace/` is an ordinary Python package, and **defining a `Skill` subclass is the registration** — there's no file to edit and no name to declare. That means normal Python works: several skills in one file, helpers next to them, relative imports, one skill split across a subpackage.
 
-| Directory | Purpose | Skill ID prefix |
+* **Code-defined skill** → a class in any `.py` file: `custom_skills/my_skill.py`
+* **Policy-defined (physical) skill** → a directory with its metadata and checkpoint: `custom_skills/my_skill/metadata.json`
+
+Everything auto-loads on start and hot-reloads on save. A module that fails to import shows up in the web app marked broken, with its error, instead of silently vanishing.
+
+## What ships with the robot
+
+`workspace/innate_skills/` already contains a working set. Read them — they're the best examples of the API, and you can import any of them into [an agent](/software/agents/definitions) or [call them from your own skill](/software/skills/code-defined-skills/composing-skills).
+
+| Getting around | |
+| --- | --- |
+| `navigate_to_position` | Drive to x, y coordinates on the map. |
+| `move_straight` | Forward or back by a distance in meters. Odometry only — no planning, no obstacle avoidance. |
+| `turn_in_place` | Turn by an angle in degrees. |
+| `navigate_with_vision` | Drive from a plain-language instruction ("walk to the kitchen"). |
+| `follow_aruco` | Follow a person or object carrying an ArUco tag. |
+
+| Arm and gripper | |
+| --- | --- |
+| `pick_any_object` | Pick something off the floor, described in words ("the white sock"). |
+| `open_gripper` / `close_gripper` | Release or grab — including taking an object from someone's hand. |
+| `arm_rest_position` / `arm_zero_position` | Fold the arm away, or send it home. Both safe while holding something. |
+| `arm_move_to_xyz`, `arm_circle_motion`, `arm_utils` | Direct arm moves and low-level commands. |
+| `wave` | A recorded demonstration, not code — see [Policy-Defined Skills](/software/skills/policy-defined-skills). |
+
+| Everything else | |
+| --- | --- |
+| `search_memory` | Search everywhere the robot has been for a place or thing. See [Spatial Memory](/software/skills/code-defined-skills/spatial-memory). |
+| `head_emotion` | Express an emotion with head tilt. |
+| `send_email`, `retrieve_emails`, `send_picture_via_email` | Reach an outside service — see [External Services](/software/skills/code-defined-skills/external-services). |
+| `chess/*` | Board detection and piece moves for the [chess agent](/software/agents/chess-beta). Beta. |
+
+<Note>
+Don't edit these in place — a `git pull` will overwrite your changes. Copy the one you want into `custom_skills/`, rename the class, and edit that.
+</Note>
+
+## Skill IDs
+
+Each skill gets an id namespaced by the package it lives in — `innate-os/wave`, `local/my_skill`. You mostly don't type these: agents and composing skills [reference the class](/software/agents/definitions#complete-example). Ids are what the app displays and what you use when a skill isn't importable from where you need it.
+
+| Package | Purpose | Skill ID |
 | --- | --- | --- |
-| `~/innate-os/workspace/custom_skills/` | **Your skills** (gitignored, survives OS updates) | `local/<name>` |
-| `~/innate-os/workspace/innate_skills/` | Shipped skills (tracked in git, updated by `git pull`) | `innate-os/<name>` |
+| `custom_skills/` | **Your skills** | `local/<name>` |
+| `innate_skills/` | Shipped skills | `innate-os/<name>` |
+| any other folder | A dropped-in skill pack | `<folder>/<name>` |
 
-Legacy locations (`~/skills/`, `~/innate-os/skills/`) from releases before the workspace layout are still scanned, and you can add extra directories with `extra_skill_dirs` under the `script_paths` section of [`config/settings.yaml`](/software/configuration). Skills from any of these also get the `local/` prefix — only `innate_skills/` produces `innate-os/` IDs.
+## Skill packs
+
+A folder of skills someone else wrote installs by dropping it into `workspace/`. If the pack lives elsewhere on disk — a team checkout, a mounted volume — symlink it instead:
+
+```bash
+ln -s /opt/team/skills ~/innate-os/workspace/team_skills
+```
+
+It's then discovered at boot, hot-reloads on edit, and its ids are namespaced by the link name (`team_skills/<name>`).
+
+<Note>
+This replaces the `extra_skill_dirs` / `extra_agent_dirs` settings from OS 0.6.x.
+</Note>

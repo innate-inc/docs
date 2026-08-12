@@ -11,6 +11,8 @@ ACT ([Action Chunking with Transformers](https://arxiv.org/abs/2304.13705)) is a
 
 The training UI shows your dataset summary and a set of tunable hyperparameters. The defaults work well for most tasks — adjust them only if you have a reason to.
 
+<img src="/images/main/robots/web-app/training-configure.png" alt="The web app's Train skill dialog" style={{ maxWidth: "420px", width: "100%", display: "block", margin: "16px auto" }} />
+
 | Parameter | Default | What it controls |
 | --- | --- | --- |
 | **Chunk size** | 30 | Number of future actions predicted per inference step. Larger values produce smoother but less reactive motion. |
@@ -48,8 +50,8 @@ In the phone app, tap the **?** icon next to a hyperparameter for an in-app expl
   </Tab>
   <Tab title="Web app">
     <Steps>
-      <Step title="Pick the skill and preset">
-        On the **Training** page, select the skill and a training preset, and adjust any exposed hyperparameters.
+      <Step title="Pick the skill">
+        On the **Training** page, click **+ Train a skill**, select the skill, and adjust any hyperparameters.
       </Step>
       <Step title="Launch training">
         Start the run. The web app uploads the dataset (only changed files) and creates the run on Innate's cloud; it then appears in the **Running now** card.

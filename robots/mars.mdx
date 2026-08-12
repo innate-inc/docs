@@ -105,6 +105,8 @@ Innate also exposes two additional USB ports for user extensions after core syst
 
 MARS is delivered assembled and calibrated so you can start quickly, while still being open and mod-friendly for deeper customization.
 
+Everything the robot needs at runtime runs **on the robot** — the VLA ([Innate ACT](/training/overview)), SLAM, and [the Innate agent](/software/agent) all execute on the Jetson, with the cloud only handling the model call and [policy training](/training/train-act-policy). You need a computer to develop for MARS, but once your agents and skills are on it, you can close the laptop and walk away.
+
 You can buy an assembled MARS and access the open hardware/software repository:
 
 <CardGroup cols={2}>

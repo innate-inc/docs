@@ -1,6 +1,6 @@
 ---
-title: "Deploy a trained skill"
-description: "Download your trained model, activate it, and run it on the robot."
+title: "Deploy and iterate"
+description: "Download your trained model, run it on the robot, and improve it when it misbehaves."
 ---
 
 Once a training run is marked **Done**, the model is ready to download to your robot and use as a skill.
@@ -42,34 +42,18 @@ When a model downloads, the robot pre-builds an optimized **TensorRT** engine fo
 
 ## Run the skill from the app
 
-<Note>
-The web app doesn't run skills — use the phone app's **Manual Control** (below), or call the skill [from code](#run-the-skill-from-code).
-</Note>
+The simplest way to test a trained skill is to trigger it directly, with no agent involved — from the web app's **Teleop** page or the phone app's **Manual Control**. Both list only activated (non-training) skills; see [Manual Triggering](/software/skills/manual-triggering) for each surface.
 
-The simplest way to test your trained skill is from **Manual Control**.
-
-<Steps>
-  <Step title="Open Manual Control">
-    Go to the **Manual Control** screen from the app's main navigation.
-  </Step>
-  <Step title="Select the skill">
-    Open the skill dropdown and select your newly trained skill. Only activated (non-training) skills appear in this list.
-  </Step>
-  <Step title="Execute">
-    Tap the play button. The robot moves to the start pose and begins running the policy at 25 Hz — reading cameras, processing images, and outputting arm and base commands in real time.
-  </Step>
-  <Step title="Stop if needed">
-    Tap the stop button at any time to interrupt execution. The robot halts immediately.
-  </Step>
-</Steps>
+On selecting the skill and pressing play, the robot moves the arm to the learned start pose and begins running the policy at 25 Hz, reading cameras and streaming arm and base commands in real time. Stopping halts it immediately.
 
 ## Run the skill from code
 
-Trained skills are available to agents and code-defined skills just like any other skill. Reference the skill by its ID in your agent's skill list:
+Trained skills are available to agents and code-defined skills just like any other skill. The catalog generates a typed reference for each one, so you import and list it exactly like a code skill:
 
-```python
-from brain_client.agent_types import Agent
-from typing import List
+```innatepy
+from innate import Agent, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.pick_up_cup import PickUpCup   # your trained skill
 
 class TidyUpAgent(Agent):
     @property
@@ -80,8 +64,8 @@ class TidyUpAgent(Agent):
     def display_name(self) -> str:
         return "Tidy Up"
 
-    def get_skills(self) -> List[str]:
-        return ["pick_up_cup", "navigate_to_position"]
+    def get_skills(self) -> list[SkillRef]:
+        return [PickUpCup, NavigateToPosition]
 
     def get_prompt(self) -> str:
         return """You are a tidying robot. Use pick_up_cup to grab cups
@@ -102,10 +86,29 @@ To switch between runs, download a different completed run — activation overwr
 
 ## Iterating on a skill
 
-If the skill doesn't perform as expected:
+Training a policy is rarely one-and-done. Make the **first test easy**: reproduce the scene you recorded in — same robot placement, object positions, and lighting — and watch a full run without intervening. If the policy fails on its own training distribution, something is wrong upstream, not in your setup.
 
-- **Add more episodes** to your dataset, sync again, and retrain. More data almost always helps.
-- **Adjust hyperparameters** — see the [training guide](/training/train-act-policy#when-to-change-the-defaults) for tuning advice.
-- **Review your demonstrations** — replay episodes to spot inconsistencies, then re-record the weak ones.
+### Common failure modes
 
-Training is fast and cheap to iterate on. Don't hesitate to run multiple rounds.
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Robot doesn't move or barely moves | Too few episodes, or episodes have inconsistent starts | Record more episodes with consistent start poses |
+| Arm overshoots the target | Jerky demonstrations or high variance in approach angles | Re-record smoother demonstrations; try a larger chunk size |
+| Robot starts well but drifts | Not enough variation in demonstrations | Add more episodes with slight object position changes |
+| Works on first run, fails on repeat | Object or robot position shifted | Record with more position variation; aim for 2–5 cm spread |
+| Gripper doesn't close at the right time | Inconsistent grasp timing across episodes | Focus on consistent timing when closing the gripper |
+| Robot ignores the object entirely | Lighting or background changed significantly | Record in the current conditions, or control lighting more carefully |
+
+### How to improve a policy
+
+- **Add more data** — the most reliable fix. 20–30 episodes covering the specific failure case, then sync and retrain; new episodes are added to the existing dataset, so you never start over.
+- **Tune hyperparameters** — if the behavior is qualitatively close but not quite right, [when to change the defaults](/training/train-act-policy#when-to-change-the-defaults) maps each symptom to the right knob.
+- **Improve demonstration quality** — replay your episodes and replace the weak ones: hesitations and course corrections, runs much longer or shorter than average, and start poses that don't match the rest.
+
+### Scaling up
+
+Once the policy works in the original setup, introduce variation gradually — move the object a few centimeters, swap in the same object in a different color, adjust the lighting modestly. When it breaks, record 10–20 more episodes under the new conditions and retrain. Each round makes the policy more robust.
+
+<Tip>
+Invest in data variety and you'll spend less time debugging — see [how many episodes you need](/training/data-collection#tips-for-high-quality-data) for concrete numbers.
+</Tip>

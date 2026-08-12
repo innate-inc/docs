@@ -21,23 +21,23 @@ No configuration files. No complex setup. Just Python.
 The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear on the **Home** screen in the Innate Controller App.
 
 <CardGroup cols={2}>
-  <Card title="No Prompt (`basic_agent`)">
-    Minimal default behavior with `navigate_to_position` and no prompt text.
+  <Card title="No Prompt (`empty_directive`)">
+    The idle default — no skills, no prompt. What the robot runs when you haven't picked an agent.
+  </Card>
+  <Card title="Basic Navigation (`basic_agent`)">
+    Navigation only, with no prompt text.
   </Card>
   <Card title="Demo Agent (`demo_agent`)">
-    Friendly interactive demo agent with navigation, waving, and gaze.
+    Friendly interactive demo: navigation, waving, picking, and gaze.
   </Card>
   <Card title="J3SO (`j3so_directive`)">
     Character-style conversational agent with navigation.
   </Card>
   <Card title="Security Guard (`security_guard_agent`)">
-    Patrol-oriented agent with door opening and email alert behavior.
+    Patrol-oriented agent with navigation and email alerts.
   </Card>
-  <Card title="Chess Piece Agent (`chess_piece_agent`)">
-    Chess gameplay agent using piece manipulation and move detection.
-  </Card>
-  <Card title="Chess Self-Play Agent (`chess_self_play_agent`)">
-    Autonomous self-play chess agent with narrated moves.
+  <Card title="Chess Agent (`chess_agent`)">
+    Chess gameplay: piece manipulation, move detection, board state. Beta.
   </Card>
   <Card title="Board Calibration Agent (`board_calibration_agent`)">
     Guided workflow agent for chess board corner calibration.
@@ -51,32 +51,28 @@ The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear 
 - [Chess (beta)](/software/agents/chess-beta)
 - [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta)
 
-## System Architecture
+## How an agent runs
 
-Agents integrate into the following architecture:
+The decision loop — [the Innate agent](/software/agent) — runs **on the robot**. Your agent file is what it reads to know who to be:
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        Cloud AI                                  │
-│            Processes vision and makes decisions                  │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ WebSocket
-┌────────────────────────────▼────────────────────────────────────┐
-│                    Brain Client (ROS 2)                          │
-│       Manages agents, executes skills, bridges cloud ↔ robot     │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-┌───────▼───────┐    ┌───────▼───────┐    ┌──────▼──────┐
-│    Agents     │    │    Skills     │    │   Inputs    │
-│ (Personality) │    │  (Actions)    │    │  (Sensors)  │
-└───────────────┘    └───────────────┘    └─────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    The Innate agent                          │
+│      on the robot: look → think → act, one turn at a time    │
+└───────────────────────────┬──────────────────────────────────┘
+                            │ reads
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+┌───────▼───────┐   ┌───────▼───────┐   ┌───────▼───────┐
+│  get_prompt() │   │ get_skills()  │   │ get_inputs()  │
+│   who it is   │   │  what it can  │   │ what it hears │
+│               │   │      do       │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
 ```
 
-The cloud AI receives camera feeds and input data. It reads the agent's prompt to understand the robot's role, checks available skills to know what actions are possible, then decides what to do. The robot executes accordingly.
+Every turn, the loop looks at the camera and at anything new (you spoke, a skill finished, a sensor fired), then picks an action. Your **prompt** tells it how to behave, your **skills** are the actions it can choose from, and your **inputs** decide what it can hear.
 
-Your agent is the contract between you and the AI—it defines who the robot is and what it can do.
+Only the model call leaves the robot — and even that is optional. See [The Innate Agent](/software/agent) for the loop in detail.
 
 ## Design Philosophy
 

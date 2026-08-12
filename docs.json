@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "OS 0.6.0",
+        "version": "OS 0.7.0",
         "default": true,
         "groups": [
           {
@@ -61,8 +61,7 @@
           {
             "group": "Controller App",
             "pages": [
-              "robots/innate-controller-app",
-              "robots/innate-controller-app/connecting-to-a-robot"
+              "robots/innate-controller-app"
             ]
           },
           {
@@ -103,6 +102,7 @@
                       "software/skills/code-defined-skills/navigation-interfaces",
                       "software/skills/code-defined-skills/body-control-interfaces",
                       "software/skills/code-defined-skills/robot-state",
+                      "software/skills/code-defined-skills/spatial-memory",
                       "software/skills/code-defined-skills/physical-skill-examples",
                       "software/skills/code-defined-skills/composing-skills",
                       "software/skills/code-defined-skills/external-services"
@@ -112,14 +112,7 @@
                   "software/skills/manual-triggering"
                 ]
               },
-              {
-                "group": "Inputs",
-                "pages": [
-                  "software/inputs",
-                  "software/inputs/definition",
-                  "software/inputs/example-microphone"
-                ]
-              },
+              "software/inputs",
               "software/agent"
             ]
           },
@@ -140,8 +133,6 @@
               "training/data-collection",
               "training/train-act-policy",
               "training/deploy-trained-skill",
-              "training/evaluate",
-              "training/rollout-evaluation",
               "training/dataset-format",
               "training/training-cli"
             ]
@@ -160,7 +151,6 @@
             "group": "Troubleshooting & Support",
             "pages": [
               "robots/mars/troubleshooting",
-              "robots/mars/faq",
               "support/contact-discord"
             ]
           },
@@ -174,11 +164,48 @@
       }
     ]
   },
+  "styling": {
+    "codeblocks": {
+      "languages": {
+        "custom": [
+          "/languages/python-typed.json"
+        ]
+      }
+    }
+  },
   "logo": {
     "light": "/images/logo-light.png",
     "dark": "/images/logo-dark.png"
   },
   "redirects": [
+    {
+      "source": "/training/evaluate",
+      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+    },
+    {
+      "source": "/training/rollout-evaluation",
+      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+    },
+    {
+      "source": "/software/inputs/definition",
+      "destination": "/software/inputs#write-an-input-device"
+    },
+    {
+      "source": "/software/inputs/example-microphone",
+      "destination": "/software/inputs#example-the-built-in-microphone"
+    },
+    {
+      "source": "/robots/innate-controller-app/connecting-to-a-robot",
+      "destination": "/robots/innate-controller-app#connecting-to-a-robot"
+    },
+    {
+      "source": "/robots/mars/faq",
+      "destination": "/robots/mars/troubleshooting"
+    },
+    {
+      "source": "/robots/mars/troubleshooting/critical-fix-before-jan-16",
+      "destination": "/robots/mars/troubleshooting#find-your-mars-id"
+    },
     {
       "source": "/robots/web-app/debugging",
       "destination": "/robots/web-app/logging"
@@ -265,7 +292,7 @@
     },
     {
       "source": "/welcome/frequently-asked-questions",
-      "destination": "/robots/mars/faq"
+      "destination": "/robots/mars/troubleshooting"
     }
   ]
 }
