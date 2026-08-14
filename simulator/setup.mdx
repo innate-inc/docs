@@ -11,35 +11,53 @@ description: "Get the simulator running on macOS, Linux, or Windows"
   if you already have Docker. The installer measures and tells you before it
   uses any.
 * **macOS, Linux, or Windows** with WSL2 (the Windows tab below sets that up).
+* **On macOS, Docker Desktop** — the one thing the installer cannot install
+  for you. The macOS tab explains why.
 
 Everything else — uv, the rendering libraries, the `innate-os` checkout — is
 installed for you, and on Linux that includes Docker.
 
-<Note>
-  **On macOS, install [Docker
-  Desktop](https://docs.docker.com/desktop/install/mac-install/) first**, and
-  open it once to accept its terms. The installer cannot do it for you: it is
-  a desktop app with a licence to agree to and a first launch to sit through.
-  If it is missing, the installer says so and stops with everything else in
-  place.
-</Note>
-
 ## Install
 
 <Tabs>
-  <Tab title="macOS and Linux">
-    On macOS, make sure [Docker
-    Desktop](https://docs.docker.com/desktop/install/mac-install/) is
-    installed and has been opened once. On Linux, nothing to do first.
+  <Tab title="macOS">
+    <Steps>
+      <Step title="Install Docker Desktop">
+        Download [Docker
+        Desktop](https://docs.docker.com/desktop/install/mac-install/), install
+        it, and **open it once** to accept its terms and let it finish setting
+        itself up.
 
-    Go to the folder you want the simulator in, and run:
+        macOS has no headless Docker — containers are Linux processes, so they
+        run inside the VM Docker Desktop provides — and a desktop app with a
+        licence to agree to is not something a shell script can install for
+        you. The installer checks for it and stops with instructions if it is
+        missing.
+      </Step>
+      <Step title="Run the installer">
+        Go to the folder you want the simulator in, and run:
+
+        ```bash
+        curl -fsSL https://link.innate.bot/sim | sh
+        ```
+
+        It clones `innate-os/` there. Run it from inside an `innate-os`
+        checkout you already have and it skips the clone, setting up that copy
+        instead.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Linux">
+    Nothing to install first. Go to the folder you want the simulator in, and
+    run:
 
     ```bash
     curl -fsSL https://link.innate.bot/sim | sh
     ```
 
-    It clones `innate-os/` there. Run it from inside an `innate-os` checkout
-    you already have and it skips the clone, setting up that copy instead.
+    It asks before installing Docker, uv and the rendering libraries, then
+    clones `innate-os/` there. Run it from inside an `innate-os` checkout you
+    already have and it skips the clone, setting up that copy instead.
   </Tab>
   <Tab title="Windows">
     The simulator runs inside WSL2, Windows' built-in Linux environment. You
@@ -78,8 +96,8 @@ installed for you, and on Linux that includes Docker.
 
 The installer lists its steps and waits for you to confirm before it starts:
 
-1. Installs what is missing — Docker, uv (which runs the physics), git, and
-   on Linux the OpenGL libraries.
+1. Installs what is missing — uv (which runs the physics), git, and on Linux
+   Docker and the OpenGL libraries.
 2. Clones `innate-os`, or uses the checkout you ran it from.
 3. Asks how the robot's agent should reach a cloud LLM.
 4. Downloads the simulator, so the first start is a start rather than a
