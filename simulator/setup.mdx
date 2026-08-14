@@ -3,140 +3,147 @@ title: "Setup"
 description: "Get the simulator running on macOS, Linux, or Windows"
 ---
 
-You need two tools installed; everything else (world geometry, the Docker
-image, the ROS build) is provisioned automatically on first start:
+One command installs everything and starts the simulator:
 
-* **Docker** — runs the robot's software stack in a container.
-* **uv** — runs the physics world natively on your machine
-  (`./innate-sim setup` offers to install this one for you).
+```bash
+curl -fsSL https://link.innate.bot/sim | sh
+```
 
-A machine with 4 CPU cores and 8 GB of RAM is comfortable. The first start
-downloads and builds a few GB, so it takes a while; later starts take
-seconds.
+It asks before it installs anything, then handles the rest — Docker, uv, the
+rendering libraries, the `innate-os` checkout, and the several gigabytes of
+simulator that the first start would otherwise download.
 
-## Install the prerequisites
+**Run it from the folder you want the simulator in.** It clones `innate-os/`
+there. Already have an `innate-os` checkout? Run it from inside that one
+instead — it skips the clone and sets up the copy you have.
+
+A machine with 4 CPU cores and 8 GB of RAM is comfortable. The installer
+tells you how much disk it needs — about 14 GB on a bare machine, less if you
+already have Docker — before it uses any.
+
+## Run the installer
 
 <Tabs>
-  <Tab title="macOS">
-    Install Docker Desktop and start it:
+  <Tab title="macOS and Linux">
+    Open a terminal, go to the folder you keep projects in, and run:
 
     ```bash
-    brew install --cask docker
-    ```
-
-    (or download it from [docker.com](https://docs.docker.com/get-started/get-docker/)).
-  </Tab>
-  <Tab title="Linux (Ubuntu / Debian / Raspberry Pi OS)">
-    Use Docker's own install script — it sets up the official apt repo and
-    installs Docker plus the Compose v2 plugin, the same way on every
-    Debian-family distro:
-
-    ```bash
-    curl -fsSL https://get.docker.com | sudo sh
-    ```
-
-    Then let your user talk to Docker:
-
-    ```bash
-    sudo usermod -aG docker $USER && newgrp docker
-    ```
-
-    Install the rendering libraries. On a headless server or VM these provide
-    offscreen rendering; on a desktop with working OpenGL they're mostly
-    already present, and the extra software-rendering library is harmless — so
-    it's safe to run either way:
-
-    ```bash
-    sudo apt install libegl1 libgl1 libopengl0 libosmesa6
+    curl -fsSL https://link.innate.bot/sim | sh
     ```
   </Tab>
-  <Tab title="Windows (WSL2)">
-    The simulator runs inside WSL2. In PowerShell:
+  <Tab title="Windows">
+    The simulator runs inside WSL2, Windows' built-in Linux environment. You
+    need it once.
 
-    ```powershell
-    wsl --install -d Ubuntu
-    ```
+    <Steps>
+      <Step title="Install WSL">
+        Open **PowerShell** and run:
 
-    then open the Ubuntu terminal and follow the **Linux** tab inside it.
+        ```powershell
+        wsl --install -d Ubuntu
+        ```
+
+        Follow the prompts — it asks you to choose a username and password for
+        Linux, and may ask you to restart Windows. When it finishes it opens
+        an **Ubuntu** terminal for you. That terminal is where the simulator
+        lives; open it again later from the Start menu.
+      </Step>
+      <Step title="Run the installer in the Ubuntu terminal">
+        ```bash
+        curl -fsSL https://link.innate.bot/sim | sh
+        ```
+
+        In the Ubuntu window, not PowerShell. If the prompt shows a path
+        starting with `/mnt/`, run `cd ~` first: that prefix is the Windows
+        drive seen from Linux, and the simulator is far too slow to run from
+        there.
+      </Step>
+    </Steps>
+
     WSLg (included in current WSL) gives the simulator GPU-accelerated
     rendering automatically.
 
     <Warning>
-      Use exactly **one** Docker — either Docker Desktop (with WSL
-      integration enabled) or `docker.io` installed inside WSL. Having both
-      installed makes the `docker` command hang in confusing ways.
+      Use exactly **one** Docker — either Docker Desktop with WSL integration
+      enabled, or Docker installed inside WSL. Having both makes the `docker`
+      command hang in confusing ways.
     </Warning>
   </Tab>
 </Tabs>
 
+## What it does
+
+The installer lists its steps and waits for you to confirm before it starts:
+
+1. Installs what is missing — Docker, uv (which runs the physics), git, and
+   on Linux the OpenGL libraries.
+2. Clones `innate-os`, or uses the checkout you ran it from.
+3. Asks how the robot's agent should reach a cloud LLM.
+4. Downloads the simulator, so the first start is a start rather than a
+   download.
+5. Offers to start it for you.
+
+Anything it cannot do itself, it explains: a version of Docker that cannot run
+the simulator is named, with the command that fixes it, before anything is
+downloaded.
+
+### Choosing a cloud LLM
+
+Step 3 asks how the robot's AI agent reaches a cloud LLM. The agent loop runs
+on the robot either way; the choice is only which key it thinks with:
+
+* **Your own Gemini key** — the agent calls Google directly with a
+  [Gemini API key](https://aistudio.google.com/api-keys). Everything works
+  except voice: the web app's speak bar needs a service key.
+* **Innate service key** — the agent reaches Gemini through Innate's proxy
+  with your service key, which ships with a MARS robot. The full experience,
+  including the robot's voice.
+* **None** — no agent; you can still drive, navigate, and trigger skills
+  manually.
+
+Run `./innate-sim setup` inside the checkout at any time to change it.
+
 ## Start the simulator
 
-<Steps>
-  <Step title="Clone innate-os">
-    ```bash
-    git clone https://github.com/innate-inc/innate-os.git
-    cd innate-os
-    ```
-  </Step>
-  <Step title="Run setup once">
-    ```bash
-    ./innate-sim setup
-    ```
+If you did not let the installer start it:
 
-    This checks the prerequisites (and offers to install `uv` if it is
-    missing), then asks which brain — the robot's AI agent — to run. The
-    agent is the open-source
-    [innate-cloud-agent](https://github.com/innate-inc/innate-cloud-agent);
-    the choice is only about *where* it runs:
+```bash
+cd innate-os
+./innate-sim up
+```
 
-    * **Local brain (Gemini)** — the default. Clones `innate-cloud-agent`
-      and runs it on your machine against a
-      [Gemini API key](https://aistudio.google.com/api-keys). Everything
-      works except voice: the web app's speak bar is disabled without a
-      service key.
-    * **Hosted Innate brain** — the same agent, run on Innate's servers with
-      your Innate service key (it ships with a MARS robot). The full
-      experience, including voice — the robot speaks.
-    * **None** — no agent; you can still drive, navigate, and trigger
-      skills manually.
+Then open **[https://localhost](https://localhost)** and accept the
+self-signed certificate. You are looking at the robot's web app: drive with
+the joystick or WASD, switch between the 3D view, the robot's cameras and the
+map, trigger skills, and chat with the agent.
 
-    Rerun `./innate-sim setup` anytime to switch.
-  </Step>
-  <Step title="Bring it up">
-    ```bash
-    ./innate-sim up
-    ```
-
-    The first run provisions everything and shows its progress; leave the
-    live dashboard open. Later runs start in seconds.
-  </Step>
-  <Step title="Open the web app">
-    Go to **[https://localhost](https://localhost)** and accept the
-    self-signed certificate. This is the robot's own web app — the same one
-    a physical MARS serves.
-
-    ![The web app running against the simulator](/images/simulator/web-app.jpg)
-  </Step>
-</Steps>
+Leave the live dashboard in the terminal open — it shows the health of every
+part, the web app address, and where your code lives. Press `q` to detach,
+`Ctrl+C` to stop the simulator.
 
 ## Everyday commands
 
 ```bash
-./innate-sim status      # startup checks + health snapshot
-./innate-sim logs        # startup logs; `logs os` / `logs agent` follow live
-./innate-sim sh          # shell into the container
-./innate-sim down        # stop the container + world server (keeps data)
-./innate-sim clean       # remove containers/volumes (keeps .env + config)
+./innate-sim status         # startup checks + health snapshot
+./innate-sim logs startup   # startup logs; `logs brain` for the running stack
+./innate-sim sh             # shell into the container
+./innate-sim down           # stop the container + world server (keeps data)
+./innate-sim clean          # remove containers/volumes (keeps .env + config)
 ```
+
+`./innate-sim setup` re-runs the key question and the download on an existing
+checkout, without installing prerequisites — use the installer for those.
 
 ## If something goes wrong
 
-Every error the launcher prints is written to tell you exactly what to do
-next — missing packages come with the install command, a wedged Docker names
-itself, and the startup checks end with a health panel that includes the
-world server and its measured render speed. If you get stuck anyway,
-[ask on Discord](/support/contact-discord) — setup reports from new machines
-are how the rough edges get fixed.
+Every error is written to tell you what to do next: missing packages come
+with the install command, a wedged Docker names itself, and a Docker too old
+to run the simulator is refused with the upgrade command rather than failing
+halfway through. The installer's detailed output is kept in
+`~/.innate-install.log`.
+
+If you get stuck anyway, [ask on Discord](/support/contact-discord) — setup
+reports from new machines are how the rough edges get fixed.
 
 ## Next step
 
