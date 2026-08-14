@@ -21,47 +21,34 @@ A machine with 4 CPU cores and 8 GB of RAM is comfortable. The installer
 tells you how much disk it needs — about 14 GB on a bare machine, less if you
 already have Docker — before it uses any.
 
-## Run the installer
+## Windows: set up WSL first
 
-<Tabs>
-  <Tab title="macOS and Linux">
-    Open a terminal, go to the folder you keep projects in, and run:
+macOS and Linux need nothing else — run the command above. Windows runs the
+simulator inside WSL2, its built-in Linux environment, which you install once:
 
+<Steps>
+  <Step title="Install WSL">
+    Open **PowerShell** and run:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    ```
+
+    Follow the prompts — it asks you to choose a username and password for
+    Linux, and may ask you to restart Windows. When it finishes it opens an
+    **Ubuntu** terminal for you. That terminal is where the simulator lives;
+    open it again later from the Start menu.
+  </Step>
+  <Step title="Run the installer in the Ubuntu terminal">
     ```bash
     curl -fsSL https://link.innate.bot/sim | sh
     ```
-  </Tab>
-  <Tab title="Windows">
-    The simulator runs inside WSL2, Windows' built-in Linux environment. You
-    need it once.
 
-    <Steps>
-      <Step title="Install WSL">
-        Open **PowerShell** and run:
-
-        ```powershell
-        wsl --install -d Ubuntu
-        ```
-
-        Follow the prompts — it asks you to choose a username and password for
-        Linux, and may ask you to restart Windows. When it finishes it opens
-        an **Ubuntu** terminal for you. That terminal is where the simulator
-        lives; open it again later from the Start menu.
-      </Step>
-      <Step title="Run the installer in the Ubuntu terminal">
-        ```bash
-        curl -fsSL https://link.innate.bot/sim | sh
-        ```
-
-        In the Ubuntu window, not PowerShell. If the prompt shows a path
-        starting with `/mnt/`, run `cd ~` first: that prefix is the Windows
-        drive seen from Linux, and the simulator is far too slow to run from
-        there.
-      </Step>
-    </Steps>
-
-  </Tab>
-</Tabs>
+    In the Ubuntu window, not PowerShell. If the prompt shows a path starting
+    with `/mnt/`, run `cd ~` first: that prefix is the Windows drive seen from
+    Linux, and the simulator is far too slow to run from there.
+  </Step>
+</Steps>
 
 ## What it does
 
