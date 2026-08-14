@@ -3,30 +3,34 @@ title: "Setup"
 description: "Get the simulator running on macOS, Linux, or Windows"
 ---
 
-One command installs the simulator and everything it needs: Docker, uv, the
-rendering libraries, the `innate-os` checkout, and the several gigabytes that
-the first start would otherwise download. It lists what it is about to do and
-waits for you to confirm.
+## What you need
 
-**Run it from the folder you want the simulator in** — it clones `innate-os/`
-there. Already have an `innate-os` checkout? Run it from inside that one
-instead; it skips the clone and sets up the copy you have.
+* **16 GB of RAM** and 4 or more CPU cores. 8 GB runs the simulator, but
+  tightly — expect the physics and the robot's software to compete.
+* **About 14 GB of free disk** on a machine with nothing installed yet, less
+  if you already have Docker. The installer measures and tells you before it
+  uses any.
+* **macOS, Linux, or Windows** with WSL2 (the Windows tab below sets that up).
 
-A machine with 4 CPU cores and 8 GB of RAM is comfortable. The installer tells
-you how much disk it needs — about 14 GB on a bare machine, less if you
-already have Docker — before it uses any.
+Everything else — Docker, uv, the rendering libraries, the `innate-os`
+checkout — is installed for you.
 
-## Run the installer
+## Install
 
 <Tabs>
   <Tab title="macOS and Linux">
+    Go to the folder you want the simulator in, and run:
+
     ```bash
     curl -fsSL https://link.innate.bot/sim | sh
     ```
+
+    It clones `innate-os/` there. Run it from inside an `innate-os` checkout
+    you already have and it skips the clone, setting up that copy instead.
   </Tab>
   <Tab title="Windows">
     The simulator runs inside WSL2, Windows' built-in Linux environment. You
-    install that once, then run the same command inside it.
+    install that once, then run the installer inside it.
 
     <Steps>
       <Step title="Install WSL">
@@ -42,6 +46,8 @@ already have Docker — before it uses any.
         lives; open it again later from the Start menu.
       </Step>
       <Step title="Run the installer in the Ubuntu terminal">
+        Go to the folder you want the simulator in, and run:
+
         ```bash
         curl -fsSL https://link.innate.bot/sim | sh
         ```
