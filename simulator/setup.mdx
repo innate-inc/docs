@@ -3,52 +3,57 @@ title: "Setup"
 description: "Get the simulator running on macOS, Linux, or Windows"
 ---
 
-One command installs everything and starts the simulator:
+One command installs the simulator and everything it needs: Docker, uv, the
+rendering libraries, the `innate-os` checkout, and the several gigabytes that
+the first start would otherwise download. It lists what it is about to do and
+waits for you to confirm.
 
-```bash
-curl -fsSL https://link.innate.bot/sim | sh
-```
-
-It asks before it installs anything, then handles the rest — Docker, uv, the
-rendering libraries, the `innate-os` checkout, and the several gigabytes of
-simulator that the first start would otherwise download.
-
-**Run it from the folder you want the simulator in.** It clones `innate-os/`
+**Run it from the folder you want the simulator in** — it clones `innate-os/`
 there. Already have an `innate-os` checkout? Run it from inside that one
-instead — it skips the clone and sets up the copy you have.
+instead; it skips the clone and sets up the copy you have.
 
-A machine with 4 CPU cores and 8 GB of RAM is comfortable. The installer
-tells you how much disk it needs — about 14 GB on a bare machine, less if you
+A machine with 4 CPU cores and 8 GB of RAM is comfortable. The installer tells
+you how much disk it needs — about 14 GB on a bare machine, less if you
 already have Docker — before it uses any.
 
-## Windows: set up WSL first
+## Run the installer
 
-macOS and Linux need nothing else — run the command above. Windows runs the
-simulator inside WSL2, its built-in Linux environment, which you install once:
-
-<Steps>
-  <Step title="Install WSL">
-    Open **PowerShell** and run:
-
-    ```powershell
-    wsl --install -d Ubuntu
-    ```
-
-    Follow the prompts — it asks you to choose a username and password for
-    Linux, and may ask you to restart Windows. When it finishes it opens an
-    **Ubuntu** terminal for you. That terminal is where the simulator lives;
-    open it again later from the Start menu.
-  </Step>
-  <Step title="Run the installer in the Ubuntu terminal">
+<Tabs>
+  <Tab title="macOS and Linux">
     ```bash
     curl -fsSL https://link.innate.bot/sim | sh
     ```
+  </Tab>
+  <Tab title="Windows">
+    The simulator runs inside WSL2, Windows' built-in Linux environment. You
+    install that once, then run the same command inside it.
 
-    In the Ubuntu window, not PowerShell. If the prompt shows a path starting
-    with `/mnt/`, run `cd ~` first: that prefix is the Windows drive seen from
-    Linux, and the simulator is far too slow to run from there.
-  </Step>
-</Steps>
+    <Steps>
+      <Step title="Install WSL">
+        Open **PowerShell** and run:
+
+        ```powershell
+        wsl --install -d Ubuntu
+        ```
+
+        Follow the prompts — it asks you to choose a username and password for
+        Linux, and may ask you to restart Windows. When it finishes it opens an
+        **Ubuntu** terminal for you. That terminal is where the simulator
+        lives; open it again later from the Start menu.
+      </Step>
+      <Step title="Run the installer in the Ubuntu terminal">
+        ```bash
+        curl -fsSL https://link.innate.bot/sim | sh
+        ```
+
+        In the Ubuntu window, not PowerShell. If the prompt shows a path
+        starting with `/mnt/`, run `cd ~` first: that prefix is the Windows
+        drive seen from Linux, and the simulator is far too slow to run from
+        there.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## What it does
 
@@ -71,12 +76,14 @@ downloaded.
 Step 3 asks how the robot's AI agent reaches a cloud LLM. The agent loop runs
 on the robot either way; the choice is only which key it thinks with:
 
-* **Your own Gemini key** — the agent calls Google directly with a
-  [Gemini API key](https://aistudio.google.com/api-keys). Everything works
-  except voice: the web app's speak bar needs a service key.
-* **Innate service key** — the agent reaches Gemini through Innate's proxy
-  with your service key, which ships with a MARS robot. The full experience,
-  including the robot's voice.
+* **Your own Gemini key** — the choice for most people. Create a
+  [Gemini API key](https://aistudio.google.com/api-keys) and the agent calls
+  Google directly with it. Everything works except voice, which needs a
+  service key.
+* **Innate service key** — pick this if you already have one: it ships with a
+  MARS robot, and we hand them out to people building on the simulator. The
+  agent reaches Gemini through Innate's proxy and the robot speaks. Want one?
+  [Ask on Discord](/support/contact-discord).
 * **None** — no agent; you can still drive, navigate, and trigger skills
   manually.
 
