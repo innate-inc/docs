@@ -12,13 +12,26 @@ description: "Get the simulator running on macOS, Linux, or Windows"
   uses any.
 * **macOS, Linux, or Windows** with WSL2 (the Windows tab below sets that up).
 
-Everything else — Docker, uv, the rendering libraries, the `innate-os`
-checkout — is installed for you.
+Everything else — uv, the rendering libraries, the `innate-os` checkout — is
+installed for you, and on Linux that includes Docker.
+
+<Note>
+  **On macOS, install [Docker
+  Desktop](https://docs.docker.com/desktop/install/mac-install/) first**, and
+  open it once to accept its terms. The installer cannot do it for you: it is
+  a desktop app with a licence to agree to and a first launch to sit through.
+  If it is missing, the installer says so and stops with everything else in
+  place.
+</Note>
 
 ## Install
 
 <Tabs>
   <Tab title="macOS and Linux">
+    On macOS, make sure [Docker
+    Desktop](https://docs.docker.com/desktop/install/mac-install/) is
+    installed and has been opened once. On Linux, nothing to do first.
+
     Go to the folder you want the simulator in, and run:
 
     ```bash
