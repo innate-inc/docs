@@ -3,144 +3,140 @@ title: "Setup"
 description: "Get the simulator running on macOS, Linux, or Windows"
 ---
 
-You need two tools installed; everything else (world geometry, the Docker
-image, the ROS build) is provisioned automatically on first start:
+## Prerequisites
 
-* **Docker** — runs the robot's software stack in a container.
-* **uv** — runs the physics world natively on your machine
-  (`./innate-sim setup` offers to install this one for you).
+- **Memory and CPU:** 16 GB RAM and 4+ CPU cores recommended. 8 GB works, but expect slower performance.
+- **Disk space:** Up to 14 GB free, or less if Docker is already installed. The installer checks before downloading.
 
-A machine with 4 CPU cores and 8 GB of RAM is comfortable. The first start
-downloads and builds a few GB, so it takes a while; later starts take
-seconds.
-
-## Install the prerequisites
+### Choose your operating system
 
 <Tabs>
   <Tab title="macOS">
-    Install Docker Desktop and start it:
+    Open Docker Desktop and leave it running.
 
-    ```bash
-    brew install --cask docker
-    ```
+    <Accordion title="Don't have Docker Desktop yet?">
+      <Steps>
+        <Step title="Download Docker Desktop">
+          Open the [Docker Desktop download page](https://docs.docker.com/desktop/install/mac-install/) and choose the button that matches your Mac.
 
-    (or download it from [docker.com](https://docs.docker.com/get-started/get-docker/)).
+          Not sure which button? Apple menu (top left) → **About This Mac**. If **Chip** or **Processor** says Apple, pick **Apple silicon**. If it says Intel, pick **Intel chip**.
+        </Step>
+        <Step title="Install and start Docker">
+          Open the downloaded `.dmg`, move Docker to **Applications**, then open **Docker**.
+
+          1. Accept the Docker Subscription Service Agreement.
+
+             ![Docker Subscription Service Agreement with Accept](/images/simulator/accept-agreement.png)
+
+          2. Keep **Use recommended settings** and click **Finish**. Enter your Mac password if asked.
+
+             ![Complete the installation of Docker Desktop with recommended settings selected](/images/simulator/recomended-setting.png)
+
+          3. On **Welcome to Docker**, click **Skip**. You do not need a Docker account.
+
+             ![Welcome to Docker sign-in screen with Skip highlighted](/images/simulator/account-skip.png)
+
+          After **Skip**, you land on the Docker home screen with an empty **Containers** list. That is normal — you have not started the simulator yet.
+
+          ![Docker Desktop with no running containers](/images/simulator/docker-home.png)
+
+          Leave Docker open.
+        </Step>
+      </Steps>
+    </Accordion>
   </Tab>
-  <Tab title="Linux (Ubuntu / Debian / Raspberry Pi OS)">
-    Use Docker's own install script — it sets up the official apt repo and
-    installs Docker plus the Compose v2 plugin, the same way on every
-    Debian-family distro:
-
-    ```bash
-    curl -fsSL https://get.docker.com | sudo sh
-    ```
-
-    Then let your user talk to Docker:
-
-    ```bash
-    sudo usermod -aG docker $USER && newgrp docker
-    ```
-
-    Install the rendering libraries. On a headless server or VM these provide
-    offscreen rendering; on a desktop with working OpenGL they're mostly
-    already present, and the extra software-rendering library is harmless — so
-    it's safe to run either way:
-
-    ```bash
-    sudo apt install libegl1 libgl1 libopengl0 libosmesa6
-    ```
+  <Tab title="Linux">
+    No preparation needed. The installer installs missing prerequisites, including Docker and `uv`.
   </Tab>
   <Tab title="Windows (WSL2)">
-    The simulator runs inside WSL2. In PowerShell:
+    Install Ubuntu in WSL2 from PowerShell, then open its terminal:
 
     ```powershell
     wsl --install -d Ubuntu
     ```
 
-    then open the Ubuntu terminal and follow the **Linux** tab inside it.
-    WSLg (included in current WSL) gives the simulator GPU-accelerated
-    rendering automatically.
+    Run `cd ~` before installing. Do not install under `/mnt/`, where filesystem access is too slow for the simulator.
 
-    <Warning>
-      Use exactly **one** Docker — either Docker Desktop (with WSL
-      integration enabled) or `docker.io` installed inside WSL. Having both
-      installed makes the `docker` command hang in confusing ways.
-    </Warning>
+    If you use Docker Desktop with WSL integration, do not also install Docker inside WSL.
   </Tab>
 </Tabs>
 
-## Start the simulator
+## Install the simulator
+
+Open a terminal and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ugtthis/innate-os/feat/sim-installer/scripts/install-sim.sh \
+  | INNATE_REPO_URL=https://github.com/ugtthis/innate-os.git INNATE_SIM_REF=feat/sim-installer sh
+```
+
+The installer shows its plan before making changes. Use the arrow keys to move through the prompts and press **Enter** to select. After the prompts, it installs missing dependencies, clones `innate-os`, and downloads the runtime without further input.
+
+### Choose your agent setup
+
+During installation, choose how the agent connects to Gemini:
+
+| Option | What you get |
+| --- | --- |
+| **Your own Gemini key** — default | Agent calls Google directly. Needs a [Gemini API key](https://aistudio.google.com/api-keys). No voice. |
+| **Innate service key** | Agent calls Gemini through Innate's proxy. Includes voice. Use the key from your MARS or [ask on Discord](/support/contact-discord). |
+| **None** | Drive, navigate, trigger skills. No agent. |
+
+## Open the simulator
 
 <Steps>
-  <Step title="Clone innate-os">
-    ```bash
-    git clone https://github.com/innate-inc/innate-os.git
-    cd innate-os
-    ```
-  </Step>
-  <Step title="Run setup once">
-    ```bash
-    ./innate-sim setup
-    ```
-
-    This checks the prerequisites (and offers to install `uv` if it is
-    missing), then asks which brain — the robot's AI agent — to run. The
-    agent is the open-source
-    [innate-cloud-agent](https://github.com/innate-inc/innate-cloud-agent);
-    the choice is only about *where* it runs:
-
-    * **Local brain (Gemini)** — the default. Clones `innate-cloud-agent`
-      and runs it on your machine against a
-      [Gemini API key](https://aistudio.google.com/api-keys). Everything
-      works except voice: the web app's speak bar is disabled without a
-      service key.
-    * **Hosted Innate brain** — the same agent, run on Innate's servers with
-      your Innate service key (it ships with a MARS robot). The full
-      experience, including voice — the robot speaks.
-    * **None** — no agent; you can still drive, navigate, and trigger
-      skills manually.
-
-    Rerun `./innate-sim setup` anytime to switch.
-  </Step>
-  <Step title="Bring it up">
-    ```bash
-    ./innate-sim up
-    ```
-
-    The first run provisions everything and shows its progress; leave the
-    live dashboard open. Later runs start in seconds.
+  <Step title="Start the simulator">
+    When prompted with **Start the simulator now?**, select **Yes**. The installer starts the runtime and opens the live dashboard.
   </Step>
   <Step title="Open the web app">
-    Go to **[https://localhost](https://localhost)** and accept the
-    self-signed certificate. This is the robot's own web app — the same one
-    a physical MARS serves.
+    From the dashboard, open **[https://localhost](https://localhost)** and accept the self-signed certificate.
 
-    ![The web app running against the simulator](/images/simulator/web-app.jpg)
+    <Accordion title="Seeing a privacy warning?">
+      The simulator creates a certificate on your computer to encrypt the local connection. Your browser cannot verify who created it, so it displays a warning. This is expected for `https://localhost`.
+
+      Confirm that the address is `https://localhost`, then continue:
+
+      - **Chrome or Edge:** Click **Advanced** → **Proceed to localhost (unsafe)**.
+      - **Safari:** Click **Show Details** → **visit this website** → **Visit Website**.
+      - **Firefox:** Click **Advanced** → **Accept the Risk and Continue**.
+
+      Only bypass this warning for `https://localhost`.
+    </Accordion>
+  </Step>
+  <Step title="You're ready!">
+    If you see an interface like this, the simulator is running:
+
+    ![The simulator running in the MARS web app](/images/simulator/finished-sim.jpeg)
+
+    Try these controls:
+
+    - Drive with the **W**, **A**, **S**, and **D** controls in the lower-left corner.
+    - Select a camera preview in the upper-right corner to change views.
+    - In third-person view, click and drag the scene to move the camera around MARS.
   </Step>
 </Steps>
 
-## Everyday commands
+<Tip>
+  Already have an `innate-os` checkout? Run `sh scripts/install-sim.sh` inside it. To change agent keys later, run `./innate-sim setup`.
+</Tip>
+
+## Manage the simulator
 
 ```bash
-./innate-sim status      # startup checks + health snapshot
-./innate-sim logs        # startup logs; `logs os` / `logs agent` follow live
+./innate-sim up          # start the runtime + live dashboard
+./innate-sim status      # current runtime status
+./innate-sim logs startup  # last boot; `logs brain` / `logs world-server` for those streams
 ./innate-sim sh          # shell into the container
 ./innate-sim down        # stop the container + world server (keeps data)
 ./innate-sim clean       # remove containers/volumes (keeps .env + config)
 ```
 
-## If something goes wrong
+## Troubleshooting
 
-Every error the launcher prints is written to tell you exactly what to do
-next — missing packages come with the install command, a wedged Docker names
-itself, and the startup checks end with a health panel that includes the
-world server and its measured render speed. If you get stuck anyway,
-[ask on Discord](/support/contact-discord) — setup reports from new machines
-are how the rough edges get fixed.
+Launcher errors include the next step (missing packages come with the install command). If you're stuck, [ask on Discord](/support/contact-discord).
 
-## Next step
+## Build with the simulator
 
-<Card title="Building with the Simulator" icon="wrench" href="/simulator/building-with-the-simulator">
-  Write your first skill, hand it to an agent, and iterate against the
-  simulated MARS.
+<Card title="Building with the simulator" icon="wrench" href="/simulator/building-with-the-simulator">
+  Write a skill, hand it to an agent, iterate on save.
 </Card>
