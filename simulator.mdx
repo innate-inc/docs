@@ -3,18 +3,14 @@ title: "Simulator"
 description: "A complete simulation of MARS that runs on your laptop — no robot required"
 ---
 
-The Innate simulator is a **digital twin** of the MARS robot: the same software
-that runs on a physical MARS — navigation, skills, the AI agent, the web app —
-runs on your laptop against a physics simulation of the robot in a furnished
-apartment. You drive it, run skills on it, and talk to its agent from your
-browser, exactly as you would with the real thing.
+The Innate simulator is the same software that runs on a physical MARS — navigation, skills, the AI agent, the web app — running on your laptop against a physics simulation. **Anything you build here works unchanged on a real MARS.**
 
 <CardGroup cols={2}>
   <Card title="Set up the simulator" icon="rocket" href="/simulator/setup">
-    Prerequisites per platform and the two commands that start everything.
+    Run one installer command, start the simulator, open the browser.
   </Card>
   <Card title="Build with the simulator" icon="wrench" href="/simulator/building-with-the-simulator">
-    The development workflow: skills, agents, ROS access, and the Python API.
+    Write a skill, hand it to an agent, iterate on save.
   </Card>
 </CardGroup>
 
@@ -31,27 +27,8 @@ browser, exactly as you would with the real thing.
   Driving the simulated MARS robot through its apartment in the browser.
 </video>
 
-Because it is the real robot software (only the hardware drivers are swapped
-for a simulated equivalent), **anything you build against the simulator works
-unchanged on a real MARS** — and the other way around. Use it to:
+## What's in the sim
 
-* **Try Innate OS before you own a robot** — the full experience, from
-  driving to talking to the agent.
-* **Build and test [skills](/software/skills) and [agents](/software/agents)**
-  without leaving your desk, then deploy them to hardware as-is.
-* **Develop input devices and integrations** against the same ROS 2 surface a
-  real robot exposes.
+A furnished apartment with a driving base, arm, head camera, wrist camera, lidar, and a navigation map. The web app at `https://localhost` is the same operator UI a real robot serves, plus a sim-only **top view** camera.
 
-## What is inside
-
-The simulated MARS lives in a furnished apartment and has everything the real
-robot has: a driving base, the arm, a head camera and a wrist camera
-(rendered from the simulated world), a lidar, and a navigation map. The web
-app at `https://localhost` is the same operator interface a real robot
-serves — with an extra **top view** camera that only exists in simulation.
-
-Physics runs in [MuJoCo](https://mujoco.org) on your machine, in real time.
-For the architecture behind it (and a ROS-free Python API to the simulated
-world), see the
-[simulator README](https://github.com/innate-inc/innate-os/blob/main/sim/README.md)
-in the innate-os repository.
+Physics runs in [MuJoCo](https://mujoco.org) in real time. Architecture and a ROS-free Python API: [simulator README](https://github.com/innate-inc/innate-os/blob/main/sim/README.md).
