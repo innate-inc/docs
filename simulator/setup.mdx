@@ -14,6 +14,12 @@ description: "Get the simulator running on macOS, Linux, or Windows"
   <Tab title="macOS">
     Open Docker Desktop and leave it running.
 
+    The installer sets up everything else, but not this one: containers are
+    Linux processes, so on macOS they run inside the virtual machine Docker
+    Desktop provides — and a desktop app with a licence to accept is not
+    something a shell script can install for you. The installer checks for it
+    and stops with instructions if it is missing.
+
     <Accordion title="Don't have Docker Desktop yet?">
       <Steps>
         <Step title="Download Docker Desktop">
@@ -63,12 +69,13 @@ description: "Get the simulator running on macOS, Linux, or Windows"
 
 ## Install the simulator
 
-Open a terminal and run:
+Open a terminal, go to the folder you want the simulator in, and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ugtthis/innate-os/feat/sim-installer/scripts/install-sim.sh \
-  | INNATE_REPO_URL=https://github.com/ugtthis/innate-os.git INNATE_SIM_REF=feat/sim-installer sh
+curl -fsSL https://link.innate.bot/sim | sh
 ```
+
+It clones `innate-os/` into that folder.
 
 The installer shows its plan before making changes. Use the arrow keys to move through the prompts and press **Enter** to select. After the prompts, it installs missing dependencies, clones `innate-os`, and downloads the runtime without further input.
 
@@ -129,11 +136,12 @@ During installation, choose how the agent connects to Gemini:
 ./innate-sim sh          # shell into the container
 ./innate-sim down        # stop the container + world server (keeps data)
 ./innate-sim clean       # remove containers/volumes (keeps .env + config)
+./innate-sim setup       # change the agent key, or re-download the runtime
 ```
 
 ## Troubleshooting
 
-Launcher errors include the next step (missing packages come with the install command). If you're stuck, [ask on Discord](/support/contact-discord).
+Launcher errors include the next step (missing packages come with the install command), and the installer keeps its detailed output in `~/.innate-install.log`. If you're stuck, [ask on Discord](/support/contact-discord) — setup reports from new machines are how the rough edges get fixed.
 
 ## Build with the simulator
 
