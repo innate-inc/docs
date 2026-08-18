@@ -55,21 +55,23 @@ description: "Get the simulator running on macOS, Linux, or Windows"
     No preparation needed. The installer installs missing prerequisites, including Docker and `uv`.
   </Tab>
   <Tab title="Windows (WSL2)">
-    Install Ubuntu in WSL2 from PowerShell, then open its terminal:
+    The simulator runs inside WSL2, Windows' built-in Linux environment. You install it once, from **PowerShell**:
 
     ```powershell
     wsl --install -d Ubuntu
     ```
 
-    Run `cd ~` before installing. Do not install under `/mnt/`, where filesystem access is too slow for the simulator.
+    Follow the prompts — it asks you to choose a username and password for Linux, and may ask you to restart Windows. When it finishes it opens an **Ubuntu** terminal for you. That terminal is where the simulator lives; open it again later from the Start menu.
 
-    If you use Docker Desktop with WSL integration, do not also install Docker inside WSL.
+    Install into your Linux home folder. If the prompt shows a path starting with `/mnt/`, run `cd ~` first: that prefix is the Windows drive seen from Linux, and the simulator is far too slow to run from there.
+
+    Nothing else to prepare — the installer handles Docker and `uv` inside Ubuntu, and skips Docker if you already run Docker Desktop with WSL integration.
   </Tab>
 </Tabs>
 
 ## Install the simulator
 
-Open a terminal, go to the folder you want the simulator in, and run:
+Open a terminal — on Windows, the **Ubuntu** one — go to the folder you want the simulator in, and run:
 
 ```bash
 curl -fsSL https://link.innate.bot/sim | sh
