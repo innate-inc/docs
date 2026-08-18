@@ -3,174 +3,150 @@ title: "Setup"
 description: "Get the simulator running on macOS, Linux, or Windows"
 ---
 
-## What you need
+## Prerequisites
 
-* **16 GB of RAM** and 4 or more CPU cores. 8 GB runs the simulator, but
-  tightly — expect the physics and the robot's software to compete.
-* **About 14 GB of free disk** on a machine with nothing installed yet, less
-  if you already have Docker. The installer measures and tells you before it
-  uses any.
-* **macOS, Linux, or Windows** with WSL2 (the Windows tab below sets that up).
-* **On macOS, Docker Desktop** — the one thing the installer cannot install
-  for you. The macOS tab explains why.
+- **Memory and CPU:** 16 GB RAM and 4+ CPU cores recommended. 8 GB works, but expect slower performance.
+- **Disk space:** Up to 15 GB free, or less if Docker is already installed. The installer checks before downloading.
 
-Everything else — uv, the rendering libraries, the `innate-os` checkout — is
-installed for you, and on Linux that includes Docker.
-
-## Install
+### Choose your operating system
 
 <Tabs>
   <Tab title="macOS">
-    <Steps>
-      <Step title="Install Docker Desktop">
-        Download [Docker
-        Desktop](https://docs.docker.com/desktop/install/mac-install/), install
-        it, and **open it once** to accept its terms and let it finish setting
-        itself up.
+    Open Docker Desktop and leave it running.
 
-        macOS has no headless Docker — containers are Linux processes, so they
-        run inside the VM Docker Desktop provides — and a desktop app with a
-        licence to agree to is not something a shell script can install for
-        you. The installer checks for it and stops with instructions if it is
-        missing.
-      </Step>
-      <Step title="Run the installer">
-        Go to the folder you want the simulator in, and run:
+    The installer sets up everything else, but not this one: containers are
+    Linux processes, so on macOS they run inside the virtual machine Docker
+    Desktop provides — and a desktop app with a licence to accept is not
+    something a shell script can install for you. The installer checks for it
+    and stops with instructions if it is missing.
 
-        ```bash
-        curl -fsSL https://link.innate.bot/sim | sh
-        ```
+    <Accordion title="Don't have Docker Desktop yet?">
+      <Steps>
+        <Step title="Download Docker Desktop">
+          Open the [Docker Desktop download page](https://docs.docker.com/desktop/install/mac-install/) and choose the button that matches your Mac.
 
-        It clones `innate-os/` there. Run it from inside an `innate-os`
-        checkout you already have and it skips the clone, setting up that copy
-        instead.
-      </Step>
-    </Steps>
+          Not sure which button? Apple menu (top left) → **About This Mac**. If **Chip** or **Processor** says Apple, pick **Apple silicon**. If it says Intel, pick **Intel chip**.
+        </Step>
+        <Step title="Install and start Docker">
+          Open the downloaded `.dmg`, move Docker to **Applications**, then open **Docker**.
+
+          1. Accept the Docker Subscription Service Agreement.
+
+             ![Docker Subscription Service Agreement with Accept](/images/simulator/accept-agreement.png)
+
+          2. Keep **Use recommended settings** and click **Finish**. Enter your Mac password if asked.
+
+             ![Complete the installation of Docker Desktop with recommended settings selected](/images/simulator/recomended-setting.png)
+
+          3. On **Welcome to Docker**, click **Skip**. You do not need a Docker account.
+
+             ![Welcome to Docker sign-in screen with Skip highlighted](/images/simulator/account-skip.png)
+
+          After **Skip**, you land on the Docker home screen with an empty **Containers** list. That is normal — you have not started the simulator yet.
+
+          ![Docker Desktop with no running containers](/images/simulator/docker-home.png)
+
+          Leave Docker open.
+        </Step>
+      </Steps>
+    </Accordion>
   </Tab>
   <Tab title="Linux">
-    Nothing to install first. Go to the folder you want the simulator in, and
-    run:
+    No preparation needed. The installer installs missing prerequisites, including Docker and `uv`.
+  </Tab>
+  <Tab title="Windows (WSL2)">
+    The simulator runs inside WSL2, Windows' built-in Linux environment. You install it once, from **PowerShell**:
 
-    ```bash
-    curl -fsSL https://link.innate.bot/sim | sh
+    ```powershell
+    wsl --install -d Ubuntu
     ```
 
-    It asks before installing Docker, uv and the rendering libraries, then
-    clones `innate-os/` there. Run it from inside an `innate-os` checkout you
-    already have and it skips the clone, setting up that copy instead.
-  </Tab>
-  <Tab title="Windows">
-    The simulator runs inside WSL2, Windows' built-in Linux environment. You
-    install that once, then run the installer inside it.
+    Follow the prompts — it asks you to choose a username and password for Linux, and may ask you to restart Windows. When it finishes it opens an **Ubuntu** terminal for you. That terminal is where the simulator lives; open it again later from the Start menu.
 
-    <Steps>
-      <Step title="Install WSL">
-        Open **PowerShell** and run:
+    Install into your Linux home folder. If the prompt shows a path starting with `/mnt/`, run `cd ~` first: that prefix is the Windows drive seen from Linux, and the simulator is far too slow to run from there.
 
-        ```powershell
-        wsl --install -d Ubuntu
-        ```
-
-        Follow the prompts — it asks you to choose a username and password for
-        Linux, and may ask you to restart Windows. When it finishes it opens an
-        **Ubuntu** terminal for you. That terminal is where the simulator
-        lives; open it again later from the Start menu.
-      </Step>
-      <Step title="Run the installer in the Ubuntu terminal">
-        Go to the folder you want the simulator in, and run:
-
-        ```bash
-        curl -fsSL https://link.innate.bot/sim | sh
-        ```
-
-        In the Ubuntu window, not PowerShell. If the prompt shows a path
-        starting with `/mnt/`, run `cd ~` first: that prefix is the Windows
-        drive seen from Linux, and the simulator is far too slow to run from
-        there.
-      </Step>
-    </Steps>
+    Nothing else to prepare — the installer handles Docker and `uv` inside Ubuntu, and skips Docker if you already run Docker Desktop with WSL integration.
   </Tab>
 </Tabs>
 
-## What it does
+## Install the simulator
 
-The installer lists its steps and waits for you to confirm before it starts:
-
-1. Installs what is missing — uv (which runs the physics), git, and on Linux
-   Docker and the OpenGL libraries.
-2. Clones `innate-os`, or uses the checkout you ran it from.
-3. Asks how the robot's agent should reach a cloud LLM.
-4. Downloads the simulator, so the first start is a start rather than a
-   download.
-5. Offers to start it for you.
-
-Anything it cannot do itself, it explains: a version of Docker that cannot run
-the simulator is named, with the command that fixes it, before anything is
-downloaded.
-
-### Choosing a cloud LLM
-
-Step 3 asks how the robot's AI agent reaches a cloud LLM. The agent loop runs
-on the robot either way; the choice is only which key it thinks with:
-
-* **Your own Gemini key** — the choice for most people. Create a
-  [Gemini API key](https://aistudio.google.com/api-keys) and the agent calls
-  Google directly with it. Everything works except voice, which needs a
-  service key.
-* **Innate service key** — pick this if you already have one: it ships with a
-  MARS robot, and we hand them out to people building on the simulator. The
-  agent reaches Gemini through Innate's proxy and the robot speaks. Want one?
-  [Ask on Discord](/support/contact-discord).
-* **None** — no agent; you can still drive, navigate, and trigger skills
-  manually.
-
-Run `./innate-sim setup` inside the checkout at any time to change it.
-
-## Start the simulator
-
-If you did not let the installer start it:
+Open a terminal — on Windows, the **Ubuntu** one — go to the folder you want the simulator in, and run:
 
 ```bash
-cd innate-os
-./innate-sim up
+curl -fsSL https://link.innate.bot/sim | sh
 ```
 
-Then open **[https://localhost](https://localhost)** and accept the
-self-signed certificate. You are looking at the robot's web app: drive with
-the joystick or WASD, switch between the 3D view, the robot's cameras and the
-map, trigger skills, and chat with the agent.
+It clones `innate-os/` into that folder.
 
-Leave the live dashboard in the terminal open — it shows the health of every
-part, the web app address, and where your code lives. Press `q` to detach,
-`Ctrl+C` to stop the simulator.
+The installer shows its plan before making changes. Use the arrow keys to move through the prompts and press **Enter** to select. After the prompts, it installs missing dependencies, clones `innate-os`, and downloads the runtime without further input.
 
-## Everyday commands
+### Choose your agent setup
+
+During installation, choose how the agent connects to Gemini:
+
+| Option | What you get |
+| --- | --- |
+| **Your own Gemini key** — default | Agent calls Google directly. Needs a [Gemini API key](https://aistudio.google.com/api-keys). No voice. |
+| **Innate service key** | Agent calls Gemini through Innate's proxy. Includes voice. Use the key included with your MARS or [ask on Discord](/support/contact-discord) if you plan on building with it. |
+| **None** | Drive, navigate, trigger skills. No agent. |
+
+## Open the simulator
+
+<Steps>
+  <Step title="Start the simulator">
+    When prompted with **Start the simulator now?**, select **Yes**. The installer starts the runtime and opens the live dashboard.
+  </Step>
+  <Step title="Open the web app">
+    From the dashboard, open **[https://localhost](https://localhost)** and accept the self-signed certificate.
+
+    <Accordion title="Seeing a privacy warning?">
+      The simulator creates a certificate on your computer to encrypt the local connection. Your browser cannot verify who created it, so it displays a warning. This is expected for `https://localhost`.
+
+      Confirm that the address is `https://localhost`, then continue:
+
+      - **Chrome or Edge:** Click **Advanced** → **Proceed to localhost (unsafe)**.
+      - **Safari:** Click **Show Details** → **visit this website** → **Visit Website**.
+      - **Firefox:** Click **Advanced** → **Accept the Risk and Continue**.
+
+      Only bypass this warning for `https://localhost`.
+    </Accordion>
+  </Step>
+  <Step title="You're ready!">
+    If you see an interface like this, the simulator is running:
+
+    ![The simulator running in the MARS web app](/images/simulator/finished-sim.jpeg)
+
+    Try these controls:
+
+    - Drive with the **W**, **A**, **S**, and **D** controls in the lower-left corner.
+    - Select a camera preview in the upper-right corner to change views.
+    - In third-person view, click and drag the scene to move the camera around MARS.
+  </Step>
+</Steps>
+
+<Tip>
+  Already have an `innate-os` checkout? Run `sh scripts/install-sim.sh` inside it. To change agent keys later, run `./innate-sim setup`.
+</Tip>
+
+## Manage the simulator
 
 ```bash
-./innate-sim status         # startup checks + health snapshot
-./innate-sim logs startup   # startup logs; `logs brain` for the running stack
-./innate-sim sh             # shell into the container
-./innate-sim down           # stop the container + world server (keeps data)
-./innate-sim clean          # remove containers/volumes (keeps .env + config)
+./innate-sim up          # start the runtime + live dashboard
+./innate-sim status      # current runtime status
+./innate-sim logs startup  # last boot; `logs brain` / `logs world-server` for those streams
+./innate-sim sh          # shell into the container
+./innate-sim down        # stop the container + world server (keeps data)
+./innate-sim clean       # remove containers/volumes (keeps .env + config)
+./innate-sim setup       # change the agent key, or re-download the runtime
 ```
 
-`./innate-sim setup` re-runs the key question and the download on an existing
-checkout, without installing prerequisites — use the installer for those.
+## Troubleshooting
 
-## If something goes wrong
+Launcher errors include the next step (missing packages come with the install command), and the installer keeps its detailed output in `~/.innate-install.log`. If you're stuck, [ask on Discord](/support/contact-discord) — setup reports from new machines are how the rough edges get fixed.
 
-Every error is written to tell you what to do next: missing packages come
-with the install command, a wedged Docker names itself, and a Docker too old
-to run the simulator is refused with the upgrade command rather than failing
-halfway through. The installer's detailed output is kept in
-`~/.innate-install.log`.
+## Build with the simulator
 
-If you get stuck anyway, [ask on Discord](/support/contact-discord) — setup
-reports from new machines are how the rough edges get fixed.
-
-## Next step
-
-<Card title="Building with the Simulator" icon="wrench" href="/simulator/building-with-the-simulator">
-  Write your first skill, hand it to an agent, and iterate against the
-  simulated MARS.
+<Card title="Building with the simulator" icon="wrench" href="/simulator/building-with-the-simulator">
+  Write a skill, hand it to an agent, iterate on save.
 </Card>
