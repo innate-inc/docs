@@ -4,7 +4,7 @@ title: "Introduction"
 
 Skills are atomic robot capabilities that the Innate agent chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—moving through the world, manipulating objects, speaking, or reaching an external service like email or an API—that can be combined with others to form coherent action sequences.
 
-When the Innate agent receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → send picture via email → speak reassurance. Four skills, one coherent behavior.
+When the Innate agent receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → wave → speak reassurance. One request, one coherent behavior.
 
 ## Two Types of Skills
 
@@ -101,7 +101,6 @@ Everything auto-loads on start and hot-reloads on save. A module that fails to i
 | --- | --- |
 | `search_memory` | Search everywhere the robot has been for a place or thing. See [Spatial Memory](/software/skills/code-defined-skills/spatial-memory). |
 | `head_emotion` | Express an emotion with head tilt. |
-| `send_email`, `retrieve_emails`, `send_picture_via_email` | Reach an outside service — see [External Services](/software/skills/code-defined-skills/external-services). |
 | `chess/*` | Board detection and piece moves for the [chess agent](/software/agents/chess-beta). Beta. |
 
 <Note>
