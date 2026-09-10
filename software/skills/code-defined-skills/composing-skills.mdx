@@ -17,18 +17,18 @@ Sub-skills are declared exactly like [robot state](/software/skills/code-defined
 
 ```innatepy
 from innate import Skill, SkillReturn
-from innate_skills.move_straight import MoveStraight
+from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.turn_in_place import TurnInPlace
 
 class PatrolCorner(Skill):
-    move: MoveStraight
+    go: NavigateToPosition
     turn: TurnInPlace
 
     def guidelines(self) -> str:
         return "Use to walk the robot around one corner of the room."
 
     def execute(self) -> SkillReturn:
-        self.move(distance=1.0)
+        self.go(x=1.0, y=0.0, local_frame=True)
         self.turn(angle_degrees=90)
         return "Rounded the corner"
 ```
@@ -98,13 +98,12 @@ specifically.
 
 ## A worked example
 
-Talk, emote, shuffle, turn, and attempt a learned pick — six skills chained into one:
+Talk, emote, wiggle, turn, and attempt a learned pick — five skills chained into one:
 
 ```innatepy
 from innate import Battery, Skill, SkillFailed, SkillReturn
 from innate_skills.arm.arm_zero_position import ArmZeroPosition
 from innate_skills.head_emotion import HeadEmotion
-from innate_skills.move_straight import MoveStraight
 from innate_skills.pick_socks import PickSocks
 from innate_skills.turn_in_place import TurnInPlace
 
@@ -112,7 +111,6 @@ from innate_skills.turn_in_place import TurnInPlace
 class RunDemo(Skill):
     arm_zero: ArmZeroPosition
     emote: HeadEmotion
-    move: MoveStraight
     turn: TurnInPlace
     pick: PickSocks
 
@@ -129,8 +127,8 @@ class RunDemo(Skill):
         self.emote(emotion="excited")
         self.say(f"Demo number {runs}. Watch this.", wait=True)
 
-        for distance in (0.2, -0.2):
-            self.move(distance=distance)
+        for angle in (20, -20):
+            self.turn(angle_degrees=angle)
 
         result = self.turn(angle_degrees=90)
         self.say(f"I turned {result.data.turned_degrees:.0f} degrees.")

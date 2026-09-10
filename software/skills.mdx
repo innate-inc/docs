@@ -83,8 +83,7 @@ Everything auto-loads on start and hot-reloads on save. A module that fails to i
 
 | Getting around | |
 | --- | --- |
-| `navigate_to_position` | Drive to x, y coordinates on the map. |
-| `move_straight` | Forward or back by a distance in meters. Odometry only — no planning, no obstacle avoidance. |
+| `navigate_to_position` | Drive to x, y coordinates — on the map, or relative to where the robot stands with `local_frame=True`. |
 | `turn_in_place` | Turn by an angle in degrees. |
 | `navigate_with_vision` | Drive from a plain-language instruction ("walk to the kitchen"). |
 | `follow_aruco` | Follow a person or object carrying an ArUco tag. |
