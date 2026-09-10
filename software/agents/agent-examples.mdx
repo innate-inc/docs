@@ -7,11 +7,10 @@ Every agent has the same shape: an id, a display name, a skill list, an input li
 
 ## Security Guard
 
-A patrol agent that monitors for intruders and sends email alerts.
+A patrol agent that monitors for intruders and raises the alarm.
 
 ```innatepy
 from innate import Agent, InputRef, SkillRef
-from innate_skills.email.send_picture_via_email import SendPictureViaEmail
 from innate_skills.navigate_to_position import NavigateToPosition
 from innate_skills.navigate_with_vision import NavigateWithVision
 from inputs.micro_input import MicroInput
@@ -32,7 +31,7 @@ class SecurityGuardAgent(Agent):
         return "assets/security_guard.png"
 
     def get_skills(self) -> list[SkillRef]:
-        return [NavigateToPosition, NavigateWithVision, SendPictureViaEmail]
+        return [NavigateToPosition, NavigateWithVision]
 
     def get_inputs(self) -> list[InputRef]:
         return [MicroInput]
@@ -55,8 +54,8 @@ Patrol behavior:
 
 Intruder protocol:
 - Do not confront
-- Send email to owner@example.com immediately
-- Include location and description of what you observed
+- Raise the alarm out loud immediately
+- Say where you are and describe what you observed
 
 Maintain professional alertness throughout your patrol."""
 ```

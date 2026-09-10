@@ -632,60 +632,6 @@ export const RobotStateAvailableTable = () => {
   );
 };
 
-export const SendEmailParametersTable = () => {
-  const rows = [
-    {
-      parameter: "subject",
-      type: "str",
-      required: "Yes",
-      description: "Email subject line.",
-    },
-    {
-      parameter: "message",
-      type: "str",
-      required: "Yes",
-      description: "Email body content.",
-    },
-    {
-      parameter: "recipients",
-      type: "list[str]",
-      required: "No",
-      description: "Recipients (defaults to configured list).",
-    },
-  ];
-
-  return (
-    <div className="interface-methods-table-wrap">
-      <table className="interface-methods-table">
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.parameter}>
-              <td>
-                <span className="interface-method-pill">{row.parameter}</span>
-              </td>
-              <td>
-                <span className="interface-param-badge">{row.type}</span>
-              </td>
-              <td>
-                <span className="interface-param-badge">{row.required}</span>
-              </td>
-              <td>{row.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
 export const ServiceStateTypesTable = () => {
   const rows = [
     {

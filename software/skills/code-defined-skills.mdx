@@ -105,7 +105,7 @@ return SkillOutput("Moved 2.00m forward", MoveResult(traveled_m=2.0))
 return SkillOutput("Found it in the kitchen", image=jpeg_bytes)
 ```
 
-`.data` is anything you like — a dict, or a small `pydantic` model when you want the caller's editor to know the fields. The shipped `move_straight` and `turn_in_place` skills both do this, which is why a caller can write `result.data.traveled_m`.
+`.data` is anything you like — a dict, or a small `pydantic` model when you want the caller's editor to know the fields. The shipped `turn_in_place` skill does this, which is why a caller can write `result.data.turned_degrees`.
 
 <SkillResultsTable />
 

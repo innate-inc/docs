@@ -2,15 +2,14 @@
 title: "External Services & APIs"
 ---
 
-import {
-  SendEmailParametersTable,
-  ServiceStateTypesTable,
-} from '/snippets/interface-methods-table.mdx';
+import { ServiceStateTypesTable } from '/snippets/interface-methods-table.mdx';
 
 Some skills reach beyond the robot's body — sending emails, calling APIs, retrieving
 information. These are ordinary [code-defined skills](/software/skills/code-defined-skills)
 that happen to talk to the network: they implement explicit protocols and handle
-authentication, errors, and connectivity.
+authentication, errors, and connectivity. Innate OS ships none of them — every robot's
+services and accounts are its own — so they live in your `custom_skills/`; this page shows
+how to write one.
 
 ## What to keep in mind
 
@@ -24,75 +23,6 @@ world, but it comes with its own constraints:
 * **Reliable**: Once working, behavior is consistent
 
 * **Network-dependent**: Must handle connectivity issues
-
-## Built-in examples
-
-### SendEmail
-
-Sends email notifications, typically for alerts or status updates. The guidelines are
-written out explicitly here — the agent-facing text carries usage policy ("emergency
-only") that goes beyond a one-line description:
-
-```innatepy
-from innate import Skill, SkillReturn
-
-class SendEmail(Skill):
-    def guidelines(self) -> str:
-        return (
-            "Use to send an emergency email notification. Provide a subject and "
-            "message. You can optionally provide a list of recipients, otherwise "
-            "it will be sent to the default list. This should be used when a "
-            "potential emergency is detected and assistance might be required."
-        )
-
-    def execute(self, subject: str, message: str, recipients: list[str] | None = None) -> SkillReturn:
-        ...  # Send via SMTP; return a success message or self.fail(...)
-```
-
-The skill name defaults to the snake_cased class name, so `SendEmail` is callable as `send_email` — no `name` property needed.
-
-**Parameters:**
-
-<SendEmailParametersTable />
-
-### SendPictureViaEmail
-
-Sends an email with the robot's current camera view attached.
-
-```innatepy
-from innate import MainImage, Skill, SkillReturn
-
-class SendPictureViaEmail(Skill):
-    # Declared camera frame — guaranteed before execute() starts,
-    # updated at 50Hz while the skill runs
-    image: MainImage
-
-    def execute(self, subject: str, message: str, recipient: str | None = None) -> SkillReturn:
-        jpeg_bytes = self.image.jpeg
-        # Attach image and send
-```
-
-This skill demonstrates **state dependencies** — declaring robot state with a type
-annotation. Because `image` is declared without `| None`, the run fails up front if no
-frame arrives, so `execute()` never needs a guard.
-
-### RetrieveEmails
-
-Fetches recent emails from configured account.
-
-```innatepy
-class RetrieveEmails(Skill):
-    def guidelines(self) -> str:
-        return """Use to retrieve recent emails from the configured email account.
-        Provide the number of emails to retrieve (default is 5).
-        Returns email subjects and content."""
-
-    def execute(self, count: int = 5) -> SkillReturn:
-        ...  # Connect to IMAP, fetch emails, return the formatted list
-```
-
-Want to build your own version against your own account? There's a complete
-implementation in the [worked example](#worked-example-retrieveemails) below.
 
 ## Building a service skill
 
