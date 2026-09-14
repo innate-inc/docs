@@ -24,9 +24,31 @@ Not sure whether a change makes sense? Ask on [Discord](https://discord.com/invi
 
 ## Writing guidelines
 
-- **Lead with the action.** The first thing on a page should be what the reader does, not why the product is great.
-- **Use active voice and "you".** "Run the command", not "the command should be run".
-- **Show, don't just tell.** Every concept gets a code example or a screenshot.
-- **One source of truth.** If a fact lives on two pages (version numbers, download links, setup steps), move it to `snippets/` and import it. Duplicated facts drift.
-- **No "coming soon".** Only document what exists today. Roadmap promises go stale silently.
-- **Test your commands.** If you write a shell command, run it on a robot (or in the simulator) first.
+Readers skim. Every page should be as short as it can be while still getting them to the result.
+
+**Page types.** Each page is one of these, never a mix:
+
+| Type | Shape | Example |
+| --- | --- | --- |
+| How-to | One-sentence goal, numbered steps, how to check it worked | [Simulator setup](simulator/setup.mdx) |
+| Concept | What it is, how it works (with a diagram), links onward | [How it works](software/overview.mdx) |
+| Reference | One-line intro, a small example, then tables | [Movement API](software/skills/code-defined-skills/body-control-interfaces.mdx) |
+
+**Structure.**
+- Lead with what the reader does. No marketing.
+- Show code first, explain after.
+- Use a table for anything with two or more attributes: options, topics, commands, symptoms and fixes.
+- Callouts are rare: at most one or two per page.
+- Diagrams are images, never ASCII art. If you need one that doesn't exist yet, add a `<Callout icon="image" color="#7569FD">` that starts with **Image to make:** and describes it. Search for that phrase to find open requests.
+- Say each fact once. Link to the page that owns it, or put it in `snippets/`.
+
+**Plain English.**
+- Aim for 15 words per sentence on average, and one idea per sentence.
+- Use active voice, "you", and verbs that start steps: "Run", "Open", "Set".
+- Prefer short, familiar words: *use* not *utilize*, *start* not *initiate*, *help* not *facilitate*, *to* not *in order to*, *if* not *in the event that*.
+- Cut *simply*, *just*, *easily*, and sentences starting with *There is*.
+- Use one term per concept. See the terminology list in `AGENTS.md`.
+
+Further reading: [Diátaxis](https://diataxis.fr/), [Google developer style highlights](https://developers.google.com/style/highlights), [Microsoft top 10 tips](https://learn.microsoft.com/en-us/style-guide/top-10-tips-style-voice), [plain language guidelines](https://digital.gov/guides/plain-language/writing), and [Fowler's rules for plain English](https://www.ourdecline.com/english/plain.htm).
+
+**No "coming soon", and test your commands** on a robot or in the simulator before you publish them.

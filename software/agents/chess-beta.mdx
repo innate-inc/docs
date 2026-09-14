@@ -1,99 +1,61 @@
 ---
 title: "Chess (Beta)"
+description: "Calibrate the board and play chess against MARS"
 ---
 
-MARS chess is playable end-to-end and currently in beta.
+MARS can play a full game of chess with its arm. The robot plays White. This page covers `chess_agent` in OS 0.7.1.
 
-This page covers setup and runtime behavior for `chess_agent`. For the dedicated chessboard calibration workflow, go to [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).
+## Set up
 
-## Before you start
+<Callout icon="image" color="#7569FD">
+  **Image to make: Chess setup.** Top-down photo of MARS in front of the board, showing how far away the board sits, which side faces the robot (rank 8 closest or farthest), and the A8 and H8 corners labelled.
+</Callout>
 
-- Make sure arm control and cameras are working.
-- Keep the chessboard fixed in one position while playing.
-- Use the app Home screen to start agents.
-- Configure Gemini for move detection.
+1. Put the board in front of the robot, in a spot where it won't move.
+2. Add a [Gemini API key](https://aistudio.google.com/api-keys) for move detection:
 
-## Configure Gemini key
+   ```bash
+   echo "GEMINI_API_KEY=your_key" > ~/innate-os/workspace/innate_skills/.env.scan
+   ```
 
-`detect_opponent_move` loads `GEMINI_API_KEY` from `~/innate-os/workspace/innate_skills/.env.scan`.
+## Calibrate the board
 
-Create or update this file on the robot:
+Calibrate once, and again whenever the board moves. You place the gripper over two squares and MARS computes the rest.
 
-```bash
-cat > ~/innate-os/workspace/innate_skills/.env.scan <<'EOF_ENV'
-GEMINI_API_KEY=your_key_here
-EOF_ENV
-```
+<Steps>
+  <Step title="Make the arm limp">
+    Run the skill `arm_utils` with `command=torque_off`.
+  </Step>
+  <Step title="Record A8">
+    Move the gripper by hand to the center of `A8`, then run `recalibrate_manual` with `corner=A8`.
 
-## Agents and skills used
+    <Frame><img src="/images/main/software/agents/chess-calibration-a8-end-effector.jpg" width="360" /></Frame>
+  </Step>
+  <Step title="Record H8">
+    Move the gripper to the center of `H8` and run `recalibrate_manual` with `corner=H8`.
+  </Step>
+  <Step title="Lock the arm">
+    Run `arm_utils` with `command=torque_on`. The corners are saved to `~/board_calibration.json`.
+  </Step>
+</Steps>
 
-`chess_agent` uses:
+Run these from the app's **Skills** tab, or with `innate skill run` (see [Run a skill manually](/software/skills#run-a-skill-manually)). The chess agent can also walk you through them.
 
-- `pick_up_piece_simple`
-- `detect_opponent_move`
-- `update_chess_state`
-- `recalibrate_manual`
-- `arm_utils`
-- `reset_chess_game`
-- `head_emotion`
+<Tip>
+  To check accuracy, put a pawn on `A4` and run `pick_up_piece_simple(square="A4", place_square="H5", piece="pawn", is_capture=False)`. If it misses, calibrate again.
+</Tip>
 
-For first setup (or after board movement), run the top-corner calibration flow in [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).
+## Play
 
-## Start a game
+Start `chess_agent` and ask for a new game. You play Black. The robot starts without its `a1` rook as a handicap.
 
-1. Run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta) if needed.
-2. Start `chess_agent`.
-3. Call `reset_chess_game(robot_color="white")`.
-4. Human plays Black, robot plays White.
-
-Calibration and reset are skill calls. Trigger them from the app Skills screen or through ROS 2 action calls as documented in [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta).
-
-Game state is stored in `~/chess_game_state.json`.
-
-## Recommended physical validation
-
-Before real play, test placement accuracy:
-
-1. Place a spare pawn on `A4`.
-2. Keep `H5` empty.
-3. Run:
-
-```innatepy
-pick_up_piece_simple(square="A4", place_square="H5", piece="pawn", is_capture=False, speed=1.5)
-```
-
-4. If placement is off, run manual recalibration and test again.
-
-This is a physical calibration check only. Do not treat it as game state.
-
-## Runtime move loop
-
-The expected cycle is:
-
-1. Human makes a move.
-2. Run `detect_opponent_move(robot_color="white")`.
-3. Run `update_chess_state(move_uci="...")` for the detected move.
-4. Decide robot move.
-5. Run `pick_up_piece_simple(...)` for physical execution.
-6. Run `update_chess_state(move_uci="...")` for the robot move.
-
-## Castling behavior
-
-Physical castling requires two motion calls:
-
-- king move (`E1 -> G1` or `E1 -> C1`)
-- rook move (`H1 -> F1` or `A1 -> D1`)
-
-Board state still updates once with the king UCI castling move (`e1g1` or `e1c1`).
+After each of your moves, tell the robot it's its turn. It looks at the board to detect your move, picks its reply, moves the piece, and says what it played. The game state is saved in `~/chess_game_state.json`.
 
 ## Troubleshooting
 
-- Move detection fails:
-  - verify `GEMINI_API_KEY` in `~/innate-os/workspace/innate_skills/.env.scan`
-  - verify wrist camera view is unobstructed
-- Piece placement drifts:
-  - run [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta#1-manual-triggering)
-- Reset fails with calibration error:
-  - run full board calibration first
-- Arm hardware issue:
-  - run `arm_utils(command="reboot_arm")`
+| Problem | Fix |
+| --- | --- |
+| Move detection fails | Check the Gemini key file, and that nothing blocks the wrist camera. |
+| Pieces land off-center | Calibrate the board again. |
+| Reset fails with a calibration error | Calibrate the board first. |
+| Arm stops responding | Run `arm_utils` with `command=reboot_arm`. |

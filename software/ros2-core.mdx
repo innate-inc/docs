@@ -1,138 +1,34 @@
 ---
-title: "ROS2 Overview"
+title: "ROS 2 Overview"
+description: "The layer under agents and skills, for raw data and custom control"
 ---
 
-## Do I need to know ROS2?
+Most projects never need ROS 2: [agents and skills](/software/overview) cover them. Come here to read raw sensor data, write custom controllers, or connect MARS to another ROS 2 system.
 
-Probably not — the [Agent and Skill SDK](/software/overview) covers most projects without you ever touching a topic or service. Come down to this layer when you want raw sensor data, custom motion control, or to plug MARS into an existing ROS2 system. Everything underneath is standard ROS2, open and yours to hack on.
+MARS runs ROS 2 Humble on Ubuntu 22.04, with Zenoh for networking. All code is in [`ros2_ws/src/`](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src).
 
-***
+| Package group | Packages |
+| --- | --- |
+| **Brain** | `brain_client` (agent loop), `brain_messages`, `manipulation` (policies and recording) |
+| **Body** | `mars_bringup`, `mars_arm`, `mars_nav`, `mars_cam`, `mars_control`, `mars_msgs` |
+| **Cloud** | Training client, logger, log console |
 
-## What is ROS2?
+## Common tasks
 
-ROS2 (Robot Operating System 2) is a middleware framework for robotics. It provides:
+| To | Use |
+| --- | --- |
+| Read the head camera | Subscribe to `/mars/main_camera/left/image_raw` |
+| Drive the base | Publish `geometry_msgs/Twist` to `/cmd_vel` |
+| Read the battery | Subscribe to `/battery_state` |
+| Move the arm to joint angles | Call the `/mars/arm/goto_js` service |
+| Navigate to a pose | Send a goal to the `/navigate_to_pose` action |
+| Run a skill | Send a goal to the `/execute_skill` action |
 
-* **Topics**: Pub/sub messaging for streaming data (camera images, odometry, commands)
-
-* **Services**: Request/response calls for one-off operations (turn on lights, get status)
-
-* **Actions**: Long-running tasks with feedback (navigate to a point, execute a trajectory)
-
-MARS runs ROS2 Humble on Ubuntu 22.04, with Zenoh as the DDS (networking) layer.
-
-***
-
-## Architecture Overview
-
-The Innate OS has two main package groups:
-
-### Brain (the "thinking" layer)
-
-* **brain\_client**: The main orchestrator — runs [the Innate agent](/software/agent) loop on the robot, loads agents and skills, and executes them
-
-* **brain\_messages**: Custom message types for the brain system
-
-* **manipulation**: Behavior server for arm control using learned policies
-
-### Mars Bot (the "body" layer)
-
-* **mars\_bringup**: Hardware initialization (cameras, battery, UART)
-
-* **mars\_arm**: Arm kinematics and motion planning (MoveIt2)
-
-* **mars\_nav**: Navigation stack (Nav2, SLAM)
-
-* **mars\_cam**: Camera drivers (OAK-D via DepthAI)
-
-* **mars\_msgs**: Custom messages for MARS hardware
-
-* And several more for simulation, logging, and Bluetooth provisioning
-
-***
-
-## Common Use Cases
-
-**"I want to read raw camera data"** → Subscribe to `/oak/rgb/image_raw` (sensor\_msgs/Image)
-
-**"I want to manually drive the robot"** → Publish to `/cmd_vel` (geometry\_msgs/Twist)
-
-**"I want to check battery level"** → Subscribe to `/battery_state` (sensor\_msgs/BatteryState)
-
-**"I want to move the arm to a specific position"** → Use the `/goto_js` service or MoveIt2 interfaces (see advanced docs)
-
-***
-
-## Navigation stack
-
-MARS navigation is built on Nav2 plus MARS-specific wrappers.
-
-* `/cmd_vel` drives base motion
-* `/odom` and `/scan` are core for localization and obstacle avoidance
-* App navigation modes map to ROS2-level behavior mode changes
-
-To check that navigation signals are flowing:
-
-```bash
-ros2 topic echo /odom
-ros2 topic echo /scan
-```
-
-For how these modes look from the app side, see [Capabilities](/robots/mars/capabilities).
-
-***
-
-## Manipulation stack
-
-MARS manipulation combines arm interfaces, controllers, and learned policy execution.
-
-* Arm state is exposed through joint-state topics
-* Motion commands can be sent through arm services/interfaces
-* Learned manipulation policies are deployed as [skills](/software/skills/policy-defined-skills) in the higher-level stack
-
-To check arm state:
-
-```bash
-ros2 topic echo /joint_states
-ros2 topic echo /mars/arm/state
-```
-
-***
-
-## Visualization
-
-You can visualize ROS2 data with either RViz or Foxglove. If you are on Linux, RViz is the standard option. If you are not on Linux, use **Foxglove** with the Foxglove Bridge running on MARS.
-
-### RViz (Linux)
-
-Use RViz to inspect frames, point clouds, LiDAR, trajectories, and robot state directly from a Linux ROS2 workstation.
-
-### Foxglove Bridge (non-Linux)
-
-If you do not have Linux, run Foxglove Bridge on the robot and connect from [Foxglove](https://app.foxglove.dev).
-
-Typical flow:
-
-<Steps>
-  <Step title="SSH into MARS">
-    Connect to the robot over SSH on the same network.
-  </Step>
-  <Step title="Start Foxglove Bridge">
-    On the robot, run `innate foxglove start` — it exposes topics over WebSocket and prints the `ws://<robot-ip>:8765` URL to connect to.
-  </Step>
-  <Step title="Open Foxglove and connect">
-    In your browser, open [app.foxglove.dev](https://app.foxglove.dev) and connect to the printed `ws://` URL.
-  </Step>
-</Steps>
-
-See the full [Foxglove Setup](/software/foxglove-setup) guide for topics to visualize and the Wi-Fi bandwidth caveat.
-
-***
-
-## Going Deeper
-
-Use these ROS2 sections:
-
-* [Topics](/software/ros2/topics)
-* [Services](/software/ros2/services)
-* [Actions](/software/ros2/actions)
-* [Debugging](/software/ros2/debugging)
+<CardGroup cols={2}>
+  <Card title="Interfaces" icon="list" href="/software/ros2/interfaces">
+    Topics, services, and actions, with example commands.
+  </Card>
+  <Card title="Debugging" icon="bug" href="/software/ros2/debugging">
+    Find out why something isn't working.
+  </Card>
+</CardGroup>

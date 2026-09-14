@@ -1,78 +1,131 @@
 ---
-title: "Introduction"
+title: "Agents"
+description: "Write an agent: a prompt and the skills it may use"
 ---
 
-An agent defines who your robot is and what it can do. Without an agent, a robot is just hardware waiting for instructions. With an agent, it becomes a security guard, a tour guide, a friendly greeter etc.
+An agent tells the [Innate agent loop](/software/overview) who to be. It is a single Python class with an id, a name, a list of skills, and a prompt. The same robot becomes a security guard or a tour guide depending on which agent runs.
 
-<Tip>
-**Before you build:** set up your [development environment](/software/development-setup) first — your IDE (VSCode, Cursor, ...) connected to the robot over Remote SSH. All agent files live and run on the robot, so this is the foundation for everything that follows.
-</Tip>
+## Write an agent
 
-## What is an Agent?
+Save this as `~/innate-os/workspace/custom_agents/greeter.py`:
 
-An agent is a Python class that defines three things together: the **skills** the robot can execute, the **inputs** it listens to, and the **prompt** that defines behavior and tone. When you activate an agent, the robot adopts that identity. The same hardware can run very different agents with distinct personalities and capabilities.
+```innatepy
+from innate import Agent, InputRef, SkillRef
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.wave import Wave
+from inputs.micro_input import MicroInput
 
-## Agents as Portable Applications
 
-Agents are designed to be shareable. Write an agent once, and anyone with an Innate robot can use it—just drop the Python file into `~/innate-os/workspace/custom_agents/`.
+class Greeter(Agent):
+    @property
+    def id(self) -> str:
+        return "greeter"
 
-No configuration files. No complex setup. Just Python.
+    @property
+    def display_name(self) -> str:
+        return "Greeter"
 
-The built-in agents come from `~/innate-os/workspace/innate_agents/` and appear on the **Home** screen in the Innate Controller App.
+    def get_skills(self) -> list[SkillRef]:
+        return [NavigateToPosition, Wave]
 
-<CardGroup cols={2}>
-  <Card title="Demo Agent (`demo_agent`)">
-    The out-of-the-box default — friendly interactive demo: navigation, waving, picking, and gaze. What the robot runs when you haven't picked an agent.
-  </Card>
-  <Card title="Basic Navigation (`basic_agent`)">
-    Navigation only, with an empty prompt.
-  </Card>
-  <Card title="J3SO (`j3so_directive`)">
-    Character-style conversational agent with navigation.
-  </Card>
-  <Card title="Security Guard (`security_guard_agent`)">
-    Patrol-oriented agent with navigation and spoken intruder alerts.
-  </Card>
-  <Card title="Chess Agent (`chess_agent`)">
-    Chess gameplay: piece manipulation, move detection, board state. Beta.
-  </Card>
-  <Card title="Board Calibration Agent (`board_calibration_agent`)">
-    Guided workflow agent for chess board corner calibration.
-  </Card>
-</CardGroup>
+    def get_inputs(self) -> list[InputRef]:
+        return [MicroInput]  # lets you talk to it
 
-<img src="/images/main/software/agents-overview.png" alt="Built-in agents in the app" style={{ maxWidth: "360px", width: "100%", display: "block", margin: "16px auto" }} />
+    def get_prompt(self) -> str:
+        return """
+You are a friendly robot who greets people.
+- When you see a person, wave and say hello.
+- If you see nobody, turn around to look for them.
+- Keep replies short and warm.
+"""
 
-## Chess beta guides
-
-- [Chess (beta)](/software/agents/chess-beta)
-- [Chessboard calibration (beta)](/software/agents/chessboard-calibration-beta)
-
-## How an agent runs
-
-The decision loop — [the Innate agent](/software/agent) — runs **on the robot**. Your agent file is what it reads to know who to be:
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│                    The Innate agent                          │
-│      on the robot: look → think → act, one turn at a time    │
-└───────────────────────────┬──────────────────────────────────┘
-                            │ reads
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-┌───────▼───────┐   ┌───────▼───────┐   ┌───────▼───────┐
-│  get_prompt() │   │ get_skills()  │   │ get_inputs()  │
-│   who it is   │   │  what it can  │   │ what it hears │
-│               │   │      do       │   │               │
-└───────────────┘   └───────────────┘   └───────────────┘
+    def uses_gaze(self) -> bool:
+        return True  # look at the person you're talking to
 ```
 
-Every turn, the loop looks at the camera and at anything new (you spoke, a skill finished, a sensor fired), then picks an action. Your **prompt** tells it how to behave, your **skills** are the actions it can choose from, and your **inputs** decide what it can hear.
+It loads within a second or two of saving. Import skills as classes, as above, so your editor catches typos and renames.
 
-Only the model call leaves the robot — and even that is optional. See [The Innate Agent](/software/agent) for the loop in detail.
+| Method | Required | Purpose |
+| --- | --- | --- |
+| `id` | Yes | Unique snake_case identifier |
+| `display_name` | Yes | Name shown in the apps |
+| `get_skills()` | Yes | Skills the agent may call, as classes or [skill IDs](/software/skills#skill-ids) |
+| `get_prompt()` | Yes | Personality, goals, and rules |
+| `get_inputs()` | No | [Input devices](/software/inputs) to open. Add `MicroInput` to hear speech. |
+| `uses_gaze()` | No | Return `True` to track faces with the head |
+| `display_icon` | No | Path to a 32×32 icon |
 
-## Design Philosophy
+Every agent can already talk, wait, and stop a running skill. You don't list those.
 
-Traditional robotics software often requires deep expertise to modify. Agents take a different approach: they're designed to be readable and modifiable.
+## Write a good prompt
 
-You can look at an agent file and immediately understand what it does. You can modify it, experiment, and iterate quickly. The goal is to let you focus on building interesting robot behaviors rather than wrestling with infrastructure.
+Skills decide what the robot *can* do. The prompt decides what it *does*. The model follows it literally, so be specific:
+
+- Say who the robot is and how it speaks.
+- Give the goal as concrete steps.
+- Say what to do in edge cases, like when nobody is there or a skill fails.
+
+<AccordionGroup>
+  <Accordion title="Example: security guard">
+    ```text
+    You are a security guard robot. Stay calm and professional.
+
+    Patrol route: living room, kitchen, bedroom, back door, then repeat.
+    Look carefully in each room before moving on.
+
+    If you see someone who shouldn't be there:
+    - Do not approach them.
+    - Raise the alarm out loud right away.
+    - Say where you are and describe what you saw.
+    ```
+  </Accordion>
+  <Accordion title="Example: sock collector">
+    ```text
+    You are a tidying robot. Find socks on the floor and put them in the
+    white laundry basket by the bedroom door.
+
+    1. Scan the room for socks.
+    2. Drive to one and pick it up.
+    3. Drive to the basket and drop it in.
+    4. Repeat until none are left, then do one final sweep.
+
+    If a sock is out of reach, skip it.
+    ```
+  </Accordion>
+  <Accordion title="Example: quiet observer">
+    ```text
+    You are a calm, observant robot.
+    Stay quiet unless someone talks to you, then answer briefly.
+    Slowly turn in place to watch the room. Don't drive away unless asked.
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Start an agent
+
+- **Web app:** open the **Agent** page, pick your agent, and press **Start**. **Reset** clears the conversation.
+- **Phone app:** tap the agent's card on the **Home** screen. Pull down to refresh the list.
+- **On boot:** in the phone app, long-press a card and choose **Set as default**.
+
+Starting a different agent stops the current one and cancels its running skill.
+
+## Built-in agents
+
+These ship in `workspace/innate_agents/`. Read them for working examples.
+
+| Agent | What it does |
+| --- | --- |
+| `demo_agent` | The default. Chats, navigates, waves, picks things up, and follows your gaze. |
+| `basic_agent` | Navigation only, with an empty prompt. |
+| `j3so_directive` | A character that chats and navigates. |
+| `security_guard_agent` | Patrols and warns out loud when it sees someone. |
+| `chess_agent` | Plays chess with its arm. See [Chess](/software/agents/chess-beta). |
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| Agent doesn't appear | Check the file is in `custom_agents/` and imports without errors. The web app marks broken files with their error. |
+| Agent won't start | Check that every skill in `get_skills()` exists. Read the [logs](/robots/apps#logging). |
+| Agent ignores you | Add `MicroInput` to `get_inputs()`, and tighten the prompt. |
+| Agent never uses a skill | Trigger the skill [by hand](/software/skills#run-a-skill-manually). If it works, improve its `guidelines()` or the prompt. |

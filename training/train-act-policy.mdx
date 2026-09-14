@@ -1,110 +1,49 @@
 ---
-title: "Train an ACT policy"
-description: "Configure hyperparameters and launch training on Innate's cloud GPUs."
+title: "Train a Policy"
+description: "Launch and monitor a training run on Innate's cloud"
 ---
 
-Once your dataset is [uploaded](/training/data-collection), you can launch an ACT training run — from the phone app's **Train** tab or the [web app](/robots/web-app)'s **Training** page.
+## Start a run
 
-ACT ([Action Chunking with Transformers](https://arxiv.org/abs/2304.13705)) is a visuomotor policy architecture that takes camera images and joint positions as input and predicts a chunk of future actions at once. The "chunking" makes the output temporally smooth and reduces compounding errors compared to single-step prediction.
+<Tabs>
+  <Tab title="Web app">
+    On the **Training** page, click **+ Train a skill**, pick the skill, and start. The dataset uploads first.
+  </Tab>
+  <Tab title="Phone app">
+    Open the skill's **Train** tab. Check the sync badge is green and the episode count is right, then tap **Start Training Run**.
+  </Tab>
+</Tabs>
 
-## Configure hyperparameters
-
-The training UI shows your dataset summary and a set of tunable hyperparameters. The defaults work well for most tasks — adjust them only if you have a reason to.
+A run takes **1–3 hours**. You can close the app or turn off the robot meanwhile. Each robot runs one training job at a time; ask on [Discord](https://discord.com/invite/KtkyT97kc7) if you need more.
 
 <img src="/images/main/robots/web-app/training-configure.png" alt="The web app's Train skill dialog" style={{ maxWidth: "420px", width: "100%", display: "block", margin: "16px auto" }} />
 
-| Parameter | Default | What it controls |
+## Settings
+
+The defaults work for most tasks. Change them only to fix a specific problem.
+
+| Setting | Default | Meaning |
 | --- | --- | --- |
-| **Chunk size** | 30 | Number of future actions predicted per inference step. Larger values produce smoother but less reactive motion. |
-| **Batch size** | 96 | Training examples per gradient step. Larger batches are more stable but use more GPU memory. |
-| **Max steps** | 120,000 | Total training iterations. More steps can improve quality but eventually overfit on small datasets. |
-| **Learning rate** | 5e-5 | Step size for updating the transformer weights. |
-| **LR backbone** | 5e-5 | Step size for the vision backbone (ResNet18). Lower values fine-tune vision features more gently. |
+| **Chunk size** | 30 | Actions predicted at once. Higher is smoother, lower is more reactive. |
+| **Batch size** | 96 | Examples per training step |
+| **Max steps** | 120,000 | Training length |
+| **Learning rate** | 5e-5 | Step size for the transformer |
+| **LR backbone** | 5e-5 | Step size for the ResNet18 vision backbone |
 
-<Tip>
-In the phone app, tap the **?** icon next to a hyperparameter for an in-app explanation of each one.
-</Tip>
+| If | Try |
+| --- | --- |
+| Your dataset is small (50–80 episodes) | Max steps around 80,000, to avoid overfitting |
+| The task is long or complex | Max steps 150,000–200,000 |
+| The robot hesitates | Chunk size 50–80 |
+| The robot overshoots or ignores corrections | Chunk size 15–20 |
 
-### When to change the defaults
+## Monitor
 
-- **Small dataset (50–80 episodes):** Lower max steps to ~80,000 to avoid overfitting.
-- **Long episodes or complex task:** Increase max steps to 150,000–200,000.
-- **Robot seems to hesitate during execution:** Try a larger chunk size (50–80) for smoother output.
-- **Robot overshoots or ignores corrections:** Try a smaller chunk size (15–20) for more reactive behavior.
-
-## Start a training run
-
-<Tabs>
-  <Tab title="Phone app">
-    <Steps>
-      <Step title="Verify sync status">
-        The **Train** tab shows a dataset card. Confirm the sync badge is green and the episode count looks correct. If it says "Not synced," go back to the **Record** tab and upload first.
-      </Step>
-      <Step title="Adjust parameters (optional)">
-        Edit any hyperparameters you want to change, or leave the defaults.
-      </Step>
-      <Step title="Launch training">
-        Tap **Start Training Run**. Confirm in the dialog. The app creates a run on Innate's cloud and switches to the **Runs** tab.
-      </Step>
-    </Steps>
-  </Tab>
-  <Tab title="Web app">
-    <Steps>
-      <Step title="Pick the skill">
-        On the **Training** page, click **+ Train a skill**, select the skill, and adjust any hyperparameters.
-      </Step>
-      <Step title="Launch training">
-        Start the run. The web app uploads the dataset (only changed files) and creates the run on Innate's cloud; it then appears in the **Running now** card.
-      </Step>
-    </Steps>
-  </Tab>
-</Tabs>
-
-Training runs on Innate's GPU servers. A typical run with default settings takes **1–3 hours** depending on dataset size.
-
-<Info>
-Each robot can have one active training run at a time by default. If you need concurrent runs, reach out on [Discord](https://discord.gg/innate) for approval.
-</Info>
-
-## Monitor a run
-
-<Tabs>
-  <Tab title="Phone app">
-    The **Runs** tab shows all active (non-completed) training jobs for this skill. Each run card displays:
-
-    - **Run ID** — a unique identifier
-    - **Status** — the current stage in the pipeline
-    - A progress indicator
-  </Tab>
-  <Tab title="Web app">
-    The active run shows in the **Running now** card at the top of the **Training** page, with a live step-progress bar and ETA. Click any run to open the detail pane — status, elapsed time, hardware, and hyperparameters. Open **Live logs** to tail the trainer output, or **Open W&B** for loss curves.
-  </Tab>
-</Tabs>
-
-### Training run lifecycle
+The web app's **Running now** card shows progress and an ETA. Click a run for live logs and a Weights & Biases link. The phone app's **Runs** tab shows status.
 
 | Status | Meaning |
 | --- | --- |
-| Waiting for approval | Run is queued and pending GPU allocation |
-| Approved | Resources allocated, about to start |
-| Booting | Training instance is spinning up |
-| Running | Training is in progress |
-| Done | Training finished, model is ready to download |
-
-You can safely close the app or browser, or turn off your robot's screen, while training runs. The job continues on the cloud, and status updates resume when you reopen the page.
-
-## What happens during training
-
-Behind the scenes, the training server:
-
-1. Loads your episodes (images, joint positions, velocities) into a normalized dataset
-2. Trains an ACT model with a ResNet18 vision backbone and a transformer encoder-decoder
-3. Uses a variational autoencoder (VAE) to learn a latent action distribution
-4. Saves checkpoints periodically throughout training
-5. Produces a final checkpoint (`.pth`) and dataset statistics file (`.pt`)
-
-The model learns to map what the robot sees and feels to the actions you demonstrated — effectively learning to imitate your behavior.
-
-## Next steps
-
-When the run status reaches **Done**, head to the [deploy page](/training/deploy-trained-skill) to download and activate your trained skill.
+| Waiting for approval | Queued for a GPU |
+| Approved, Booting | Starting up |
+| Running | Training |
+| Done | Ready to [deploy](/training/deploy-trained-skill) |

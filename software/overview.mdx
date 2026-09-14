@@ -1,51 +1,67 @@
 ---
-title: "Overview"
+title: "How It Works"
+description: "Agents, skills, inputs, and the loop that runs them on the robot"
 ---
 
-How to create agent apps for Innate robots using the SDK — or ROS2 directly.
+MARS acts on its own through **the Innate agent**, a loop that runs on the robot. It looks through the camera, asks a vision-language model what to do, and runs a skill. You shape it with three kinds of Python files.
 
-## Core concepts
+| You write | What it is | Guide |
+| --- | --- | --- |
+| **Agent** | A prompt and a list of skills. It sets who the robot is. | [Agents](/software/agents) |
+| **Skill** | Something the robot can do: Python code or a trained policy. | [Skills](/software/skills) |
+| **Input** | A data source the agent listens to, like the microphone. | [Inputs](/software/inputs) |
 
-<Frame caption="A system diagram of the software running on Innate robots">
-  <img src="/images/system-diagram.png" alt="Innate software system diagram" />
-</Frame>
+Files go in `~/innate-os/workspace/` and reload the moment you save. Below that layer is standard ROS 2, which you only need for [low-level work](/software/ros2-core).
 
-#### An agentic OS
+<Callout icon="image" color="#7569FD">
+  **Image to make: The agent loop.** Diagram of one turn: camera frame and new events (speech, skill feedback, inputs) go into the Innate agent, which sends them with the agent's prompt and skills to the model, then acts by running a skill, speaking, or waiting. Show the agent file feeding prompt, skills, and inputs into the loop. Replaces the old system diagram, which still says "B.A.S.I.C." and has "TKTK" labels.
+</Callout>
 
-Innate robots run an agentic OS built on top of ROS2. It is powered by **the Innate agent** — a loop running on the robot itself that watches what the robot sees, reasons about what to do, and triggers skills to do it (more on it [below](#the-innate-agent)).
+## The loop
 
-You write agents and skills in plain Python; the OS handles the classic robotics stack underneath (unless you want to go down there — see [ROS2 Core](/software/ros2-core)).
+The agent works in turns, one at a time:
 
-#### Agents
+1. **Look.** Take the latest camera frame and everything new since the last turn: what you said, what a skill reported, what an input sent.
+2. **Think.** Send that to the model with the agent's prompt, and its skills described as tools.
+3. **Act.** Run a skill, say something, or wait.
 
-The central concept of the Innate OS is the `agent`, which is our name for a **physical app for robots**. An agent is defined by a **system prompt** and a set of **skills** it can use.
+Speech streams out sentence by sentence, so the robot starts talking before the turn is finished. If you speak before the robot does, the turn restarts with your words included.
 
-A complete agent fits in one short Python file: subclass `Agent`, give it an id and a display name, list its skills, and write its prompt. Drop the file on the robot and it loads automatically — no registration step.
+Every skill in the agent becomes a tool. The `execute()` signature becomes the parameters and `guidelines()` becomes the description. A few tools are always there:
 
-<Card title="Anatomy of an Agent" icon="robot" href="/software/agents/definitions">
-  The full structure, a complete working example, and a copy-paste template.
-</Card>
+| Tool | What it does |
+| --- | --- |
+| `wait` | Do nothing until something changes. |
+| `stop_current_skill` | Stop the running skill. While a skill runs, this is the only action offered. |
+| `go_to_point_in_view` | Drive to a spot on the floor in the camera image. Only if the agent has `NavigateToPosition`. |
 
-#### Skills
+## Watch it think
 
-**Skills** are the second core concept of the Innate OS.
+The web app's **Brain** page shows every turn: the frames it saw, what it decided, and how long it took. Click **INSPECT TURN** to see the full request. It's the fastest way to learn why the robot did something.
 
-A skill can be defined with code, a model checkpoint (such as a **VLA** — a vision-language-action model trained from demonstrations) or other specific interfaces we define for you. Adding a skill to an agent is like giving additional capabilities to your robot.
+![The web app's Brain page](/images/main/software/brain-page.png)
 
-Similarly to agentic frameworks, **skills** can be thought of as **tool calls**, with extra sauce.
+## Which model runs it
 
-Skills can be interrupted by the robot during execution if required, and they send live feedback into the running agent's context.
+The loop uses Gemini (`gemini-3.6-flash` by default, set in [`config/settings.yaml`](/software/configuration)). Choose how to reach it in `~/innate-os/.env`:
 
-See how to create skills in [Skills](/software/skills)
+| Option | Setup |
+| --- | --- |
+| **Innate hosted** | Nothing. Robots ship with an `INNATE_SERVICE_KEY`. Free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. |
+| **Your own key** | Set `GEMINI_API_KEY`. The robot calls Google directly. |
+| **None** | Leave both unset. You can still drive and run skills by hand. |
 
-#### The Innate agent
+## Memory
 
-The Innate agent is the embodied AI agent that controls MARS. It runs your agents and their skills, and gives MARS the ability to reason, memorize, plan and make decisions as it runs.
+While it drives, the robot keeps the views worth remembering, tied to places on the map. Ask *"Where did you last see my keys?"* and it searches them, answers, and can drive there. Skills can search it too with [spatial memory](/software/skills/code-defined-skills/spatial-memory).
 
-Understand more how the Innate agent runs in [The Innate Agent](/software/agent)
+## Next steps
 
-#### ROS2 core
-
-Our OS runs at the core on **ROS2** and can be augmented at that level by roboticists that understand it.
-
-See [ROS2 Core](/software/ros2-core) for more information on nodes, topics, and services available.
+<CardGroup cols={2}>
+  <Card title="Try it in the simulator" icon="laptop" href="/simulator/building-with-the-simulator">
+    Write a skill and an agent in five minutes, no robot needed.
+  </Card>
+  <Card title="Set up a real robot" icon="terminal" href="/software/development-setup">
+    Open MARS in your editor over SSH.
+  </Card>
+</CardGroup>

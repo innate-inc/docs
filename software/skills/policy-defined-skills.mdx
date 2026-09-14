@@ -1,192 +1,76 @@
 ---
 title: "Policy-Defined Skills"
+description: "Skills that are trained from demonstrations or replay a recorded motion"
 ---
 
-Policy-defined skills are neural network policies that run end-to-end—taking sensor input and directly outputting robot actions. Unlike code-defined skills where you write explicit logic, policy-defined skills learn behaviors from demonstration.
+A policy-defined skill has no code. It's a folder with a `metadata.json` and a model or recording, created for you by the apps.
 
-This approach works well for manipulation tasks where the variability of real-world scenarios makes explicit programming impractical.
+| Type | What it is | Use it when | How to make one |
+| --- | --- | --- | --- |
+| **Learned** | An [ACT](https://arxiv.org/abs/2304.13705) policy that reacts to what the cameras see | Object positions vary: picking, placing, grasping | [Train it](/training/overview) from 30+ demonstrations |
+| **Replay** | A recorded motion, played back exactly | The motion is always the same: a wave, a gesture | Record it once in the app and save it as a replay skill |
 
-## Two Types of Policies
+Replay skills also record head movement, so the robot looks where you looked.
 
-| Type | Definition | Use Case |
-| --- | --- | --- |
-| **Learned** | Neural network trained on demonstrations | Tasks requiring visual adaptation |
-| **Replay** | Recorded action sequence | Repeatable, fixed motions |
+## How a learned skill runs
 
-## Learned Skills (ACT Policy)
+1. The arm moves to the start pose saved at training time.
+2. Every 40 ms (25 Hz), the policy reads both cameras and the joint positions.
+3. It outputs 6 arm joint commands and 2 base velocity commands.
+4. It stops when it predicts the task is done, or when the time limit runs out.
 
-Learned skills use **Action Chunking with Transformers (ACT)**—a neural network architecture that takes camera images and joint positions as input, and outputs action sequences.
+On the robot the model runs as an optimized TensorRT engine, built automatically when the model downloads.
 
-### Metadata Structure
+## Call it from code
 
-```json
-{
-    "name": "pick_socks",
-    "type": "learned",
-    "guidelines": "Use when you need to pick up socks from the floor",
-    "execution": {
-        "model_type": "act_policy",
-        "checkpoint": "act_policy_step_135000.pth",
-        "stats_file": "dataset_stats.pt",
-        "action_dim": 10,
-        "duration": 45.0,
-        "start_pose": [-0.015, -0.399, 1.456, -1.135, -0.023, 0.833]
-    }
-}
-```
-
-You normally never write this file by hand — the training pipeline generates and updates it. See [Dataset format](/training/dataset-format#metadata-file) for how it evolves from skill creation to activation.
-
-### Execution Flow
-
-When a learned skill runs, the BehaviorServer:
-
-1. **Load Policy**: Loads the ACT checkpoint into GPU memory
-
-2. **Move to Start Pose**: Moves the arm to the consistent initial configuration from `metadata.json`
-
-3. **Inference Loop (25Hz)**: Every 40ms:
-
-   * Captures frames from the main camera and wrist camera
-
-   * Reads the current 6-DOF joint state
-
-   * Resizes images to 224×224 and normalizes them
-
-   * Runs a forward pass through the policy
-
-   * Sends the first 6 outputs as joint commands to `/mars/arm/commands`
-
-   * Sends outputs 7–8 as base velocity to `/cmd_vel`
-
-4. **Progress Monitoring**: Terminates early when progress exceeds 95%
-
-5. **End Pose**: Optionally returns to a safe configuration
-
-### Key Characteristics
-
-* **Reactive**: Continuously adjusts based on visual feedback
-
-* **Adaptive**: Handles variation in object position, lighting, orientation
-
-* **Coordinated**: Can move arm and base simultaneously
-
-## Replay Skills
-
-Replay skills play back pre-recorded action sequences. Simpler than learned skills, but deterministic and reliable.
-
-### Metadata Structure
-
-```json
-{
-    "name": "wave",
-    "type": "replay",
-    "guidelines": "Use when greeting someone or saying hello",
-    "execution": {
-        "model_type": "replay",
-        "replay_file": "episode_0.h5",
-        "replay_frequency": 50.0,
-        "start_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0],
-        "end_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0]
-    }
-}
-```
-
-### Execution Flow
-
-1. **Load Recording**: H5 file containing timestamped actions
-
-2. **Move to Start Pose**: Arm moves to recorded initial position
-
-3. **Playback (50Hz)**: Execute recorded actions in sequence
-
-4. **End Pose**: Return to specified configuration
-
-## Calling a policy from code
-
-A policy-defined skill has no Python class of its own — it's a `metadata.json` plus a checkpoint. The robot generates a **typed reference** for each policy it has, so agents and code-defined skills can name one without a magic string:
+Import a policy like any skill class. The robot generates the class from the skill's folder:
 
 ```innatepy
-from innate import Skill
-from physical_skills import PickSocks          # generated for this robot
+from innate_skills.pick_socks import PickSocks
 
-class TidyRoom(Skill):
-    pick: PickSocks                            # same call shape as a code sub-skill
-
-    def guidelines(self) -> str:
-        return "Pick up socks from the floor."
-
-    def execute(self):
-        self.pick(timeout=60)
-        return "Picked up the socks"
+def get_skills(self) -> list[SkillRef]:
+    return [PickSocks]
 ```
 
-The same refs work in an agent's `get_skills()`. If the policy isn't on this robot yet — you're writing against one that's still training — declare it by ID with `pick = PhysicalSkill("pick_socks")` instead. Either way an unknown ID fails at run start rather than halfway through a routine.
+Inside another skill, declare it and call it with a timeout: `pick: PickSocks`, then `self.pick(timeout=60)`. See [Call other skills](/software/skills/code-defined-skills#call-other-skills).
 
-For a folder-shaped skill, `from innate_skills.wave import Wave` imports the same class as `from physical_skills import Wave`. Those `__init__.py` refs are generated by the robot — don't commit or hand-edit them.
+If the policy is still training and not on this robot yet, refer to it by ID with `PhysicalSkill("pick_socks")`.
 
-See [Composing Skills](/software/skills/code-defined-skills/composing-skills) for the full call contract.
+## Metadata file
 
-## Execution Pipeline
+You never write this by hand. Training and recording create it.
 
-Both skill types are executed by the **BehaviorServer**:
-
-```text
-Innate agent calls skill
-       |
-       v
-SkillsActionServer
-       |
-       v (physical skill detected)
-BehaviorServer.ExecuteBehavior
-       |
-       +-- Learned --> Load policy, run inference loop
-       |
-       +-- Replay ---> Load H5 file, playback loop
-       |
-       v
-Robot hardware (/mars/arm/commands, /cmd_vel)
+<CodeGroup>
+```json Learned
+{
+  "name": "pick_socks",
+  "type": "learned",
+  "guidelines": "Use when you need to pick up socks from the floor",
+  "execution": {
+    "model_type": "act_policy",
+    "checkpoint": "run_abc123/act_policy_step_135000.pth",
+    "stats_file": "run_abc123/dataset_stats.pt",
+    "action_dim": 10,
+    "duration": 45.0,
+    "start_pose": [-0.015, -0.399, 1.456, -1.135, -0.023, 0.833]
+  }
+}
 ```
 
-## Creating New Skills
+```json Replay
+{
+  "name": "wave",
+  "type": "replay",
+  "guidelines": "Use when greeting someone or saying hello",
+  "execution": {
+    "model_type": "replay",
+    "replay_file": "episode_0.h5",
+    "replay_frequency": 50.0,
+    "start_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0],
+    "end_pose": [1.577, -0.6, 1.477, -0.738, 0.0, 0.0]
+  }
+}
+```
+</CodeGroup>
 
-### Learned Skill Workflow
-
-The whole pipeline runs from the app — each step has its own guide:
-
-1. **[Collect demonstrations](/training/data-collection)**: Teleoperate the robot through the task with the leader arm (50+ episodes)
-
-2. **[Train the policy](/training/train-act-policy)**: Launch an ACT training run on Innate's cloud GPUs
-
-3. **[Deploy](/training/deploy-trained-skill)**: Download the finished checkpoint from the app — activation writes `metadata.json` and places everything in `~/innate-os/workspace/custom_skills/<name>/` for you
-
-### Replay Skill Workflow
-
-Replay skills are created by **recording the motion once** — no hand-written metadata. You teleoperate the robot through the motion, then save the recording as a replay skill. The robot does the rest:
-
-1. **Record once**: Teleoperate through the motion a single time.
-
-2. **Save as a replay skill**: The robot converts the recording to the replay layout, writes the `type: "replay"` `metadata.json` for you, and drops it into `~/innate-os/workspace/custom_skills/<name>/` — ready to run immediately.
-
-Unlike learned skills, replay skills also capture **head movement**, so the robot reproduces where it was looking during the recording.
-
-## Demonstration Quality
-
-The quality of learned skills depends directly on demonstration quality:
-
-| Good Demonstrations | Poor Demonstrations |
-| --- | --- |
-| Consistent starting positions | Variable starting positions |
-| Smooth, deliberate motions | Hesitant, jerky motions |
-| Varied object positions | Always same position |
-| Include error recovery | Only perfect executions |
-
-## Skill Selection Guide
-
-| Scenario | Recommended Type |
-| --- | --- |
-| Task requires visual adaptation | **Learned** |
-| Object position varies | **Learned** |
-| Motion must be identical every time | **Replay** |
-| Simple gesture (wave, point) | **Replay** |
-| Faster development cycle | **Replay** |
+Edit `guidelines` to change when the agent uses the skill.

@@ -1,0 +1,79 @@
+---
+title: "Interfaces"
+description: "Reference for the main ROS 2 topics, services, and actions on MARS"
+---
+
+Use **topics** for streams, **services** for one-off requests, and **actions** for long tasks with feedback. List everything live with `ros2 topic list`, `ros2 service list`, and `ros2 action list`.
+
+## Topics
+
+"Pub" means MARS publishes it and you subscribe. "Sub" means you publish commands to it.
+
+| Topic | Type | Dir | Contents |
+| --- | --- | --- | --- |
+| `/cmd_vel` | `geometry_msgs/Twist` | Sub | Base velocity commands |
+| `/odom` | `nav_msgs/Odometry` | Pub | Position and velocity estimate |
+| `/scan` | `sensor_msgs/LaserScan` | Pub | LiDAR |
+| `/battery_state` | `sensor_msgs/BatteryState` | Pub | Charge, voltage, charging status |
+| `/mars/main_camera/left/image_raw` | `sensor_msgs/Image` | Pub | Head camera, left eye |
+| `/mars/main_camera/depth/image_rect_raw` | `sensor_msgs/Image` | Pub | Stereo depth |
+| `/mars/arm/image_raw` | `sensor_msgs/Image` | Pub | Wrist camera |
+| `/mars/arm/state` | `sensor_msgs/JointState` | Pub | Arm joints |
+| `/mars/arm/commands` | `std_msgs/Float64MultiArray` | Sub | Direct arm joint commands |
+| `/leader/state` | `sensor_msgs/JointState` | Pub | Leader arm joints, while teleoperating |
+| `/joint_states` | `sensor_msgs/JointState` | Pub | All joints, for visualization |
+| `/nav/current_mode` | | Pub | `navigation`, `mapfree`, or `mapping` |
+| `/brain/chat_out` | `std_msgs/String` | Pub | What the agent says |
+| `/brain/available_skills` | `std_msgs/String` | Pub | Loaded skills, as JSON |
+| `/brain/skill_status_update` | `std_msgs/String` | Pub | Status of the running skill |
+
+```bash
+ros2 topic echo /battery_state
+ros2 topic hz /scan
+```
+
+## Services
+
+| Service | Type | Does |
+| --- | --- | --- |
+| `/mars/arm/goto_js` | `mars_msgs/GotoJS` | Move arm joints over `time` **seconds** |
+| `/mars/head/set_ai_position` | `std_srvs/Trigger` | Put the head in its default position |
+| `/light_command` | `mars_msgs/LightCommand` | Set LED mode and color |
+| `/nav/change_mode` | `brain_messages/ChangeNavigationMode` | Switch navigation mode |
+| `/nav/change_navigation_map` | `brain_messages/ChangeMap` | Switch the active map |
+| `/nav/save_map`, `/nav/delete_map` | `brain_messages/SaveMap`, `DeleteMap` | Save or delete a map |
+| `/localize` | `std_srvs/Trigger` | Relocalize on the current map |
+| `/brain/reload_skills_agents` | `brain_messages/ReloadSkillsAgents` | Reload the workspace |
+| `/brain/get_available_directives` | `brain_messages/GetAvailableDirectives` | List agents ("directives" is their old name) |
+| `/brain/get_chat_history` | `brain_messages/GetChatHistory` | Get the conversation |
+| `/brain/reset_brain` | `brain_messages/ResetBrain` | Reset the agent's state |
+| `/brain/recorder/*` | various | Start, save, and cancel recordings |
+| `/set_robot_name` | `mars_msgs/SetRobotName` | Rename the robot and its hostname |
+| `/trigger_update` | `mars_msgs/TriggerUpdate` | Start an OS update |
+| `/shutdown` | `mars_msgs/Shutdown` | Shut down |
+
+```bash
+# Move the arm over 2 seconds (time is in seconds, not milliseconds)
+ros2 service call /mars/arm/goto_js mars_msgs/srv/GotoJS \
+  "{data: {data: [0.0, -0.8, 1.2, -0.6, 0.0, 0.0]}, time: 2.0}"
+
+# Set the LEDs to Innate purple
+ros2 service call /light_command mars_msgs/srv/LightCommand \
+  "{mode: 1, interval: 0, r: 64, g: 31, b: 251}"
+```
+
+## Actions
+
+| Action | Type | Does |
+| --- | --- | --- |
+| `/navigate_to_pose` | `nav2_msgs/NavigateToPose` | Drive to a pose on the map |
+| `/execute_skill` | `brain_messages/ExecuteSkill` | Run a skill by name with JSON inputs |
+| `/behavior/execute` | `brain_messages/ExecuteBehavior` | Run a trained policy from its folder |
+
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  "{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}}}" --feedback
+
+ros2 action send_goal /execute_skill brain_messages/action/ExecuteSkill \
+  "{skill_type: wave, inputs: \"{}\"}" --feedback
+```

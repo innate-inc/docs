@@ -1,31 +1,31 @@
 ---
 title: "Extending MARS"
+description: "Add sensors, swap the end effector, and wire into the robot's power and GPIO"
 ---
 
-MARS was designed for hardware extensibility through several features:
+The [hardware is open source](https://github.com/innate-inc/mars), and the robot has room for your own parts.
 
-* Most GPIO pins are available on the onboard Jetson Orin Nano. You can connect I2C, SPI, UART sensors this way.
-  - We have noticed using the UART peripheral causes audio artifacts because of the way the Jetson's interfaces are designed, but it still works.
+| Port | Details |
+| --- | --- |
+| USB-A | 4 ports: 2 on the Jetson and 2 powered on the top hub |
+| Jetson GPIO | Most pins are free for I2C, SPI, and UART. UART can cause audio artifacts. |
+| Microcontroller GPIO | Unused pins are broken out on the PCB. See the [firmware repo](https://github.com/innate-inc/mars-firmware). |
+| Power | Screw terminals for 12 V and 5 V |
 
-* Unused GPIO from the microcontroller is broken out on the PCB. 
-  The microcontroller communicates with the Jetson through I2C and you can see that on its [firmware repo](https://github.com/innate-inc/mars-firmware).
+<Callout icon="image" color="#7569FD">
+  **Image to make: Expansion ports.** Top-down photo of the robot's PCB and USB hub with the USB ports, GPIO breakout, and 5 V / 12 V screw terminals labelled.
+</Callout>
 
-* Four USB-A extension ports are available: two directly on the Jetson and two powered ports on the top USB hub.
-  - You can use sensors like additional USB cameras, NFC readers, mics, or even microcontrollers to interface other sensors.
+## Add a sensor
 
-* There are screw terminals for both 12V and 5V power.
+Mount the device, plug it in, then feed its data to the agent with an [input device](/software/inputs). These work out of the box:
 
-* The hardware is [open-sourced](https://github.com/innate-inc/mars) in order to be easier to modify, in particular the end-effector.
+- [TONOR directional microphone](https://www.amazon.com/dp/B0CSCT63BL), for better voice pickup than the built-in mic
+- [Blackiot Polverine](https://blackiot.swiss/polverine) air quality sensor
 
-We describe below how we recommend to extend MARS on the hardware side.
+## Change the end effector
 
-## Changing the end-effector
-
-The end effector by default is a gripper (opposable thumbs).
-
-By nature of robot learning, if you change the end effector to any other shape, you will have to recollect your data for your manipulation models, but nothing else in the operating system needs to change if you still use the last actuator.
-
-Examples of two different types of end effectors we used without changing the code:
+Nothing in the OS changes as long as you keep the last motor. Trained policies do need new data, because the gripper looks and moves differently.
 
 <CardGroup cols={2}>
   <Card title="MARS v1 gripper">
@@ -35,19 +35,3 @@ Examples of two different types of end effectors we used without changing the co
     <img src="/images/main/robots/mars/extending-mars-1320.png" alt="One-side moving gripper" />
   </Card>
 </CardGroup>
-
-## Adding sensors and effectors on the USB and GPIOs
-
-Users can integrate additional sensors on the available ports. For any added device, make sure it is mounted and installed properly on the robot. You can then feed its data into the Innate agent by writing an [input device](/software/inputs) — a small Python class dropped into `~/innate-os/workspace/inputs/`.
-
-Some sensors we have already tried and work plug-and-play on MARS:
-
-* TONOR directional microphone ([$29 on Amazon](https://www.amazon.com/dp/B0CSCT63BL?ref=fed_asin_title)) - MARS already has a built-in microphone inside the arm. This optional add-on improves directional pickup. Just plug it in and make sure it's selected in the inputs tab of tmux when you start an agent.
-
-* Blackiot [Polverine Air Quality Sensor](https://blackiot.swiss/polverine).
-
-#### Example: Adding a directional microphone (optional)
-
-MARS can already listen with its built-in microphone. If you want more directional pickup, plug in a directional microphone and follow the [Inputs](/software/inputs#example-the-built-in-microphone) guide.
-
-<iframe width="100%" height="420" src="https://www.youtube.com/embed/Da_vpacFfvM" title="Microphone extension demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />

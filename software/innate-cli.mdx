@@ -1,202 +1,54 @@
 ---
-title: "Innate CLI Reference"
-description: "Every command you need, on one page."
+title: "Innate CLI"
+description: "Reference for the innate command on the robot"
 ---
 
-The `innate` CLI is your control panel. SSH into MARS and start typing.
+Run `innate` on the robot over SSH. `in8` is a shorter alias. Running `innate` alone prints the version, mode, and ROS status.
 
-<Tip>
-`in8` is a zsh alias for `innate`, available in any new shell.
-</Tip>
+## Services
 
-## Default (no args)
-
-| Command | What it does |
+| Command | Description |
 | --- | --- |
-| `innate` | Status dashboard — version, mode, ROS/DDS status, quick reference |
-
----
-
-## Service management
-
-Start, stop, and inspect all ROS nodes.
-
-| Command | What it does |
-| --- | --- |
-| `innate service start` | Start all ROS nodes in tmux |
-| `innate service stop` | Kill the tmux session |
-| `innate service restart` | Stop + start |
-| `innate service view` | Attach to the tmux session |
-
-### Top-level shortcuts
-
-| Command | Same as |
-| --- | --- |
-| `innate view` | `innate service view` |
-| `innate restart` | `innate service restart` |
-
----
+| `innate service start` | Start all nodes in tmux |
+| `innate service stop` | Stop all nodes |
+| `innate restart` | Restart all nodes. Same as `innate service restart`. |
+| `innate view` | Attach to the node session. Same as `innate service view`. |
 
 ## Build
 
-Smart build that does the right thing automatically. If ROS nodes are running, it stops them, builds, and restarts them. If nodes aren't running, it just builds. If the build fails, nodes are not restarted.
-
-| Command | What it does |
+| Command | Description |
 | --- | --- |
-| `innate build` | Build full workspace (stops/starts nodes if running) |
-| `innate build pkg1 pkg2` | Build specific packages only |
-| `innate build release [pkg ...]` | Build with `CMAKE_BUILD_TYPE=Release` (whole workspace, or the named packages) |
-| `innate clean` | Remove `build/`, `install/`, `log/` |
-
-### Examples
-
-```bash
-innate build mars_arm          # build one package (restarts nodes if they're running)
-innate build                   # build everything
-innate build release           # optimized release build of everything
-innate build release mars_arm  # optimized release build of one package
-innate clean && innate build   # full clean rebuild
-```
-
----
+| `innate build [pkg ...]` | Build the workspace or named packages. Stops and restarts nodes if they're running. |
+| `innate build release [pkg ...]` | Build with `CMAKE_BUILD_TYPE=Release` |
+| `innate clean` | Delete `build/`, `install/`, and `log/` |
 
 ## Skills
 
-List and trigger the robot's skills straight from the terminal — handy for testing a skill without the app.
-
-| Command | What it does |
+| Command | Description |
 | --- | --- |
-| `innate skill list` | List the skills the robot currently publishes |
-| `innate skill type <skill-id>` | Print a skill's input contract (the parameters it accepts) |
-| `innate skill run <skill-id> [@param=value ...]` | Run a skill by ID, passing any inputs as `@key=value` |
-
-### Options
-
-| Command | Options |
-| --- | --- |
-| `innate skill list` | `--timeout <sec>` — how long to wait for skills to be published (default 5) |
-| `innate skill type` | `--timeout <sec>` (default 5) · `--json` — print the raw contract as JSON |
-| `innate skill run` | `--timeout <sec>` — wait for the skill result (`0`, the default, waits indefinitely) · `--server-timeout <sec>` — wait for the skill action server (default 5) |
-
-### Examples
+| `innate skill list` | List loaded skills |
+| `innate skill type <id> [--json]` | Show a skill's parameters |
+| `innate skill run <id> [@key=value ...]` | Run a skill. `--timeout <sec>` limits the wait (default: no limit). |
 
 ```bash
-innate skill list                                   # see what's available
-innate skill type innate-os/wave --json             # contract as JSON
-innate skill run innate-os/wave                     # run a skill with no inputs
-innate skill run innate-os/arm_utils @command=torque_on --timeout 0
-innate skill run local/my-skill @x=1 @name=alice    # pass parameters
+innate skill run local/victory_spin @spins=2
 ```
 
-<Tip>
-Skill IDs are prefixed by where they live — `innate-os/` for shipped skills, `local/` for your own. See [Skills](/software/skills) for how IDs are formed.
-</Tip>
+## Updates
 
----
-
-## Speaker volume
-
-| Command | What it does |
+| Command | Description |
 | --- | --- |
-| `innate volume` | Show the current speaker volume |
-| `innate volume <0-100>` | Set the speaker volume (`0` mutes) |
+| `innate update check` | List available updates |
+| `innate update apply [version]` | Install the latest or a given version. `-y` skips prompts, `-b` runs in the background. |
+| `innate update status` | Show the installed version and service health |
+| `innate update reinstall` | Redo post-update setup without changing version |
 
-### Examples
+Put `--dev` before the subcommand to allow pre-releases and branches, for example `innate update --dev apply main`.
 
-```bash
-innate volume        # show current volume
-innate volume 60     # set to 60%
-innate volume 0      # mute
-```
+## Other
 
----
-
-## Foxglove
-
-Start the Foxglove bridge to visualize topics, TF, images, and point clouds from a browser. Off by default on the robot; always on in the [simulator](/simulator/building-with-the-simulator#foxglove-and-ros-tooling). See [Foxglove Setup](/software/foxglove-setup) for the full workflow.
-
-| Command | What it does |
+| Command | Description |
 | --- | --- |
-| `innate foxglove start` | Start the bridge (WebSocket on port `8765`); prints the `ws://` URL to connect to |
-| `innate foxglove stop` | Stop the bridge |
-| `innate foxglove status` | Show whether the bridge is running |
-
----
-
-## Diagnostics & updates
-
-| Command | What it does |
-| --- | --- |
-| `innate diag` | Hardware check (servos, PCB, lidar, cameras, speaker) — offers to stop running ROS nodes first so the check is reliable |
-| `innate update check` | Check for available updates |
-| `innate update apply [target]` | Apply updates (optionally pin a specific version) |
-| `innate update status` | Show version + service info, and warn if installed services drift from the checkout |
-| `innate update reinstall` | Re-run the post-update setup (systemd units, sudoers, dependencies, rebuild) without changing version |
-
-### Apply options
-
-| Option | What it does |
-| --- | --- |
-| `--yes`, `-y` | Skip confirmation prompts |
-| `--background`, `-b` | Run the update in a background tmux session (`innate_update`); attach with `tmux attach -t innate_update` |
-
-### Dev mode and branch targets
-
-Pass `--dev` **before** the subcommand to opt into pre-release tags and branch targets. With it, `apply` can take a tag, a branch name, or the latest commit on a branch:
-
-```bash
-innate update --dev check             # list newer tags, including pre-releases
-innate update --dev apply 0.6.0-rc1   # a specific pre-release tag
-innate update --dev apply main        # latest commit on main
-innate update --dev apply my-feature  # latest commit on any branch
-```
-
-<Note>
-See [Updates and Maintenance](/robots/mars/updates-and-maintenance) for details.
-</Note>
-
----
-
-## Quick reference card
-
-```
-innate                          → status dashboard
-innate service start            → launch ROS nodes
-innate service stop             → kill all nodes
-innate service restart          → stop + start
-innate service view             → attach to tmux
-innate view                     → shortcut for above
-innate restart                  → shortcut for above
-innate build [pkg ...]          → build (stops/starts nodes if running)
-innate build release [pkg ...]  → optimized release build
-innate clean                    → rm build/install/log
-innate skill list               → list the robot's skills
-innate skill type <id> [--json] → show a skill's input contract
-innate skill run <id> [@k=v]    → run a skill by ID
-innate volume [0-100]           → show or set speaker volume
-innate foxglove start           → start Foxglove bridge (ws :8765)
-innate foxglove stop            → stop the bridge
-innate foxglove status          → bridge status
-innate diag                     → hardware diagnostics
-innate update check [--dev]     → check for updates
-innate update apply [target] [--dev] → apply updates (tag or branch with --dev)
-innate update status            → version + service info
-innate update reinstall         → re-run post-update setup
-in8 ...                         → alias for innate
-```
-
----
-
-## Tmux navigation
-
-When you run `innate view`, you're inside a tmux session. Here's how to move around:
-
-| Keys | Action |
-| --- | --- |
-| `Ctrl+B` then `0`–`6` | Switch to window 0–6 |
-| `Ctrl+B` then `←` / `→` | Switch between left/right panes |
-| `Ctrl+B` then `[` | Enter scroll mode (navigate with arrow keys) |
-| `q` | Exit scroll mode |
-| `Ctrl+B` then `D` | Detach from tmux (nodes keep running) |
-
-See [Advanced Development](/software/advanced-development#reading-the-tmux-windows) for a breakdown of what runs in each window.
+| `innate diag` | Check servos, PCB, LiDAR, cameras, and speaker |
+| `innate volume [0-100]` | Show or set speaker volume |
+| `innate foxglove start \| stop \| status` | Control the [Foxglove](/software/foxglove-setup) bridge |

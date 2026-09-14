@@ -15,9 +15,12 @@ This is the Mintlify docs site for the Innate robotics platform (MARS robot, Inn
 - "skill" — a robot capability; either **code-defined** (Python) or **policy-defined** (trained ACT checkpoint)
 - "input" / "input device" — a data source feeding the agent (e.g. microphone)
 - "leader arm" — the small teleoperation controller arm that ships with MARS
-- "controller app" — the Innate Controller App (Android/iOS)
+- "controller app" — the Innate Controller App (Android/iOS); "web app" — the browser app the robot serves
 
 ## Style preferences
+
+Follow the writing guidelines in `CONTRIBUTING.md`: short pages, tables over prose, plain English, no ASCII diagrams.
+
 
 - Use active voice and second person ("you")
 - Lead with the action; keep marketing language out of doc pages
@@ -29,4 +32,4 @@ This is the Mintlify docs site for the Innate robotics platform (MARS robot, Inn
 ## Content boundaries
 
 - Don't document internal Innate infrastructure (cloud deployment, CI)
-- Hardware fixes for specific robot batches go under `robots/mars/troubleshooting/`, linked from the Troubleshooting page — not in the main navigation
+- Hardware fixes for specific robot batches go on the Troubleshooting page, not in their own pages

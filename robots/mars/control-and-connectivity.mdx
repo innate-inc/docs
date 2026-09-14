@@ -1,101 +1,58 @@
 ---
-title: "Control & Connectivity"
+title: "Driving and Teleoperation"
+description: "Drive MARS, control the arm with the leader arm, and pick a navigation mode"
 ---
 
-import AppDownloadCards from '/snippets/app-download-cards.mdx';
 import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
 
-This page covers controlling MARS with the app and leader arm, getting connected for the first time, and SSH access.
+You can drive MARS from the [phone app](/robots/apps#phone-app) (**Manual Control**) or the [web app](/robots/apps#web-app) (**Teleop**, joystick or `WASD`). Driving is ramped: releasing the stick or losing Wi-Fi slows the robot down smoothly instead of cutting out.
 
-## Control via app, web, and leader arm
+## Speed modes
 
-MARS is controllable from the [phone app](/robots/innate-controller-app) and the [web app](/robots/web-app) — both with live video, driving, and leader-arm teleoperation. Pick your surface below.
+| Mode | Multiplier | Top speed (default) |
+| --- | --- | --- |
+| **Slow** | 0.35× | 0.14 m/s |
+| **Med** | 0.65× | 0.26 m/s |
+| **Fast** | 1.0× | 0.4 m/s |
+| **Mad** | 2.0× | 0.8 m/s |
+
+The multiplier scales `motion_control.max_speed` from [settings](/software/configuration). The mode is stored on the robot, so every app sees the same one. Recording an episode or a map holds the robot at **Med**.
+
+<Warning>
+  **Mad** goes past the configured limit. Use it only in open space.
+</Warning>
+
+## Leader arm
+
+The leader arm is the small controller arm that ships with MARS. Move it and MARS's arm copies the joint angles. Squeeze the trigger at the tip to open and close the gripper.
+
+It has no camera and its proportions differ from the robot's arm. Neither matters: training records the robot's joints and cameras, not the leader arm's.
 
 <Tabs>
   <Tab title="Phone app">
-    <AppDownloadCards />
+    Plug the leader arm into your phone with the double USB-C cable, then press the red **Arm** button.
 
-    Drive from the on-screen joystick, and pick a [speed mode](#drive-speed-modes) to set how fast the stick can go. For the full feature list and current version numbers, see the [Controller App overview](/robots/innate-controller-app).
-
-    Every MARS robot comes with a leader arm attachable to your phone:
-
-    <Frame caption="The arm is plugged in your phone with a double USB-C cable">
-      <img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="375" />
-    </Frame>
-
-    The app automatically recognizes your arm. Press the red **Arm** button to control MARS with the leader arm — MARS's arm should start mirroring your movements within a second. If it doesn't, check that the USB-C cable is seated on both ends and that the arm shows as connected in the app. For best results, stand behind the robot while teleoperating.
+    <Frame><img src="/images/main/robots/mars/control-via-app-leader-arm.png" width="300" /></Frame>
 
     <IosLeaderArmWarning />
   </Tab>
   <Tab title="Web app">
-    Open the web app at `https://<robot-ip>` (its IP address — the `.local` hostname works too but is slower; see the [web app overview](/robots/web-app)) and use the **Teleop** page: live video, an on-screen joystick (or `WASD` / arrow keys), a [speed picker](#drive-speed-modes), head tilt, and robot speech (type a line and the robot says it). You can also **listen to the robot's microphone** — toggle the mic button on the video to hear what it hears (it starts muted). To teleoperate the arm, plug the leader arm into the computer running the browser, click **Connect arm**, then **Engage follow** — the robot's arm mirrors the leader. The panel also has **Reboot servos** and a **Torque** toggle.
-
-    <Warning>
-    Leader-arm teleop needs **Chrome or Edge** (it uses WebSerial), on the robot's HTTPS page. Driving, video, and speech work in any modern browser.
-    </Warning>
-
-    See the [web app overview](/robots/web-app) for details.
+    Plug the leader arm into your computer, click **Connect arm**, then **Engage follow**. This needs Chrome or Edge, because it uses WebSerial.
   </Tab>
 </Tabs>
 
-## Drive speed modes
+Stand behind the robot while teleoperating, so left and right match.
 
-Manual driving has four speed modes. They scale the robot's configured top speed rather than replacing it, so picking a mode changes the ceiling the joystick maps onto:
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/dr1TuHpc_94" title="Recording with the leader arm" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
-| Mode | Multiplier | Top speed (default config) |
+## Navigation modes
+
+| Mode | What it does | Use it when |
 | --- | --- | --- |
-| **Slow** | 0.35× | 0.14 m/s |
-| **Med** | 0.65× | 0.26 m/s |
-| **Fast** | 1.0× | 0.4 m/s — the configured maximum |
-| **Mad** | 2.0× | 0.8 m/s |
+| **Navigation** | Localizes on a saved map with LiDAR | You want repeatable paths and spatial memory |
+| **Mapfree** | Avoids obstacles with onboard sensors, no map | You are in a new or changing space |
+| **Mapping** | Builds a new map as you drive | You moved to a new space |
 
-Acceleration scales with the mode too, so time-to-top-speed stays about the same — Slow is a lower ceiling, not a lazier ramp.
+MARS starts mapping by itself the first time it connects. To make a new map, go to **Configuration → Mapping → Create New Map**, drive slowly through every room and doorway, then save. Keep the arm folded while mapping.
 
-<Warning>
-**Mad exceeds the configured limits.** Every other mode stays at or below `motion_control.max_speed` from [settings.yaml](/software/configuration); Mad doubles it, and the bringup safety clamp becomes the real ceiling. Use it in open space.
-</Warning>
-
-In the **web app**, the picker sits on the teleop right rail:
-
-![The speed mode picker on the web app's teleop right rail](/images/main/robots/web-app/speed-modes.png)
-
-In the **phone app**, it's the same Slow/Med/Fast/Mad control on the manual control screen.
-
-Speed mode is **robot state, not app state** — one setting shared by every client. Change it in the web app and the phone app follows a second later, and vice versa. Recording an episode or a map temporarily holds the robot at **Med** and restores your choice when you leave the screen.
-
-<Note>
-Joystick driving is ramped rather than applied instantly: the app sends a target velocity and the robot accelerates toward it on its own 50 Hz loop. Releasing the stick — or losing Wi-Fi — decelerates under the same limits instead of cutting out.
-</Note>
-
-### What the leader arm is (and isn't)
-
-The leader arm is a **teleoperation controller**, not a second robot. You pose it joint-by-joint and MARS's own arm mirrors the motion, puppet-style — so a few things that look like missing pieces are by design:
-
-* **It has no camera.** All perception comes from MARS's onboard cameras. The leader arm only reports its joint angles.
-* **The tip is a spring-loaded trigger, not a gripper.** Squeezing the trigger drives MARS's grasper open/closed; it doesn't grasp anything itself.
-* **Its segment proportions differ from the robot's arm, and that's fine.** Teleoperation maps joint angles, not absolute reach, and training only records the *robot's* joint state plus its camera feeds — never the leader arm's geometry. So the difference in segment lengths has no effect on the skills you train.
-
-In other words, the leader arm is how you *demonstrate* a task; the picking, seeing, and grasping all happen on MARS. Here it is being used to record a manipulation dataset:
-
-<iframe width="100%" height="420" src="https://www.youtube.com/embed/dr1TuHpc_94" title="Recording a manipulation dataset with the leader arm" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
-
-## Connecting to a Robot (Wi-Fi + BLE)
-
-The app discovers the robot over Bluetooth, puts it on your Wi-Fi (a phone hotspot works too), then connects over the network. The full flow, with screenshots, lives here:
-
-<Card title="Connecting to a robot" icon="wifi" href="/robots/innate-controller-app#connecting-to-a-robot">
-  Bluetooth pairing, Wi-Fi setup, and what to do when the robot changes network.
-</Card>
-
-Two details worth knowing:
-
-* The robot publishes a `.local` hostname (for example `mars-robot.local`), so you can still reach it if its IP address changes.
-* Once connected, you can check the robot's current IP in **Configuration** -> **WiFi**.
-
-## Connecting via SSH
-
-SSH gives you a terminal directly on the robot (username `jetson1`, password `goodbot`) over Wi-Fi, Ethernet, or USB-C. Full instructions for all three methods, including hostname rules and static-IP setup per OS:
-
-<Card title="Connecting via SSH" icon="terminal" href="/robots/mars/connecting-via-ssh">
-  The complete SSH reference — Wi-Fi, Ethernet, and USB-C recovery.
-</Card>
+For developers, the current mode is published on `/nav/current_mode`.

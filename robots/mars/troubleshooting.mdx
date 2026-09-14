@@ -1,166 +1,52 @@
 ---
 title: "Troubleshooting"
+description: "Fixes for common problems, and how to get help"
 ---
 
 import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
 
-This page explains how to diagnose issues on your MARS robot by inspecting the running processes.
+Start by making sure the robot is [up to date](/robots/mars/updates-and-maintenance#update-innate-os). Many problems are already fixed in a newer release.
 
-***
+## Common problems
 
-## Connect via SSH
-
-First, [SSH into your robot](/robots/mars/connecting-via-ssh).
-
-***
-
-## Access the OS tmux session
-
-MARS runs its software stack inside a `tmux` session. To attach to it:
-
-```bash
-tmux attach
-```
-
-If there are multiple sessions, you can list them with `tmux ls` and attach to the correct one.
-
-***
-
-## Navigate tmux to find issues
-
-<Note>This section is for advanced users familiar with ROS2. If you're not comfortable with ROS, simply reach out to us on [Discord](https://discord.com/invite/KtkyT97kc7) and we'll help you diagnose the issue.</Note>
-
-Once inside the tmux session, you'll see multiple windows or panes, each running a different ROS2 node or process.
-
-### Basic tmux navigation
-
-* **Switch windows:** `Ctrl+b` then `n` (next) or `p` (previous)
-
-* **List windows:** `Ctrl+b` then `w`
-
-* **Switch panes:** `Ctrl+b` then arrow keys
-
-* **Scroll up:** `Ctrl+b` then `[`, then use arrow keys or Page Up/Down. Press `q` to exit scroll mode.
-
-### Finding a problematic node
-
-1. Cycle through the windows and panes to see which processes are running.
-
-2. Look for error messages, stack traces, or nodes that have crashed or are restarting.
-
-3. Use scroll mode to review recent output and identify what went wrong.
-
-***
-
-## App can reach Wi-Fi but robot services are not launched
-
-If your robot is connected to Wi-Fi and the app shows a service launch failure screen, the ROS2 core likely did not start correctly.
-
-1. [SSH into your robot](/robots/mars/connecting-via-ssh).
-
-   Default password: `goodbot`
-
-2. Rerun the post-update recovery script:
-
-```bash
-sudo ~/innate-os/scripts/update/post_update.sh
-```
-
-   Sudo password: `goodbot`
-
-3. Wait for the script to finish, then retry the connection from the app.
-
-This usually resolves failures caused by an interrupted or incomplete post-update startup.
-
-***
-
-## Common Hardware Issues
-
-### Arm Goes Limp / Servos Not Holding Position
-
-If the arm loses tension and goes limp (servos not holding their position), this is typically a servo communication issue that can be resolved by rebooting the arm:
-
-**Option 1: Reboot via the App (Recommended)**
-
-1. Open the Innate Controller App
-
-2. Go to **Configuration**
-
-3. Select the **Dev** tab
-
-4. Tap **Reboot Arm**
-
-> **Note:** Place the arm in a resting position before rebooting. The app will display an image showing the correct arm position.
-
-**Option 2: Full Robot Restart**
-
-1. Unplug the robot's power
-
-2. Wait a few seconds
-
-3. Plug it back in
-
-The arm should regain tension and hold position after either of these steps.
-
-### Arm Restart Notifications
-
-If the arm encounters an issue during operation (such as a servo communication failure), the app will display a notification prompting you to restart the arm. Follow the notification instructions to recover.
-
-### Arm Overload Protection
-
-MARS monitors the arm's servo load in real-time. If the arm is overloaded (e.g., carrying too heavy of an object or encountering an obstruction), the system will detect this and may reduce torque to protect the servos. If you notice reduced arm performance:
-
-1. Remove any heavy objects from the gripper
-
-2. Clear any obstructions
-
-3. Reboot the arm via the app if needed
-
-### iOS Arm Control
+| Problem | Fix |
+| --- | --- |
+| App reaches the robot but says services failed to launch | SSH in and run `sudo ~/innate-os/scripts/update/post_update.sh`, then reconnect. |
+| Arm goes limp | Rest the arm, then **Configuration → Dev → Reboot Arm** in the app. If that fails, power-cycle the robot. |
+| Arm feels weak | The overload protection lowered torque. Remove heavy objects or obstructions, then reboot the arm. |
+| Leader arm doesn't work on iPhone | See the note below. |
+| Agent or skill misbehaves | Follow [Debugging](/software/ros2/debugging). |
+| Depth or obstacle avoidance looks wrong | Redo [stereo depth calibration](/robots/mars/stereo-depth-calibration). |
+| Can't SSH | Try the IP instead of `.local`, or [Ethernet or USB-C](/robots/mars/connecting-via-ssh). |
 
 <IosLeaderArmWarning />
 
-***
+## Read the logs
 
-## Low Battery Warning
+Open the web app's [Logging page](/robots/apps#logging), or SSH in and attach to the process session:
 
-The app displays a pulsing **Battery Low** warning when the robot's battery voltage drops below 10.53V. When you see this warning:
+```bash
+innate view
+```
 
-1. Stop any active tasks
-
-2. Park the robot in a safe place
-
-3. Connect the charger
-
-Avoid running system updates or intensive operations when the battery is low.
-
-***
+Each tmux pane runs a part of the stack. Look for red errors or panes that keep restarting. Switch windows with `Ctrl+B` then a number, scroll with `Ctrl+B` then `[`, and detach with `Ctrl+B` then `D`.
 
 ## Find your MARS ID
 
-Some fixes and shipped-hardware questions depend on which unit you have. Two ways to find its ID:
-
-* **Via Bluetooth** — turn the robot on and look for it in the Innate app's Bluetooth connections screen. It appears as **"MARS the 1st"**, **"MARS the 5th"**, **"MARS the 12th"** — the number in the name is your MARS ID.
-* **Via SSH** — read the `robot_id` field from the robot info file:
+The number in the Bluetooth name is your ID: **MARS the 12th** is ID 12. Over SSH:
 
 ```bash
 cat ~/innate-os-data/robot_info.json
 ```
 
 <Note>
-The first eleven units (MARS IDs 1–11, shipped before January 2026) needed a one-time setup fix before first use. Every robot from ID 12 onwards shipped with it already applied. If you have an early unit that was never set up, reach out on [Discord](https://discord.com/invite/KtkyT97kc7).
+  Robots 1 to 11, shipped before January 2026, needed a one-time setup fix. If yours was never set up, contact us on Discord.
 </Note>
 
-***
+## Get help
 
-## Contact us
+Ask on [Discord](https://discord.com/invite/KtkyT97kc7), where the team and other owners answer daily, or email [axel@innate.bot](mailto:axel@innate.bot). Include:
 
-When you identify an issue, please reach out to us on [Discord](https://discord.com/invite/KtkyT97kc7) with:
-
-* The name of the node or process that is failing
-
-* Any error messages or stack traces you see
-
-* What you were doing when the issue occurred
-
-We'll help you resolve it as quickly as possible.
+- your MARS ID and OS version (`innate update status`)
+- the exact error message and the node it came from
+- what you were doing when it happened
