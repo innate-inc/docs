@@ -1,5 +1,6 @@
 ---
 title: "Introduction"
+mode: "wide"
 description: "Open-source software for AI robots, and the robot that runs it"
 ---
 
@@ -18,9 +19,11 @@ import CurrentVersions from '/snippets/current-versions.mdx';
   </div>
 </div>
 
-## Innate builds two things
+<div className="section-eyebrow">The platform</div>
 
-The software is open source and runs on MARS or in a simulator on your laptop.
+## Software + hardware for physical AI
+
+Write agents in Innate OS, which is open source. Run them in a simulator on your laptop, or on MARS.
 
 <div className="platform-grid">
   <div className="platform-card">
@@ -59,7 +62,9 @@ The software is open source and runs on MARS or in a simulator on your laptop.
   </div>
 </div>
 
-## Programming a robot, in short
+<div className="section-eyebrow">Programming in short</div>
+
+## Go from a prompt to a robot in a few lines
 
 You write two kinds of things. A **skill** is something the robot can do, like spinning in place. You write it in code, or [train a policy](/training/overview) by showing the robot what to do. An **agent** is a prompt plus a list of skills: an AI model watches the camera, listens to you, and picks the right skill at the right moment.
 

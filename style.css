@@ -297,8 +297,8 @@ pre,
 #content-area .home-hero {
   position: relative;
   overflow: hidden;
-  min-height: 400px;
-  border-radius: 16px;
+  min-height: 580px;
+  border-radius: 20px;
   background: #eceeef;
 }
 
@@ -328,9 +328,9 @@ pre,
   flex-direction: column;
   justify-content: center;
   gap: 14px;
-  max-width: 72%;
-  min-height: 400px;
-  padding: 44px 40px;
+  max-width: 64%;
+  min-height: 580px;
+  padding: 64px 64px;
   color: #111827;
 }
 
@@ -344,16 +344,17 @@ pre,
 
 #content-area .home-hero-title {
   font-family: "MD IO", ui-sans-serif, system-ui, sans-serif;
-  font-size: 2.6rem;
+  font-size: clamp(2.2rem, 3.6vw, 3.4rem);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.08;
+  white-space: nowrap;
   text-transform: uppercase;
   color: #111827;
 }
 
 #content-area .home-hero-sub {
-  max-width: 26rem;
-  font-size: 1.2rem;
+  max-width: 30rem;
+  font-size: 1.3rem;
   line-height: 1.5;
   color: #374151;
 }
@@ -404,10 +405,33 @@ pre,
 
   #content-area .home-hero-title {
     font-size: 1.9rem;
+    white-space: normal;
   }
+}
+
+/* The Introduction page uses a wider content column so the hero can breathe */
+body:has(.home-hero) #content-area {
+  max-width: 76rem !important;
 }
 
 /* Pages that open with a hero don't need the page title above it */
 body:has(.home-hero) #header {
   display: none;
 }
+
+/* Small label above a section heading */
+#content-area .section-eyebrow {
+  margin-top: 56px;
+  margin-bottom: -20px;
+  font-family: "MD IO", ui-monospace, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.dark #content-area .section-eyebrow {
+  color: #9ca3af;
+}
+
+
