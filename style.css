@@ -297,7 +297,7 @@ pre,
 #content-area .home-hero {
   position: relative;
   overflow: hidden;
-  min-height: 580px;
+  min-height: 500px;
   border-radius: 20px;
   background: #eceeef;
 }
@@ -329,8 +329,8 @@ pre,
   justify-content: center;
   gap: 14px;
   max-width: 64%;
-  min-height: 580px;
-  padding: 64px 64px;
+  min-height: 500px;
+  padding: 52px 60px;
   color: #111827;
 }
 
@@ -412,6 +412,11 @@ pre,
 /* The Introduction page uses a wider content column so the hero can breathe */
 body:has(.home-hero) #content-area {
   max-width: 76rem !important;
+  padding-top: 16px !important;
+}
+
+body:has(.home-hero) #content {
+  margin-top: 0 !important;
 }
 
 /* Pages that open with a hero don't need the page title above it */
