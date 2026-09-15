@@ -42,9 +42,9 @@ The form saved your agent as a normal Python file, `workspace/custom_agents/chee
 
 That's all an agent is: a name, a prompt in `get_prompt()`, and a list of skills in `get_skills()`. The form also turned on the microphone (`get_inputs()`) and made the robot look at the person it talks to (`uses_gaze()`). Every option is on the [Agents](/software/agents) page.
 
-<Note>
-  Once you edit this file by hand, the form shows the agent read-only. From then on, change it in code.
-</Note>
+<Tip>
+  Edit the agent in the form or in this file, whichever you prefer: both stay in sync. Code can also do more than the form, like building the prompt with logic or adding methods, and you can write new agents from scratch in `workspace/custom_agents/`. The form shows those agents read-only, because it can't display the extra code.
+</Tip>
 
 ## 4. Write your own skill
 
