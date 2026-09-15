@@ -8,9 +8,9 @@ You program a robot with two things:
 - An **agent** is a prompt plus a list of skills. An AI model watches the camera, listens to you, and picks a skill when it fits.
 - A **skill** is something the robot can do. It's a Python class.
 
-On this page you create an agent in the web app, see the Python it generates, write your own skill, and watch the agent use it. It takes about five minutes.
+On this page you create an agent in the web app, look at the Python it generates, write your own skill, and watch the agent use it. It takes about five minutes.
 
-## Before you start
+## 1. Open the robot and your editor
 
 <Tabs>
   <Tab title="Simulator">
@@ -21,7 +21,7 @@ On this page you create an agent in the web app, see the Python it generates, wr
   </Tab>
 </Tabs>
 
-## 1. Create an agent
+## 2. Create an agent
 
 <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/tutorial-create-agent.mp4">
   Creating Cheerful Agent in the web app, adding two skills, and chatting with it.
@@ -34,7 +34,7 @@ On this page you create an agent in the web app, see the Python it generates, wr
 
 Chatting needs an AI backend: your own Gemini key or the Innate service key. In the simulator you choose it [during setup](/simulator/setup#choose-your-agent-setup).
 
-## 2. Look at the file it made
+## 3. Look at the file it made
 
 The form saved your agent as a normal Python file, `workspace/custom_agents/cheerful_agent.py`. Open it in your editor:
 
@@ -46,7 +46,7 @@ That's all an agent is: a name, a prompt in `get_prompt()`, and a list of skills
   Once you edit this file by hand, the form shows the agent read-only. From then on, change it in code.
 </Note>
 
-## 3. Write your own skill
+## 4. Write your own skill
 
 <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/victory-spin.mp4">
   Running the victory_spin skill from the web app's skill menu.
@@ -80,7 +80,7 @@ That's all an agent is: a name, a prompt in `get_prompt()`, and a list of skills
 
 The agent reads `guidelines()` to decide when to use the skill, and the `execute()` signature and docstring to know how to call it. Edit the file, save, and run it again: that's the whole loop.
 
-## 4. Give it to your agent
+## 5. Give it to your agent
 
 <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/tutorial-add-skill.mp4">
   Adding VictorySpin to Cheerful Agent, then telling it good news and watching it spin.
