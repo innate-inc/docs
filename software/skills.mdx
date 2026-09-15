@@ -1,131 +1,84 @@
 ---
-title: "Introduction"
+title: "Skills"
+sidebarTitle: "Overview"
+description: "What skills are, where they live, and how to run them"
 ---
 
-Skills are atomic robot capabilities that the Innate agent chains together to accomplish complex, long-horizon behaviors. Each skill encodes a single capability—moving through the world, manipulating objects, speaking, or reaching an external service like email or an API—that can be combined with others to form coherent action sequences.
+A skill is one thing the robot can do: drive somewhere, pick up a sock, send an email. An [agent](/software/agents) chains skills together, and you can also run them by hand.
 
-When the Innate agent receives a request like "check on grandma," it decomposes this into a skill chain: navigate to bedroom → look around → wave → speak reassurance. One request, one coherent behavior.
+| Type | What it is | Best for |
+| --- | --- | --- |
+| **Code-defined** | A Python class | Precise motions, APIs, logic, sensor processing |
+| **Policy-defined** | A trained neural network or a recorded motion | Manipulation that is easier to show than to code |
 
-## Two Types of Skills
+Both types are called the same way, so agents and other skills don't need to know which kind they use.
 
-Skills are defined in one of two ways.
-
-<AccordionGroup>
-  <Accordion title="Code-Defined Skills" defaultOpen={true}>
-    Code-defined skills are Python classes with explicit logic. Declare what the skill needs as type annotations and the runtime injects it; the Innate agent reads your `guidelines()` and `execute()` signature to call the skill correctly.
-
-```innatepy
-import math
-from innate import Head, Mobility, Skill, SkillReturn
-
-class LookAround(Skill):
-    # Declared feeds are injected and guaranteed before execute() starts.
-    mobility: Mobility
-    head: Head
-
-    def guidelines(self) -> str:
-        # What the agent reads to decide when to call this skill.
-        return "Use when the robot needs to scan its surroundings."
-
-    def execute(self, num_directions: int = 4) -> SkillReturn:
-        num_directions = max(1, num_directions)
-        self.head.set_position(-15)
-        for _ in range(num_directions):
-            self.mobility.rotate((2 * math.pi) / num_directions)
-            self.sleep(0.2)
-        return "Scan complete"
-```
-
-    The class name (snake_cased) is the skill name, so `LookAround` is callable as `look_around`. Use this style when you want deterministic physical control, API and web-service calls, explicit sequencing, or custom sensor processing.
-  </Accordion>
-
-  <Accordion title="Policy-Defined Skills (End-to-End)">
-    Policy-defined skills are learned policies trained from demonstrations. For manipulation, the current workflow uses ACT (Action Chunking with Transformers).
-
-```json
-{
-  "name": "pick_cup",
-  "type": "learned",
-  "guidelines": "Use when you need to pick up a cup",
-  "execution": {
-    "model_type": "act_policy",
-    "checkpoint": "policy_step_50000.pth"
-  }
-}
-```
-
-    Use this style when behavior is easier to learn from data than encode by hand, especially for visuomotor manipulation.
-  </Accordion>
-</AccordionGroup>
+<CardGroup cols={2}>
+  <Card title="Code skills" icon="code" href="/software/skills/code-defined-skills">
+    Write a skill in Python: the Skill class, results, cancellation, composition.
+  </Card>
+  <Card title="Policy-defined skills" icon="brain" href="/software/skills/policy-defined-skills">
+    Trained policies and recorded replays.
+  </Card>
+</CardGroup>
 
 ## Where skills live
 
-**Your skills go in `~/innate-os/workspace/custom_skills/` on the robot.**
-
-```
-workspace/
-  innate_skills/   Shipped skills. Tracked in git, updated by `git pull`.
-  custom_skills/   Your skills. Gitignored, survives OS updates.
-  innate_agents/   Shipped agents.
-  custom_agents/   Your agents.
-```
-
-Every directory under `workspace/` is an ordinary Python package, and **defining a `Skill` subclass is the registration** — there's no file to edit and no name to declare. That means normal Python works: several skills in one file, helpers next to them, relative imports, one skill split across a subpackage.
-
-* **Code-defined skill** → a class in any `.py` file: `custom_skills/my_skill.py`
-* **Policy-defined (physical) skill** → a directory with its metadata and checkpoint: `custom_skills/my_skill/metadata.json`
-
-Everything auto-loads on start and hot-reloads on save. A module that fails to import shows up in the web app marked broken, with its error, instead of silently vanishing.
-
-## What ships with the robot
-
-`workspace/innate_skills/` already contains a working set. Read them — they're the best examples of the API, and you can import any of them into [an agent](/software/agents/definitions) or [call them from your own skill](/software/skills/code-defined-skills/composing-skills).
-
-| Getting around | |
+| Folder in `~/innate-os/workspace/` | Contents |
 | --- | --- |
-| `navigate_to_position` | Drive to x, y coordinates — on the map, or relative to where the robot stands with `local_frame=True`. |
-| `turn_in_place` | Turn by an angle in degrees. |
-| `navigate_with_vision` | Drive from a plain-language instruction ("walk to the kitchen"). |
-| `follow_aruco` | Follow a person or object carrying an ArUco tag. |
+| `custom_skills/` | **Your skills.** Gitignored, safe from updates. |
+| `innate_skills/` | Skills that ship with the OS |
+| any other folder | A skill pack you dropped in |
 
-| Arm and gripper | |
-| --- | --- |
-| `pick_any_object` | Pick something off the floor, described in words ("the white sock"). |
-| `open_gripper` / `close_gripper` | Release or grab — including taking an object from someone's hand. |
-| `arm_rest_position` / `arm_zero_position` | Fold the arm away, or send it home. Both safe while holding something. |
-| `arm_move_to_xyz`, `arm_circle_motion`, `arm_utils` | Direct arm moves and low-level commands. |
-| `wave` | A recorded demonstration, not code — see [Policy-Defined Skills](/software/skills/policy-defined-skills). |
+Defining a `Skill` subclass in any `.py` file registers it. No config file needed. To use a skill in an agent or another skill, import its class. The class name in snake_case is the name the apps show, so `VictorySpin` appears as `victory_spin`. Everything reloads on save, and a file that fails to import shows up in the web app with its error.
 
-| Everything else | |
-| --- | --- |
-| `search_memory` | Search everywhere the robot has been for a place or thing. See [Spatial Memory](/software/skills/code-defined-skills/spatial-memory). |
-| `head_emotion` | Express an emotion with head tilt. |
-| `chess/*` | Board detection and piece moves for the [chess agent](/software/agents/chess-beta). Beta. |
+A policy-defined skill is a folder with a `metadata.json` and a checkpoint, for example `custom_skills/pick_socks/`.
 
-<Note>
-Don't edit these in place — a `git pull` will overwrite your changes. Copy the one you want into `custom_skills/`, rename the class, and edit that.
-</Note>
-
-## Skill IDs
-
-Each skill gets an id namespaced by the package it lives in — `innate-os/wave`, `local/my_skill`. You mostly don't type these: agents and composing skills [reference the class](/software/agents/definitions#complete-example). Ids are what the app displays and what you use when a skill isn't importable from where you need it.
-
-| Package | Purpose | Skill ID |
-| --- | --- | --- |
-| `custom_skills/` | **Your skills** | `local/<name>` |
-| `innate_skills/` | Shipped skills | `innate-os/<name>` |
-| any other folder | A dropped-in skill pack | `<folder>/<name>` |
-
-## Skill packs
-
-A folder of skills someone else wrote installs by dropping it into `workspace/`. If the pack lives elsewhere on disk — a team checkout, a mounted volume — symlink it instead:
+To install a skill pack stored elsewhere, symlink it into `workspace/`:
 
 ```bash
 ln -s /opt/team/skills ~/innate-os/workspace/team_skills
 ```
 
-It's then discovered at boot, hot-reloads on edit, and its ids are namespaced by the link name (`team_skills/<name>`).
+## Shipped skills
 
-<Note>
-This replaces the `extra_skill_dirs` / `extra_agent_dirs` settings from OS 0.6.x.
-</Note>
+Don't edit these in place, because updates overwrite them. Copy one into `custom_skills/` and rename the class.
+
+| Skill | What it does |
+| --- | --- |
+| `navigate_to_position` | Drive to x, y on the map, or relative to the robot with `local_frame=True` |
+| `turn_in_place` | Turn by an angle in degrees |
+| `navigate_with_vision` | Drive from a plain-language instruction, like "go to the kitchen" |
+| `follow_aruco` | Follow an ArUco tag |
+| `pick_any_object` | Pick something up from a description, like "the white sock" |
+| `open_gripper`, `close_gripper` | Release or grab |
+| `arm_rest_position`, `arm_zero_position` | Fold the arm away, or send it home |
+| `arm_move_to_xyz`, `arm_circle_motion`, `arm_utils` | Direct arm moves, torque, and reboot |
+| `wave` | A recorded wave |
+| `search_memory` | Search [spatial memory](/software/skills/code-defined-skills/spatial-memory) |
+| `head_emotion` | Show an emotion with head motion |
+
+## Run a skill manually
+
+Running a skill by hand skips the agent. It's the fastest way to test one.
+
+<Tabs>
+  <Tab title="Web app">
+    On the **Teleop** page, click **Skills** and pick one.
+
+    <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/victory-spin.mp4">
+      Triggering a skill from the web app's skill menu.
+    </video>
+  </Tab>
+  <Tab title="Phone app">
+    Open the **Skills** tab, pick a skill, fill in its parameters, and press **Execute**. Trained skills are also in **Home → Manual**.
+  </Tab>
+  <Tab title="Terminal">
+    ```bash
+    innate skill list                             # loaded skills and their IDs
+    innate skill run local/victory_spin @spins=2
+    ```
+
+    The terminal uses skill IDs: `local/<name>` for your skills and `innate-os/<name>` for shipped ones.
+  </Tab>
+</Tabs>

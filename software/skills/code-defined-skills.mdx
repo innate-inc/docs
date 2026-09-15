@@ -1,180 +1,152 @@
 ---
-title: "Overview"
+title: "Code Skills"
+description: "Write a skill in Python: declare what you need, write execute(), return a message"
 ---
 
-import {
-  SkillCoreMethodsTable,
-  SkillResultsTable,
-} from '/snippets/interface-methods-table.mdx';
-
-Code-defined skills are Python classes that implement robot behaviors with explicit logic. Three things make them easy to write:
-
-**The agent reads your code.** Your `guidelines()` and your `execute()` signature are the API contract — the agent sees `execute(target: str, speed: float = 0.5)` and knows exactly how to call your skill. Type hints matter.
+A code-defined skill is a Python class. The agent reads your `guidelines()` to decide when to call it, and your `execute()` signature to know how.
 
 ```innatepy
-def execute(self, target: str, speed: float = 0.5) -> SkillReturn:
-    """Move toward the target object.
+import math
+from innate import Head, Mobility, Skill, SkillReturn
 
-    Args:
-        target: Object to approach (e.g., "cup", "person")
-        speed: Movement speed in m/s
-    """
-```
 
-**Dependencies are one-line type annotations.** Declare what you need and the system injects it — no wiring in `__init__`:
-
-```innatepy
-from innate import MainImage, Mobility, Skill
-
-class MySkill(Skill):
-    mobility: Mobility    # hardware access
-    image: MainImage      # latest main-camera frame
-```
-
-**Then just use them.** No callbacks, no message passing, no `None` checks — a declared feed is guaranteed before `execute()` starts:
-
-```innatepy
-def execute(self):
-    frame = self.image.jpeg       # Latest frame as JPEG bytes, updated at 50Hz
-    self.mobility.rotate(0.5)     # Rotate 0.5 radians
-```
-
-## The Skill Class
-
-Every code-defined skill extends `Skill` and needs two things: `guidelines()`, which tells the agent when to use the skill, and `execute()`, which does the work.
-
-`guidelines()` is the prompt the agent reads about your skill, so write it out explicitly — it's the part you'll come back and tune when the robot calls your skill at the wrong moment.
-
-```innatepy
-from innate import Mobility, Skill, SkillReturn
-
-class MySkill(Skill):
-    mobility: Mobility
+class LookAround(Skill):
+    mobility: Mobility   # declared dependencies are injected before execute()
+    head: Head
 
     def guidelines(self) -> str:
-        return "Use when you need to [do something specific]"
+        return "Use when the robot needs to scan its surroundings."
 
-    def execute(self, param1: str, param2: float = 1.0) -> SkillReturn:
-        """Do the thing. The agent calls this with parsed arguments."""
-        if not self._ready():
-            self.fail("Could not do the thing")   # ends the run as FAILURE
-        return "Result message"                   # a string means SUCCESS
+    def execute(self, directions: int = 4) -> SkillReturn:
+        """Turn in place and look around.
+
+        Args:
+            directions: How many stops to make in a full turn.
+        """
+        self.head.set_position(-15)
+        for i in range(max(1, directions)):
+            self.feedback(f"Looking {i + 1}/{directions}")
+            self.mobility.rotate(2 * math.pi / directions)
+            self.sleep(0.2)
+        return "Scan complete"
 ```
 
-The class name is the skill name: `MySkill` is callable as `my_skill`. Put it in any `.py` file in a [workspace package](/software/skills#where-skills-live) — the file name doesn't matter, and one file can define several skills.
+Save it in `~/innate-os/workspace/custom_skills/` and it's live as `look_around`. Type hints and the docstring are what the agent sees, so write them carefully. `guidelines()` is a prompt: tune it when the robot calls your skill at the wrong time.
 
-<SkillCoreMethodsTable />
+## Declare what you need
 
-<Accordion title="Shorthand: the docstring as guidelines">
-Once you've written a few skills, you can drop `guidelines()` and let the class docstring stand in for it — the two mean exactly the same thing to the agent:
+Annotate a class attribute and the runtime provides it. A plain annotation is required: the run fails before starting if it's unavailable, so you never check for `None`. Add `| None` to make it optional.
 
 ```innatepy
 class MySkill(Skill):
-    """Use when you need to [do something specific]"""  # = guidelines()
+    mobility: Mobility          # hardware
+    image: MainImage            # sensor feed, kept fresh at 50 Hz
+    battery: Battery | None     # optional
+    turn: TurnInPlace           # another skill
 ```
 
-Most shipped skills are written this way, so you'll see it when you read them. It's shorter, but it hides the fact that this text is a prompt going to a model. Prefer the explicit `guidelines()` until that's second nature.
-</Accordion>
+| You can declare | Reference |
+| --- | --- |
+| `Mobility`, `Manipulation`, `Head` | [Movement API](/software/skills/code-defined-skills/body-control-interfaces) |
+| Cameras, odometry, map, battery, LiDAR, arm state | [Robot state](/software/skills/code-defined-skills/robot-state) |
+| `SpatialMemory` | [Spatial memory](/software/skills/code-defined-skills/spatial-memory) |
+| Other skills | [Call other skills](#call-other-skills) below |
 
-## Skill Results
+## Return a result
 
-Return the message. A plain string is success:
+| Outcome | How |
+| --- | --- |
+| Success | `return "Moved 2 meters"` (or `return None`) |
+| Failure | `self.fail("Target out of range")`. It raises, so code after it doesn't run. |
+| Cancelled | Happens automatically when someone presses Stop |
 
-```innatepy
-return "Moved 2 meters"      # SUCCESS with that message
-return None                  # SUCCESS with a generated message
-```
-
-To fail, call `self.fail()` — it raises, so there's no error branch to thread back through your code:
-
-```innatepy
-if distance > MAX_RANGE:
-    self.fail(f"Target is {distance:.1f}m away, out of range")
-```
-
-When the message isn't enough, return a `SkillOutput` — the same type either way, with two optional extras:
+To return more than a message, use `SkillOutput`:
 
 ```innatepy
 from innate import SkillOutput
 
-# .data — a payload for a skill that called yours
-return SkillOutput("Moved 2.00m forward", MoveResult(traveled_m=2.0))
-
-# image — a JPEG the agent sees alongside the message, so the skill
-# can show what it found instead of only describing it
-return SkillOutput("Found it in the kitchen", image=jpeg_bytes)
+return SkillOutput("Found it", data={"x": 1.2})   # data for a calling skill
+return SkillOutput("Found it", image=jpeg_bytes)  # an image the agent can look at
 ```
-
-`.data` is anything you like — a dict, or a small `pydantic` model when you want the caller's editor to know the fields. The shipped `turn_in_place` skill does this, which is why a caller can write `result.data.turned_degrees`.
-
-<SkillResultsTable />
 
 ## Cancellation
 
-The user or agent can stop a running skill at any time. **Cancellation is the framework's job, not yours** — write your loops as if it couldn't happen.
-
-The only rule: use `self.sleep()` instead of `time.sleep()`.
-
-```innatepy
-def execute(self):
-    for step in range(10):
-        self.mobility.rotate(0.5)
-        self.sleep(0.2)      # raises SkillCancelled the moment a Stop lands
-    return "Done"
-```
-
-Every blocking call the framework gives you raises `SkillCancelled` on a stop. The base is braked and the arm halted automatically, and the run reports `CANCELLED` — you don't catch it, and you don't need a `cancel()` method.
+A Stop can come at any time, and the framework handles it. Follow one rule: **use `self.sleep()`, never `time.sleep()`**. Every blocking framework call raises on Stop, the base brakes, and the arm halts. You don't catch anything.
 
 | Call | Use for |
 | --- | --- |
-| `self.sleep(seconds)` | Any pause in skill code |
-| `self.wait_for(read, timeout)` | Block until `read()` returns non-`None` |
-| `self.check_cancelled()` | A checkpoint with no sleep, e.g. right before an irreversible commit |
-| `self.cancelled` | Read the latch without raising |
+| `self.sleep(seconds)` | Any pause |
+| `self.wait_for(read, timeout)` | Wait until `read()` returns something other than `None` |
+| `self.check_cancelled()` | A checkpoint before something irreversible |
 
-Cleanup belongs in a `try`/`finally` inside `execute()`. `self.on_cancel(hook)` exists only to forward a cancel to an external action goal.
+Put cleanup in `try`/`finally`. Using `time.time()` to measure durations is fine.
 
-`time` is still fine for *measuring* — `time.time()` and `time.monotonic()` for deadlines and elapsed checks. The rule is only about blocking.
-
-## Feedback
-
-Send progress updates during long-running skills. The agent reads feedback in real time and can act on it — for example, canceling the skill or triggering another one immediately:
+## Other helpers
 
 ```innatepy
-def execute(self):
-    for i in range(10):
-        self.feedback(f"Step {i+1}/10")
-        # ... do work ...
-    return "Done"
+self.feedback("Step 3/10")          # progress the agent sees while you run
+self.say("Found it!", wait=True)    # speak; wait=True blocks until done
+self.storage["runs"] = 3            # key-value store that survives restarts
+self.logger.info("debug message")   # shows in the logs
 ```
 
-## Speech, storage, and waiting
+## Call other skills
 
-The base class also provides:
+Declare another skill like any dependency, then call it like a method. The call blocks until it finishes, shows up as its own step in the app, and returns a `SkillOutput`. Trained policies work the same way.
 
 ```innatepy
-self.say("Found it!", wait=True)       # speak through the robot's voice;
-                                       # wait=True blocks until playback ends
+from innate import Skill, SkillFailed
+from innate_skills.navigate_to_position import NavigateToPosition
+from innate_skills.pick_socks import PickSocks  # a trained policy
 
-runs = self.storage.get("runs", 0)     # persistent per-skill key-value store
-self.storage["runs"] = runs + 1        # (a JSON file; survives restarts)
 
-frame = self.wait_for(lambda: self.image, timeout=5.0)  # block until a
-                                       # read returns non-None (or timeout)
+class TidyCorner(Skill):
+    go: NavigateToPosition
+    pick: PickSocks
+
+    def guidelines(self) -> str:
+        return "Use to drive to the corner and pick up a sock there."
+
+    def execute(self):
+        self.go(x=1.0, y=0.0, local_frame=True)
+        try:
+            self.pick(timeout=60)
+        except SkillFailed:
+            return "No sock to pick up"
+        return "Corner tidied"
 ```
 
-## Next Steps
+A failing sub-skill raises `SkillFailed`. Catch that, not bare `Exception`, or Stop won't work.
 
-* [**Navigation Interfaces**](/software/skills/code-defined-skills/navigation-interfaces) — Mobility control, rotation, velocity commands
+## Call external services
 
-* [**Body Control Interfaces**](/software/skills/code-defined-skills/body-control-interfaces) — Arm manipulation, head movement, IK
+Skills can call any API. Read secrets from the environment, set timeouts, and turn errors into `self.fail()`:
 
-* [**Robot State**](/software/skills/code-defined-skills/robot-state) — Camera, odometry, map, sensor data
+```innatepy
+import os
+import requests
+from innate import Skill
 
-* [**Spatial Memory**](/software/skills/code-defined-skills/spatial-memory) — Search everywhere the robot has been
 
-* [**Full-Body Examples**](/software/skills/code-defined-skills/physical-skill-examples) — Behaviors combining navigation + manipulation
+class GetWeather(Skill):
+    def guidelines(self) -> str:
+        return "Use when the user asks about the weather. Can't be cancelled."
 
-* [**Composing Skills**](/software/skills/code-defined-skills/composing-skills) — Call skills from inside other skills to chain behaviors
+    def execute(self, city: str):
+        key = os.environ.get("WEATHER_API_KEY")
+        if not key:
+            self.fail("WEATHER_API_KEY is not set")
+        try:
+            r = requests.get("https://api.example.com/weather",
+                             params={"q": city, "key": key}, timeout=10)
+            r.raise_for_status()
+        except requests.RequestException as e:
+            self.fail(f"Weather service error: {e}")
+        return r.json()["summary"]
+```
 
-* [**External Services & APIs**](/software/skills/code-defined-skills/external-services) — APIs, email, web services
+A network call can't be interrupted halfway. Say so in `guidelines()` so the agent plans for it.
+
+<Tip>
+  The best examples are the shipped skills in `workspace/innate_skills/`. `pick_any_object.py` combines vision, driving, and grasping.
+</Tip>

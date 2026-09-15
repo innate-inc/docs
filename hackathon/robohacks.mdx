@@ -1,164 +1,38 @@
 ---
 title: "RoboHacks Hackathon"
-description: "Everything you need to get started at the Innate RoboHacks hackathon."
+description: "Setup checklist and resources for the Innate RoboHacks hackathon"
 ---
 
-Welcome to **RoboHacks**, the Innate hackathon! Everything you need is on this page: Wi-Fi, the mandatory OS update, repos, and doc shortcuts.
-
-## Connect to the hackathon WiFi
-
-All robots have been pre-configured to connect to the WiFi network called **"Robot"** at YC. Your laptop and phone must be on the same network to connect to your MARS.
-
-<Info>
-  The WiFi password is pinned in
-  [Discord](https://discord.com/invite/KtkyT97kc7). Make sure you are connected
-  before attempting to SSH or use the Innate Controller App.
-</Info>
-
-## Update your robot first
-
-<Warning>
-  Run this **before** you start hacking. Your robot must be on the latest OS to
-  work with the hackathon tooling.
-</Warning>
+Welcome to RoboHacks. Do these three things first.
 
 <Steps>
-  <Step title="Update to the latest stable OS">
-    SSH into your robot and apply the latest update:
-
-    ```bash
-    innate update check
-    innate update apply
-    ```
-
-    OS `0.5.1` and later include the hackathon tooling (previously distributed as the `0.5.0-rc12` dev release — no longer needed).
+  <Step title="Join the Wi-Fi">
+    Robots are set up for the **Robot** network. The password is pinned on [Discord](https://discord.com/invite/KtkyT97kc7). Put your laptop and phone on it too.
+  </Step>
+  <Step title="Update your robot">
+    [SSH in](/robots/mars/connecting-via-ssh) and run `innate update apply`.
+  </Step>
+  <Step title="Get your service key">
+    **Robot track:** copy `INNATE_SERVICE_KEY` from `~/innate-os/.env` on your robot. **Sim track:** ask in **#innate-cloud-infra** on Discord. One key per team.
   </Step>
 </Steps>
 
-## Hackathon resources repository
+## Resources
 
-The **[robohacks-utils](https://github.com/innate-inc/robohacks-utils)** repo is the central hub for hackathon-specific tooling and assets. Clone it to get started:
+| Resource | What's in it |
+| --- | --- |
+| [robohacks-utils](https://github.com/innate-inc/robohacks-utils) | HDF5 to LeRobot converter, and STEP files of MARS |
+| [MARS URDF](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/mars_bot/mars_description) | Robot description. Sim-track submissions must use it. |
+| [Innate OS](https://github.com/innate-inc/innate-os) | All robot software |
+| [GraspGen](https://github.com/innate-inc/GraspGen) | Grasping any object with depth, controlled over rosbridge (port 9090) |
+| [UniNaVid client](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/cloud/innate_uninavid) | Vision-language navigation, used by the `navigate_with_vision` skill |
+| [W&B dashboard](https://wandb.ai/vignesh-anand/act-simple/table) | Training runs |
 
-```bash
-git clone https://github.com/innate-inc/robohacks-utils.git
-```
+The leader arm works only with Android phones. We have spares to lend.
 
-Inside you will find:
+## Where to start
 
-- **HDF5 → LeRobot converter** (`hdf5_lerobot.py`) — convert recorded HDF5 datasets into the [LeRobot](https://github.com/huggingface/lerobot) format for policy training. Install dependencies with `pip install -r requirements.txt`.
-- **STEP files** (`STEP/`) — CAD models of the MARS robot for hardware modifications or custom attachments.
-- **Latest Android APK** — available at [cdn.innate.bot/innate-app-latest.apk](https://cdn.innate.bot/innate-app-latest.apk). The iOS app is available on [TestFlight](https://testflight.apple.com/join/YeChe4A7). Leader Arm operation only works on Android. We have some Android phones to share if no one on your team has one.
-
-## Innate OS authentication
-
-To run Innate OS or the simulator on your own machine with access to the voice, agent, and training servers, you need an **Innate service key**.
-
-| Track           | How to get your key                                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Robot track** | Look at `~/innate-os/.env` on your robot and copy `INNATE_SERVICE_KEY`. One key per team.                                            |
-| **Sim track**   | Ask in the **#innate-cloud-infra** channel on [Discord](https://discord.com/invite/KtkyT97kc7). One key per team — you can share it. |
-
-## Sim track — MARS URDF
-
-If you are on the simulation track, you must integrate the MARS URDF into your submissions. You can find it here:
-
-<Card
-  title="MARS URDF (mars_sim)"
-  icon="cube"
-  href="https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/mars_bot/mars_sim"
->
-  The simulation description package for the MARS robot, including URDF, meshes,
-  and launch files.
-</Card>
-
-## Training runs
-
-Track your cloud training runs on Weights & Biases:
-
-<Card
-  title="W&B Dashboard"
-  icon="chart-line"
-  href="https://wandb.ai/vignesh-anand/act-simple/table"
->
-  View training metrics, loss curves, and run comparisons for the ACT policy.
-</Card>
-
----
-
-## Open-source repos & example projects
-
-Innate OS is fully open source. Use these repos and example projects as a starting point for your hack.
-
-### Innate OS
-
-The full operating system that runs on MARS. Explore it to understand how the robot works under the hood — ROS2 nodes, launch files, drivers, and more.
-
-<Card
-  title="innate-os"
-  icon="github"
-  href="https://github.com/innate-inc/innate-os"
->
-  The open-source ROS2-based operating system for MARS.
-</Card>
-
-### GraspGen — arbitrary object grasping
-
-GraspGen is a project built on top of Innate OS that uses the depth camera and NVIDIA's GraspGen model to grasp arbitrary objects. It is a great reference for how to:
-
-- Access core robot interfaces through **ROS Bridge** (port 9090)
-- Control the robot over **WebSockets**
-
-<Card
-  title="GraspGen"
-  icon="hand"
-  href="https://github.com/innate-inc/GraspGen"
->
-  Depth-camera-based arbitrary object grasper built on Innate OS and NVIDIA
-  GraspGen.
-</Card>
-
-### Vision-Language Navigation (UniNaVid)
-
-A remote inference server using the **UniNaVid** model for vision-language navigation. The server processes navigation commands with a large VLM, and the client inside Innate OS executes the resulting movements.
-
-- **Server** — remote inference endpoint for navigation commands.
-- **Client** — the ROS2 package inside Innate OS that calls the server and executes movement skills. You can find it at [`ros2_ws/src/cloud/innate_uninavid/`](https://github.com/innate-inc/innate-os/tree/main/ros2_ws/src/cloud/innate_uninavid), along with a corresponding skill at [`workspace/innate_skills/navigate_with_vision.py`](https://github.com/innate-inc/innate-os/blob/main/workspace/innate_skills/navigate_with_vision.py).
-
----
-
-## Useful docs pages
-
-<CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/get-started/mars-quick-start">
-    Power up, connect, and control your MARS in minutes.
-  </Card>
-  <Card
-    title="Development Setup"
-    icon="terminal"
-    href="/software/development-setup"
-  >
-    SSH in, edit code, restart — the full dev loop.
-  </Card>
-  <Card title="Agent SDK" icon="robot" href="/software/overview">
-    Build agents, skills, and inputs on top of Innate OS.
-  </Card>
-  <Card
-    title="Manipulation & Training"
-    icon="dumbbell"
-    href="/training/overview"
-  >
-    Collect data, train policies, and deploy arm skills.
-  </Card>
-</CardGroup>
-
-## Need help?
-
-Join the Innate Discord for real-time support from the team and other hackers:
-
-<Card
-  title="Discord"
-  icon="discord"
-  href="https://discord.com/invite/KtkyT97kc7"
->
-  Ask questions, share progress, and get debugging help.
-</Card>
+- [Quick Start](/get-started/mars-quick-start) to drive and talk to the robot
+- [Develop on MARS](/software/development-setup) to write agents and skills
+- [Simulator](/simulator) if you're on the sim track
+- [Training](/training/overview) to teach the arm

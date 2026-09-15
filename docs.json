@@ -31,23 +31,7 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "get-started/mars-quick-start",
-              "software/development-setup",
               "get-started/mars-example-use-cases"
-            ]
-          },
-          {
-            "group": "MARS Hardware",
-            "pages": [
-              "robots/mars",
-              "robots/mars/control-and-connectivity",
-              "robots/mars/connecting-via-ssh",
-              "robots/mars/capabilities",
-              "robots/mars/updates-and-maintenance",
-              "robots/mars/charging-battery",
-              "robots/mars/stereo-depth-calibration",
-              "robots/mars/changing-voice",
-              "robots/mars/extending-mars"
             ]
           },
           {
@@ -55,79 +39,50 @@
             "pages": [
               "simulator",
               "simulator/setup",
-              "simulator/building-with-the-simulator"
+              "simulator/working-with-the-simulator"
             ]
           },
           {
-            "group": "Controller App",
+            "group": "Build Agents and Skills",
             "pages": [
-              "robots/innate-controller-app"
-            ]
-          },
-          {
-            "group": "Web App",
-            "pages": [
-              "robots/web-app",
-              "robots/web-app/logging"
-            ]
-          },
-          {
-            "group": "Agent SDK",
-            "pages": [
-              "software/overview",
-              {
-                "group": "Agents",
-                "pages": [
-                  "software/agents",
-                  "software/agents/definitions",
-                  "software/agents/starting-an-agent",
-                  "software/agents/agent-examples",
-                  {
-                    "group": "Chess (Beta)",
-                    "pages": [
-                      "software/agents/chess-beta",
-                      "software/agents/chessboard-calibration-beta"
-                    ]
-                  }
-                ]
-              },
+              "software/your-first-agent",
+              "software/agents",
               {
                 "group": "Skills",
                 "pages": [
                   "software/skills",
+                  "software/skills/code-defined-skills",
+                  "software/skills/policy-defined-skills",
                   {
-                    "group": "Code-Defined Skills",
+                    "group": "Reference",
                     "pages": [
-                      "software/skills/code-defined-skills",
-                      "software/skills/code-defined-skills/navigation-interfaces",
                       "software/skills/code-defined-skills/body-control-interfaces",
                       "software/skills/code-defined-skills/robot-state",
-                      "software/skills/code-defined-skills/spatial-memory",
-                      "software/skills/code-defined-skills/physical-skill-examples",
-                      "software/skills/code-defined-skills/composing-skills",
-                      "software/skills/code-defined-skills/external-services"
+                      "software/skills/code-defined-skills/spatial-memory"
                     ]
-                  },
-                  "software/skills/policy-defined-skills",
-                  "software/skills/manual-triggering"
+                  }
                 ]
               },
               "software/inputs",
-              "software/agent"
+              "software/agent-loop"
             ]
           },
           {
-            "group": "Hacking on MARS",
+            "group": "MARS",
             "pages": [
-              "software/mars-quick-development",
-              "software/advanced-development",
-              "software/configuration",
-              "software/innate-cli",
-              "software/foxglove-setup"
+              "get-started/mars-quick-start",
+              "robots/mars",
+              "robots/apps",
+              "robots/mars/control-and-connectivity",
+              "robots/mars/connecting-via-ssh",
+              "software/development-setup",
+              "robots/mars/updates-and-maintenance",
+              "robots/mars/stereo-depth-calibration",
+              "robots/mars/extending-mars"
             ]
           },
           {
-            "group": "Manipulation",
+            "group": "Train the Arm",
             "pages": [
               "training/overview",
               "training/data-collection",
@@ -138,20 +93,21 @@
             ]
           },
           {
-            "group": "ROS2 Core",
+            "group": "Go Deeper",
             "pages": [
+              "software/advanced-development",
+              "software/configuration",
+              "software/innate-cli",
+              "software/foxglove-setup",
               "software/ros2-core",
-              "software/ros2/topics",
-              "software/ros2/services",
-              "software/ros2/actions",
+              "software/ros2/interfaces",
               "software/ros2/debugging"
             ]
           },
           {
-            "group": "Troubleshooting & Support",
+            "group": "Help",
             "pages": [
-              "robots/mars/troubleshooting",
-              "support/contact-discord"
+              "robots/mars/troubleshooting"
             ]
           },
           {
@@ -180,23 +136,23 @@
   "redirects": [
     {
       "source": "/training/evaluate",
-      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+      "destination": "/training/deploy-trained-skill#fix-what-fails"
     },
     {
       "source": "/training/rollout-evaluation",
-      "destination": "/training/deploy-trained-skill#iterating-on-a-skill"
+      "destination": "/training/deploy-trained-skill#fix-what-fails"
     },
     {
       "source": "/software/inputs/definition",
-      "destination": "/software/inputs#write-an-input-device"
+      "destination": "/software/inputs#write-an-input"
     },
     {
       "source": "/software/inputs/example-microphone",
-      "destination": "/software/inputs#example-the-built-in-microphone"
+      "destination": "/software/inputs#the-microphone"
     },
     {
       "source": "/robots/innate-controller-app/connecting-to-a-robot",
-      "destination": "/robots/innate-controller-app#connecting-to-a-robot"
+      "destination": "/robots/apps#connect-the-phone-app"
     },
     {
       "source": "/robots/mars/faq",
@@ -208,11 +164,11 @@
     },
     {
       "source": "/robots/web-app/debugging",
-      "destination": "/robots/web-app/logging"
+      "destination": "/robots/apps#logging"
     },
     {
       "source": "/software/skills/code-defined-skills/digital-skills",
-      "destination": "/software/skills/code-defined-skills/external-services"
+      "destination": "/software/skills/code-defined-skills#call-external-services"
     },
     {
       "source": "/software/ros2/navigation-stack",
@@ -228,19 +184,19 @@
     },
     {
       "source": "/welcome/community-tutorials",
-      "destination": "/support/contact-discord"
+      "destination": "/robots/mars/troubleshooting#get-help"
     },
     {
       "source": "/software/basic",
-      "destination": "/software/agent"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/software/basic/connecting-to-basic",
-      "destination": "/software/agent"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/software/agent/connecting-to-the-agent",
-      "destination": "/software/agent"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/robots/mars/troubleshooting-and-faq",
@@ -256,23 +212,23 @@
     },
     {
       "source": "/robots/mars/arm",
-      "destination": "/robots/mars/capabilities"
+      "destination": "/robots/mars"
     },
     {
       "source": "/robots/mars/sensors",
-      "destination": "/robots/mars/capabilities"
+      "destination": "/robots/mars"
     },
     {
       "source": "/robots/mars/manipulation",
-      "destination": "/robots/mars/capabilities"
+      "destination": "/robots/mars"
     },
     {
       "source": "/robots/mars/navigation",
-      "destination": "/robots/mars/capabilities"
+      "destination": "/robots/mars"
     },
     {
       "source": "/robots/mars/onboard-computer",
-      "destination": "/robots/mars/capabilities"
+      "destination": "/robots/mars"
     },
     {
       "source": "/robots/mars/calibration",
@@ -293,6 +249,102 @@
     {
       "source": "/welcome/frequently-asked-questions",
       "destination": "/robots/mars/troubleshooting"
+    },
+    {
+      "source": "/robots/innate-controller-app",
+      "destination": "/robots/apps#phone-app"
+    },
+    {
+      "source": "/robots/web-app",
+      "destination": "/robots/apps#web-app"
+    },
+    {
+      "source": "/robots/web-app/logging",
+      "destination": "/robots/apps#logging"
+    },
+    {
+      "source": "/robots/mars/capabilities",
+      "destination": "/robots/mars"
+    },
+    {
+      "source": "/robots/mars/charging-battery",
+      "destination": "/robots/mars/updates-and-maintenance#charge-the-battery"
+    },
+    {
+      "source": "/robots/mars/changing-voice",
+      "destination": "/robots/mars/updates-and-maintenance#change-the-voice"
+    },
+    {
+      "source": "/support/contact-discord",
+      "destination": "/robots/mars/troubleshooting#get-help"
+    },
+    {
+      "source": "/software/agent",
+      "destination": "/software/agent-loop"
+    },
+    {
+      "source": "/software/agents/definitions",
+      "destination": "/software/agents"
+    },
+    {
+      "source": "/software/agents/starting-an-agent",
+      "destination": "/software/agents#start-an-agent"
+    },
+    {
+      "source": "/software/agents/agent-examples",
+      "destination": "/software/agents#write-a-good-prompt"
+    },
+    {
+      "source": "/software/skills/manual-triggering",
+      "destination": "/software/skills#run-a-skill-manually"
+    },
+    {
+      "source": "/software/skills/code-defined-skills/navigation-interfaces",
+      "destination": "/software/skills/code-defined-skills/body-control-interfaces#mobility"
+    },
+    {
+      "source": "/software/skills/code-defined-skills/composing-skills",
+      "destination": "/software/skills/code-defined-skills#call-other-skills"
+    },
+    {
+      "source": "/software/skills/code-defined-skills/external-services",
+      "destination": "/software/skills/code-defined-skills#call-external-services"
+    },
+    {
+      "source": "/software/skills/code-defined-skills/physical-skill-examples",
+      "destination": "/software/skills/code-defined-skills"
+    },
+    {
+      "source": "/software/mars-quick-development",
+      "destination": "/software/development-setup"
+    },
+    {
+      "source": "/software/ros2/topics",
+      "destination": "/software/ros2/interfaces#topics"
+    },
+    {
+      "source": "/software/ros2/services",
+      "destination": "/software/ros2/interfaces#services"
+    },
+    {
+      "source": "/software/ros2/actions",
+      "destination": "/software/ros2/interfaces#actions"
+    },
+    {
+      "source": "/simulator/building-with-the-simulator",
+      "destination": "/software/your-first-agent"
+    },
+    {
+      "source": "/software/overview",
+      "destination": "/software/your-first-agent"
+    },
+    {
+      "source": "/software/agents/chess-beta",
+      "destination": "/software/agents"
+    },
+    {
+      "source": "/software/agents/chessboard-calibration-beta",
+      "destination": "/software/agents"
     }
   ]
 }

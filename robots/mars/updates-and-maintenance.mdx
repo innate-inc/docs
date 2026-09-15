@@ -1,58 +1,55 @@
 ---
-title: "Updates and Maintenance"
+title: "Maintenance"
+description: "Update the OS, charge the battery, shut down safely, and change the voice"
 ---
 
-Keep your robot stable and current with software updates, safe charging, and core configuration checks.
+## Update Innate OS
 
-## Updating MARS
-
-Use `innate update` on the robot to fetch and apply MARS OS updates.
-
-Updating will:
-
-* Fetch the latest compatible Innate OS version
-* Apply code and configuration changes
-* Restart robot software services
-
-If update notes include stereo-depth changes, run [Stereo Depth Calibration](/robots/mars/stereo-depth-calibration) before normal navigation.
-
-The app will indicate when an OS update is available, so you don't need to check manually. A new OS version may also require updating the [Innate Controller App](/robots/innate-controller-app) for full compatibility.
-
-### Prerequisites
-
-* You can access the robot over SSH. If WiFi isn't available, you can also [connect via the Jetson USB-C port](/robots/mars/connecting-via-ssh#via-usb-c-last-resort)
-* The `innate` CLI is available on the robot
-* The robot has internet access
-
-### Basic workflow
+The app tells you when an update is available. To install it, [SSH into the robot](/robots/mars/connecting-via-ssh) and run:
 
 ```bash
-innate update status
-innate update check
-innate update apply
+innate update check    # see what's available
+innate update apply    # install the latest stable version
+innate update status   # confirm the installed version
 ```
 
-Use `status` to verify current version, `check` to view available updates, and `apply` to install.
+Services restart during the update, so the robot is unresponsive for a moment. A new OS may also need a newer [app](/robots/apps). If the release notes mention depth changes, redo [stereo depth calibration](/robots/mars/stereo-depth-calibration).
 
-During `apply`, services may restart and the robot can be temporarily unresponsive.
+## Charge the battery
 
-If update commands fail, retry once and capture:
+<Warning>
+  LiPo batteries are dangerous if charged wrong. Never charge without the white balance connector plugged in. If the battery is swollen, stop using it and contact us.
+</Warning>
 
-* The command you ran
-* Full terminal error output
+<iframe width="100%" height="420" src="https://www.youtube.com/embed/SnGpyMkS0WM" title="Charging the battery" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
-## Charging the Battery
+1. Connect the battery to the included charger, with the white balance connector in the `3S` port.
+2. Check the voltage reads between **10.5 V and 12.6 V**.
+3. Set battery type to **LiPo** and cells to **3S**.
+4. Hold **Enter** until prompted, then confirm to start.
 
-Charging has a dedicated page with full safety instructions and a step-by-step procedure.
+The app shows **Battery Low** below 10.53 V. Park the robot and charge it, and don't run updates on a low battery.
 
-<Card title="Charging the Battery" href="/robots/mars/charging-battery">
-  Open the dedicated charging guide.
-</Card>
+## Shut down
 
-## Changing the Voice
+Always shut down before unplugging. Cutting power can corrupt the disk.
 
-MARS uses [Cartesia](https://cartesia.ai/) for text-to-speech. Set your voice ID in `config/settings.yaml` (or `.env`) — full steps on the dedicated page:
+```bash
+sudo shutdown now
+```
 
-<Card title="Changing the Voice" href="/robots/mars/changing-voice">
-  Pick or clone a Cartesia voice and configure it on MARS.
-</Card>
+Unplug once the LED turns off.
+
+## Change the voice
+
+MARS speaks with [Cartesia](https://cartesia.ai/). Pick a voice in their library, or clone one from 10 seconds of audio, and copy its voice ID. Add it to `~/innate-os/.env`:
+
+```bash
+CARTESIA_VOICE_ID="your-voice-id"
+```
+
+Then run `innate service restart`.
+
+<Accordion title="Set the voice per node instead">
+  In [`config/settings.yaml`](/software/configuration), set `cartesia_voice_id` under both `brain_client_node` (chat replies) and `input_manager_node` (realtime voice). Values here override `.env`.
+</Accordion>

@@ -21,10 +21,11 @@ mint broken-links
 
 ## Repo layout
 
-- `get-started/` — unboxing-to-first-command guides
-- `robots/` — MARS hardware and the controller app
-- `software/` — the Agent SDK: agents, skills, inputs, plus ROS2 reference
-- `training/` — recording demonstrations and training ACT policies
+- `get-started/` — unboxing to first command
+- `simulator/` — running MARS on a laptop
+- `robots/` — MARS hardware and the phone and web apps
+- `software/` — agents, skills, inputs, the CLI, and ROS 2 reference
+- `training/` — recording demonstrations and training policies
 - `snippets/` — shared content imported by multiple pages (version numbers, download links, warnings). **If a fact appears on more than one page, it belongs here.**
 
 ## Publishing

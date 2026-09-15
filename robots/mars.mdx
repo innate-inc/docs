@@ -1,119 +1,43 @@
 ---
-title: "Overview & Hardware"
+title: "Hardware"
+description: "What MARS is made of and what it can do"
 ---
 
-![](/images/main/robots/mars-overview.png)
+MARS is a compact mobile manipulator: a differential-drive base, a 5-joint arm with a gripper, a tilting head, and a Jetson computer that runs everything onboard. The cloud only handles the agent's model call and [policy training](/training/overview).
 
-MARS is a compact mobile manipulator with onboard AI compute, designed as a complete platform for building and sharing real-world robot applications.
+![MARS taken apart: LiDAR, depth camera with tilt, USB extension ports, Jetson Orin Nano, body with speaker, wheels and power distribution, the 5+1 DoF arm with its wide camera, and the battery](/images/main/robots/mars-overview.png)
 
-## Hardware at a glance
+## Specs
 
-### Sensors
-
-MARS combines complementary perception sources: a forward-facing stereo RGB camera that computes scene depth, a gripper-mounted RGB camera for close manipulation, and a 2D LiDAR for localization.
-
-#### Camera matrix
-
-| Spec | Forward-Facing Stereo Camera | Gripper-Mounted RGB Camera |
-| --- | --- | --- |
-| Camera type | Stereo RGB | RGB |
-| Diagonal field of view | 150° | 160° |
-| Effective range | 40 cm to 6 m | Close-range manipulation |
-| Depth support | Yes — computed from stereo disparity | No |
-| Depth accuracy | &lt;2% up to 3.5 m, &lt;4% to 6.5 m, &lt;6% to 9 m | N/A |
-| Resolution | N/A | 2MP (1920x1080) |
-| Frame rate | N/A | 30 FPS |
-| Primary role | Navigation and scene perception | Visual servoing and grasp alignment |
-
-#### 2D LiDAR
-
-| Property | Value |
+| Part | Spec |
 | --- | --- |
-| Coverage | 360° |
-| Range | 0.15 m to 6 m |
-| Angular resolution | &lt;=1° |
-| Distance resolution | &lt;0.5 mm |
-| Scan rate | 6 Hz (up to 10 Hz) |
-| Primary use | SLAM and navigation |
+| Compute | [Jetson Orin Nano Super 8GB](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), 67 TOPS, 6-core ARM CPU, 1 TB SSD |
+| Head camera | Stereo RGB, 150° diagonal FOV, depth from 40 cm to 6 m (under 2% error to 3.5 m) |
+| Wrist camera | RGB, 160° FOV, 1920×1080 at 30 FPS |
+| LiDAR | 2D, 360°, 0.15–6 m range, 6 Hz (up to 10 Hz) |
+| Arm | 40 cm reach, 2 mm repeatability, 250 g payload at full extension |
+| Expansion | 2 powered USB 3.0 ports (1.2 A each), plus GPIO and 5V/12V terminals. See [Extending MARS](/robots/mars/extending-mars). |
 
-<Card title="ROS2 Topics Reference" href="/software/ros2/topics">
-  LiDAR data is exposed on `/scan` as `sensor_msgs/LaserScan` (RPLidar stack).
-</Card>
+<Accordion title="Motors">
+  Seven Robotis Dynamixel servos, all with 4096 steps per revolution. Motors 1–6 are the arm (6 is the gripper) and motor 7 is the head.
 
-#### Custom sensors
-
-MARS provides two powered USB 3.0 ports for additional sensors/peripherals.
-
-| Port property | Value |
-| --- | --- |
-| USB ports | 2x USB 3.0 |
-| Power output | 1.2 A per port |
-| Data rate | Up to 5 Gbps |
-| Hot swap | Supported |
-| Backward compatibility | USB 2.0 devices supported |
-
-### Arm
-
-#### Specifications
-
-| Property | Value |
-| --- | --- |
-| Reach | 40 cm |
-| Repeatability | 2 mm |
-| Payload | 250 g at maximum extension |
-
-#### Actuators
-
-Seven Dynamixel servos (Robotis) drive MARS, numbered 1–7: **motors 1–6 form the arm** (motor 1 at the base, motor 6 driving the gripper) and **motor 7 moves the head**.
-
-| Motors | Drives | Model | Link |
-| --- | --- | --- | --- |
-| 1, 3 | Arm (lower joints) | `XL430-W250-T` | [Product Page](https://www.robotis.us/dynamixel-xl430-w250-t/) |
-| 2 | Arm (lower joint) | `XC430-T240BB-T` | [Product Page](https://www.robotis.us/dynamixel-xc430-t240bb-t/) |
-| 4–7 | Arm wrist + gripper, and head | `XL330-M288-T` | [Product Page](https://www.robotis.us/dynamixel-xl330-m288-t/) |
-
-<Accordion title="Detailed motor specs">
-  | Spec | `XL430-W250-T` | `XC430-T240BB-T` | `XL330-M288-T` |
-  | --- | --- | --- | --- |
-  | Used by | Motors 1, 3 | Motor 2 | Motors 4–7 |
-  | Gear ratio | 258.5 : 1 | 245.22 : 1 | 288.4 : 1 |
-  | Resolution | 4096 pulse/rev | 4096 pulse/rev | 4096 pulse/rev |
-
-  All three models share the same 4096 pulse/rev encoder resolution — about 0.088° per step at the output shaft. The full electrical and mechanical specs are on the Robotis product pages linked above.
+  | Motors | Model |
+  | --- | --- |
+  | 1, 3 | [`XL430-W250-T`](https://www.robotis.us/dynamixel-xl430-w250-t/) |
+  | 2 | [`XC430-T240BB-T`](https://www.robotis.us/dynamixel-xc430-t240bb-t/) |
+  | 4–7 | [`XL330-M288-T`](https://www.robotis.us/dynamixel-xl330-m288-t/) |
 </Accordion>
 
-These actuators were chosen for robustness and repeatability. The arm can reliably perform tasks such as chess manipulation (see [Examples](/get-started/mars-example-use-cases)).
+## What it can do
 
-### Onboard Computer
+| Capability | How | Learn more |
+| --- | --- | --- |
+| Navigate with a map | LiDAR localization on a saved map. Needed for spatial memory. | [Driving](/robots/mars/control-and-connectivity#navigation-modes) |
+| Navigate without a map | Obstacle avoidance from onboard sensors only. | [Driving](/robots/mars/control-and-connectivity#navigation-modes) |
+| Manipulate | Trained policies, or code using the arm API. | [Training](/training/overview), [Movement API](/software/skills/code-defined-skills/body-control-interfaces) |
+| Talk and listen | Speaker, microphone, and the Innate agent. | [How the agent decides](/software/agent-loop) |
+| Remember places | Stores views tied to the map and searches them. | [Spatial memory](/software/skills/code-defined-skills/spatial-memory) |
 
-MARS ships with a [Jetson Orin Nano Super 8GB Development Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/).
+## Open source
 
-![](/images/main/robots/mars/onboard-computer.png)
-
-| Component | Specification |
-| --- | --- |
-| AI performance | Up to 67 TOPS (sparse INT8) |
-| GPU | NVIDIA Ampere architecture with 1024 CUDA cores and 32 Tensor cores |
-| CPU | 6-core ARM Cortex-A78AE v8 (64-bit) |
-| Memory | 8 GB LPDDR5 |
-| Storage | 1 TB SSD (integrated by Innate) |
-| Dev kit base | Jetson Orin Nano Super module and reference carrier board |
-
-Innate also exposes two additional USB ports for user extensions after core system wiring.
-
-## Platform details
-
-MARS is delivered assembled and calibrated so you can start quickly, while still being open and mod-friendly for deeper customization.
-
-Everything the robot needs at runtime runs **on the robot** — the VLA ([Innate ACT](/training/overview)), SLAM, and [the Innate agent](/software/agent) all execute on the Jetson, with the cloud only handling the model call and [policy training](/training/train-act-policy). You need a computer to develop for MARS, but once your agents and skills are on it, you can close the laptop and walk away.
-
-You can buy an assembled MARS and access the open hardware/software repository:
-
-<CardGroup cols={2}>
-  <Card title="Innate Website" href="https://innate.bot/">
-    Buy assembled MARS units and find product information.
-  </Card>
-  <Card title="MARS Repository" href="https://github.com/innate-inc">
-    Open-source hardware and software repository.
-  </Card>
-</CardGroup>
+The hardware designs are at [github.com/innate-inc/mars](https://github.com/innate-inc/mars) and the software at [github.com/innate-inc/innate-os](https://github.com/innate-inc/innate-os). Buy an assembled robot at [innate.bot](https://innate.bot).

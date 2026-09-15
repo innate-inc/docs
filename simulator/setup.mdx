@@ -88,7 +88,7 @@ During installation, choose how the agent connects to Gemini:
 | Option | What you get |
 | --- | --- |
 | **Your own Gemini key** — default | Agent calls Google directly. Needs a [Gemini API key](https://aistudio.google.com/api-keys). No voice. |
-| **Innate service key** | Agent calls Gemini through Innate's proxy. Includes voice. Use the key included with your MARS or [ask on Discord](/support/contact-discord) if you plan on building with it. |
+| **Innate service key** | Agent calls Gemini through Innate's proxy. Includes voice. Use the key included with your MARS or [ask on Discord](/robots/mars/troubleshooting#get-help) if you plan on building with it. |
 | **None** | Drive, navigate, trigger skills. No agent. |
 
 ## Open the simulator
@@ -113,15 +113,17 @@ During installation, choose how the agent connects to Gemini:
     </Accordion>
   </Step>
   <Step title="You're ready!">
-    If you see an interface like this, the simulator is running:
+    The web app opens on the **Agent** page, with the simulated robot in the middle:
 
-    ![The simulator running in the MARS web app](/images/simulator/finished-sim.jpeg)
+    ![The Agent page of the web app, showing the simulated MARS](/images/simulator/open-webapp.jpg)
+  </Step>
+  <Step title="Talk to the agent">
+    **Demo Agent** is already selected. Press **Start**, then type *"What do you see?"* in the chat on the right. The agent looks through the robot's camera and answers.
 
-    Try these controls:
-
-    - Drive with the **W**, **A**, **S**, and **D** controls in the lower-left corner.
-    - Select a camera preview in the upper-right corner to change views.
-    - In third-person view, click and drag the scene to move the camera around MARS.
+    This needs the Gemini key or Innate service key you chose [during install](#choose-your-agent-setup).
+  </Step>
+  <Step title="Drive the robot">
+    Open **Teleop**, the first icon in the left rail. Drive with **W**, **A**, **S**, and **D**, pick a camera preview in the top right to change views, and drag the scene to move the camera around MARS.
   </Step>
   <Step title="Stop and start it again">
     Both commands run from the `innate-os/` folder.
@@ -160,10 +162,10 @@ During installation, choose how the agent connects to Gemini:
 
 ## Troubleshooting
 
-Launcher errors include the next step (missing packages come with the install command), and the installer keeps its detailed output in `~/.innate-install.log`. If you're stuck, [ask on Discord](/support/contact-discord) — setup reports from new machines are how the rough edges get fixed.
+Launcher errors include the next step (missing packages come with the install command), and the installer keeps its detailed output in `~/.innate-install.log`. If you're stuck, [ask on Discord](/robots/mars/troubleshooting#get-help) — setup reports from new machines are how the rough edges get fixed.
 
-## Build with the simulator
+## Next: build something
 
-<Card title="Building with the simulator" icon="wrench" href="/simulator/building-with-the-simulator">
-  Write a skill, hand it to an agent, iterate on save.
+<Card title="Your first agent and skill" icon="wand-magic-sparkles" href="/software/your-first-agent">
+  Write a skill, hand it to an agent, and watch the robot decide when to use it.
 </Card>

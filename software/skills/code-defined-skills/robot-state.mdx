@@ -1,168 +1,63 @@
 ---
 title: "Robot State"
+description: "Reference for sensor feeds a skill can read: cameras, odometry, map, and more"
 ---
 
-import { RobotStateAvailableTable } from '/snippets/interface-methods-table.mdx';
-
-Skills read sensor data — camera frames, odometry, the map, and more — as **typed ambient state**. Declare what you read as a class-level type annotation and the system injects it, then keeps it **updated at 50Hz** while your skill runs.
-
-## Declaration
-
-One rule covers everything: annotate what you read.
+Declare a feed on your skill class and read it as an attribute. It stays updated at 50 Hz while the skill runs.
 
 ```innatepy
 from innate import Battery, MainImage, Odometry, Skill
 
 class MySkill(Skill):
-    image: MainImage           # required: guaranteed before execute() starts
-    odom: Odometry             # required
-    battery: Battery | None    # optional: None when no reading is available
-```
-
-A plain annotation is **required** — the server waits for the first value and fails the run up front if none arrives, so no `None` guards are needed inside `execute()`. The wait is 3 s for cameras, 6 s for the battery (it only publishes at ~0.2 Hz), 2 s for everything else. Appending `| None` makes the feed **best effort** instead: injected when available, `None` otherwise, and every read must be guarded.
-
-Reading an undeclared feed raises with a hint (`declare it on the class with a type annotation`), and your editor flags it before you ship.
-
-## Available State
-
-<RobotStateAvailableTable />
-
-## Camera Frames
-
-Cameras must be declared — the server starts them per run (frame encoding is too expensive to keep warm). A required camera fails the run if no frame arrives within a short grace period; an optional (`| None`) camera never delays the start — wait for it in `execute()` if you need to (`self.wait_for(lambda: self.image)`).
-
-An `Image` **is** the base64 JPEG text (it subclasses `str`, so anything that treated frames as base64 strings keeps working); `.jpeg` is the decoded bytes:
-
-```innatepy
-from innate import MainImage, Skill, WristImage
-
-class MySkill(Skill):
-    image: MainImage
-    wrist_image: WristImage | None
-
-    def execute(self):
-        # As bytes, e.g. for PIL:
-        from io import BytesIO
-        from PIL import Image
-        img = Image.open(BytesIO(self.image.jpeg))
-
-        # As base64 text, e.g. for a vision API:
-        response = vision_api.analyze(self.image)
-```
-
-`DepthMap` is a `(height, width)` numpy array (uint16 mm or float32 m), declared as `depth: DepthMap`.
-
-## Odometry
-
-A flat 2D snapshot — MARS is a differential-drive base on flat ground, so its pose is fully `(x, y, theta)`:
-
-```innatepy
-from innate import Odometry, Skill
-
-class MySkill(Skill):
+    image: MainImage          # required: the run fails up front if it's missing
     odom: Odometry
-
-    def execute(self):
-        x, y = self.odom.position           # meters, odom frame
-        heading = self.odom.theta           # radians, wrapped to [-pi, pi]
-        heading_deg = self.odom.theta_degrees
-        speed = self.odom.linear_velocity   # m/s, negative when reversing
-        # self.odom.raw is the full nav_msgs/Odometry as a dict if you
-        # need more (real quaternion, covariances, full twist).
+    battery: Battery | None   # optional: None when there's no reading
 ```
 
-`pose: Pose` has the same shape in the map frame — the coordinates `navigate_to_position` targets. Which one you want depends on the frame:
+Required feeds wait for a first value before the run starts: 3 s for cameras, 6 s for the battery, and 2 s for everything else.
+
+## Feeds
+
+| Declaration | Contents |
+| --- | --- |
+| `image: MainImage` | Head camera frame. It's a base64 JPEG string; `.jpeg` gives bytes. |
+| `wrist_image: WristImage` | Wrist camera frame, same format |
+| `depth: DepthMap` | Depth as a `(height, width)` numpy array |
+| `odom: Odometry` | `.position` (x, y), `.theta`, `.theta_degrees`, `.linear_velocity`, `.raw` |
+| `pose: Pose \| None` | Same shape as `Odometry`, in the map frame. `None` until localized. |
+| `map: Map` | `.grid` (-1 unknown, 0 free, 100 occupied), `.resolution`, origin |
+| `battery: Battery` | `.percentage` (0–1), `.voltage`, `.current`, `.charging` |
+| `lidar: Lidar` | Ranges and angles. `.min_range(-30, 30)` gives the closest hit ahead. |
+| `arm: Arm` | Gripper pose: `.position`, `.rpy`, `.pitch`, `.gripper` |
+| `joint_states: JointStates` | Arm joints. `.of("j4")` gives position, velocity, effort. |
+| `head_position: HeadState` | `.pitch_degrees`, negative is down |
+
+## Odometry or pose?
 
 | | `odom: Odometry` | `pose: Pose` |
 | --- | --- | --- |
-| Frame | where the robot thinks it has driven | where localization says it is |
-| Behavior | drifts slowly, never jumps | corrects, so it *can* jump |
-| Use for | relative moves: "forward 0.4 m", "turn 90°" | absolute positions on the map |
+| Frame | Where the robot thinks it drove since boot | Where it is on the saved map |
+| Behavior | Drifts slowly, never jumps | Corrects itself, so it can jump |
+| Use for | Relative moves: "forward 0.4 m" | Places on the map |
 
-`odom` resets every boot but is always there. `pose` reads `None` until the robot is localized, so declare it `Pose | None` unless localization is guaranteed.
-
-## Map
-
-The occupancy grid:
+## Example
 
 ```innatepy
-from innate import Map, Skill
+import math, time
+from innate import Odometry, Skill
 
-class MySkill(Skill):
-    map: Map
 
-    def execute(self):
-        grid = self.map.grid            # (height, width) int8 array:
-                                        # -1 unknown, 0 free, 100 occupied
-        meters_per_cell = self.map.resolution
-        # cell (row, col) covers world point
-        # (origin_x + col * resolution, origin_y + row * resolution)
-```
-
-## Other feeds
-
-```innatepy
-self.battery.percentage      # 0.0-1.0; also .voltage, .current, .charging
-self.lidar.min_range(-30, 30)   # closest valid return ahead, in meters
-self.arm.position            # end-effector (x, y, z); .rpy / .pitch derived; .gripper is the claw joint
-self.joint_states.of("j4")   # (position, velocity, effort) for a named joint
-self.head_position.pitch_degrees   # current head pitch (negative = down)
-```
-
-`arm: Arm` is the ambient 50 Hz feed; `self.manipulation.pose` returns the same `Arm` type on demand (and raises if the FK feed is down) — see [Body Control Interfaces](/software/skills/code-defined-skills/body-control-interfaces).
-
-## Example: CaptureImages
-
-Capture images while rotating. The camera and mobility are declared with bare annotations, so both are guaranteed inside `execute()`:
-
-```innatepy
-import math
-from innate import MainImage, Mobility, Skill, SkillReturn
-
-class CaptureImages(Skill):
-    mobility: Mobility
-    image: MainImage
-
-    def guidelines(self) -> str:
-        return "Use to capture images from multiple directions."
-
-    def execute(self, num_directions: int = 4) -> SkillReturn:
-        images = []
-        rotation_step = (2 * math.pi) / num_directions
-
-        for i in range(num_directions):
-            images.append(self.image)  # latest frame at this heading
-            self.feedback(f"Captured {i + 1}/{num_directions}")
-
-            if i < num_directions - 1:
-                self.mobility.rotate(rotation_step)
-
-        return f"Captured {len(images)} images"
-```
-
-## Example: MonitorPosition
-
-Track how far the robot moves over a window. `self.sleep()` is what makes the loop interruptible:
-
-```innatepy
-import math
-import time
-from innate import Odometry, Skill, SkillReturn
-
-class MonitorPosition(Skill):
+class MeasureDistance(Skill):
     odom: Odometry
 
     def guidelines(self) -> str:
-        return "Use to monitor robot position for a duration."
+        return "Use to report how far the robot moves over a few seconds."
 
-    def execute(self, duration: float = 5.0) -> SkillReturn:
-        start_x, start_y = self.odom.position
-        deadline = time.time() + duration
-
-        while time.time() < deadline:
-            x, y = self.odom.position
-            self.feedback(f"Moved {math.hypot(x - start_x, y - start_y):.2f}m from start")
+    def execute(self, seconds: float = 5.0):
+        x0, y0 = self.odom.position
+        end = time.time() + seconds
+        while time.time() < end:
             self.sleep(0.5)
-
-        return "Monitoring complete"
+        x, y = self.odom.position
+        return f"Moved {math.hypot(x - x0, y - y0):.2f} m"
 ```

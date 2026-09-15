@@ -1,34 +1,85 @@
 ---
 title: "Simulator"
-description: "A complete simulation of MARS that runs on your laptop — no robot required"
+description: "A complete AI robot on your laptop. Free, no hardware needed."
 ---
-
-The Innate simulator is the same software that runs on a physical MARS — navigation, skills, the AI agent, the web app — running on your laptop against a physics simulation. **Anything you build here works unchanged on a real MARS.**
-
-<CardGroup cols={2}>
-  <Card title="Set up the simulator" icon="rocket" href="/simulator/setup">
-    Run one installer command, start the simulator, open the browser.
-  </Card>
-  <Card title="Build with the simulator" icon="wrench" href="/simulator/building-with-the-simulator">
-    Write a skill, hand it to an agent, iterate on save.
-  </Card>
-</CardGroup>
 
 <video
   autoPlay
   muted
   loop
   playsInline
-  controls
   className="w-full rounded-xl"
-  poster="/images/simulator/sim.png"
-  src="/videos/simulator/sim-recording.mp4"
+  poster="/images/simulator/objects-pick-and-drop-poster.jpg"
+  src="/videos/simulator/objects-pick-and-drop.mp4"
 >
-  Driving the simulated MARS robot through its apartment in the browser.
+  Placing a blue can and a crate, then asking the agent to put the can in the box and watching it pick up the can and drop it in.
 </video>
 
-## What's in the sim
+**Talk to a robot, teach it new skills in Python, and watch it decide when to use them.** The simulator runs Innate OS, the full software of a real robot, in a 3D world on your laptop.
 
-A furnished apartment with a driving base, arm, head camera, wrist camera, lidar, and a navigation map. The web app at `https://localhost` is the same operator UI a real robot serves, plus a sim-only **top view** camera.
+<CardGroup cols={2}>
+  <Card title="Try it in your browser" icon="globe" href="https://sim.innate.bot">
+    Nothing to install. Join the queue and take MARS for a spin.
+  </Card>
+  <Card title="Run it on your laptop" icon="terminal" href="/simulator/setup">
+    One command, about 10 minutes. You need this to build your own skills and agents.
+  </Card>
+</CardGroup>
 
-Physics runs in [MuJoCo](https://mujoco.org) in real time. Architecture and a ROS-free Python API: [simulator README](https://github.com/innate-inc/innate-os/blob/main/sim/README.md).
+Install it with one command:
+
+```bash
+curl -fsSL https://link.innate.bot/sim | sh
+```
+
+Works on macOS, Linux, and Windows with WSL2. To chat with the agent, get a free [Gemini API key](https://aistudio.google.com/api-keys) before you start.
+
+## What you can do
+
+<CardGroup cols={2}>
+  <Card title="Create an agent without code" icon="comments">
+    Write a prompt, pick skills, and chat. It sees through the robot's cameras and acts on what you ask.
+
+    <video autoPlay muted loop playsInline className="feature-video" src="/videos/simulator/feature-create-agent.mp4">
+      Creating an agent in the web app and chatting with it.
+    </video>
+  </Card>
+  <Card title="Give it new skills in Python" icon="code">
+    Write a short class and save. The robot can use it a second later, and the agent decides when.
+
+    <video autoPlay muted loop playsInline className="feature-video" src="/videos/simulator/feature-skill-reload.mp4">
+      Editing a skill in the editor, saving, and running it on the simulated robot.
+    </video>
+  </Card>
+  <Card title="Take on challenges" icon="trophy">
+    Scored missions: find a person who collapsed, push a ball to the dog, escape the Backrooms.
+
+    <video autoPlay muted loop playsInline className="feature-video" src="/videos/simulator/feature-challenge.mp4">
+      Picking a challenge and watching its goals tick off.
+    </video>
+  </Card>
+  <Card title="Drive through different worlds" icon="map">
+    An apartment, a city crossroads with traffic, and the Backrooms, with LiDAR, cameras, depth, and an arm.
+
+    <video autoPlay muted loop playsInline className="feature-video" src="/videos/simulator/feature-worlds.mp4">
+      Driving MARS through the apartment, the Backrooms, and the crossroads.
+    </video>
+  </Card>
+</CardGroup>
+
+## For roboticists
+
+Under the web app is a full ROS 2 stack, with the same topics, message types, and frames as the real hardware. Connect [Foxglove](/simulator/working-with-the-simulator#foxglove-and-ros-tooling) and your own ROS tools, or skip ROS and Docker entirely: [`VirtualMars`](/simulator/working-with-the-simulator#the-simulated-world-as-a-python-object) gives you the whole world as a Python object for scripts and reinforcement learning.
+
+![Foxglove showing the simulated robot's cameras, map, LiDAR, and frames](/images/simulator/foxglove.png)
+
+Physics runs in [MuJoCo](https://mujoco.org). Everything you build here also runs, unchanged, on a real [MARS](/robots/mars).
+
+<CardGroup cols={2}>
+  <Card title="Set up the simulator" icon="rocket" href="/simulator/setup">
+    Install, start it, and say hello to the agent.
+  </Card>
+  <Card title="Your first agent and skill" icon="wand-magic-sparkles" href="/software/your-first-agent">
+    Teach the robot a new trick in five minutes.
+  </Card>
+</CardGroup>
