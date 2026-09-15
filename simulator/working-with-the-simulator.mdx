@@ -115,10 +115,10 @@ hardware-bound features have no simulated counterpart:
 * **Voice input** uses your computer's microphone: hold the microphone button
   in the chat, or the spacebar, and talk. Like speech, it needs the hosted
   backend (the Innate service key).
-* **Policy-defined (trained) skills** are trained from teleoperation
-  recordings on physical hardware; the simulator is for developing and
-  testing [code-defined skills](/software/skills/code-defined-skills) and
-  agents.
+* **Policy-defined (trained) skills** need teleoperated episodes to train on,
+  and teleoperation isn't available in the simulator yet (coming soon). Until
+  then, use the simulator for [code skills](/software/skills/code-defined-skills)
+  and agents.
 
 Everything else — navigation, lidar, cameras, depth, the arm — behaves and
 publishes like the hardware it stands in for.
