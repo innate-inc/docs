@@ -112,8 +112,9 @@ hardware-bound features have no simulated counterpart:
 * **Speech** requires the hosted backend: the web app's speak bar disables
   itself with a hint when the sim runs on a local Gemini key or without a
   backend.
-* **Voice input** — there is no simulated microphone; talk to the agent
-  through chat instead.
+* **Voice input** uses your computer's microphone: hold the microphone button
+  in the chat, or the spacebar, and talk. Like speech, it needs the hosted
+  backend (the Innate service key).
 * **Policy-defined (trained) skills** are trained from teleoperation
   recordings on physical hardware; the simulator is for developing and
   testing [code-defined skills](/software/skills/code-defined-skills) and
