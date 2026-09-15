@@ -23,28 +23,14 @@ On this page you create an agent in the web app, see the Python it generates, wr
 
 ## 1. Create an agent
 
-<Steps>
-  <Step title="Open the form">
-    On the **Agent** page, open the agent picker at the top left and choose **Create agent**.
-  </Step>
-  <Step title="Name it and write the prompt">
-    On the **Identity** tab, name it `Cheerful Agent` and enter the prompt:
-
-    ```text
-    You are an enthusiastic robot. Celebrate good news physically.
-    ```
-  </Step>
-  <Step title="Give it skills">
-    On the **Skills** tab, click **Add skill** and pick `Wave` and `HeadEmotion`. Then click **Create**.
-  </Step>
-  <Step title="Talk to it">
-    Press **Start** and send *"Hi! What can you do?"* in the chat. The agent answers and picks a skill on its own.
-  </Step>
-</Steps>
-
 <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/tutorial-create-agent.mp4">
   Creating Cheerful Agent in the web app, adding two skills, and chatting with it.
 </video>
+
+1. On the **Agent** page, open the agent picker at the top left and choose **Create agent**.
+2. On the **Identity** tab, name it `Cheerful Agent` and enter the prompt: `You are an enthusiastic robot. Celebrate good news physically.`
+3. On the **Skills** tab, click **Add skill**, pick `Wave` and `HeadEmotion`, and click **Create**.
+4. Press **Start** and send *"Hi! What can you do?"* in the chat. The agent answers and picks a skill on its own.
 
 Chatting needs an AI backend: your own Gemini key or the Innate service key. In the simulator you choose it [during setup](/simulator/setup#choose-your-agent-setup).
 
@@ -62,54 +48,46 @@ That's all an agent is: a name, a prompt in `get_prompt()`, and a list of skills
 
 ## 3. Write your own skill
 
-<Steps>
-  <Step title="Create the skill file">
-    Create `workspace/custom_skills/victory_spin.py`:
+<video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/victory-spin.mp4">
+  Running the victory_spin skill from the web app's skill menu.
+</video>
 
-    ```innatepy
-    from innate import Mobility, Skill, SkillReturn
+1. Create `workspace/custom_skills/victory_spin.py`:
+
+   ```innatepy
+   from innate import Mobility, Skill, SkillReturn
 
 
-    class VictorySpin(Skill):
-        mobility: Mobility  # injected; guaranteed before execute() starts
+   class VictorySpin(Skill):
+       mobility: Mobility  # injected; guaranteed before execute() starts
 
-        def guidelines(self) -> str:
-            return "Use to celebrate: the robot spins in place once."
+       def guidelines(self) -> str:
+           return "Use to celebrate: the robot spins in place once."
 
-        def execute(self, spins: int = 1) -> SkillReturn:
-            """Spin the robot in place to celebrate.
+       def execute(self, spins: int = 1) -> SkillReturn:
+           """Spin the robot in place to celebrate.
 
-            Args:
-                spins: How many full turns to make (1-3).
-            """
-            for _ in range(2 * min(int(spins), 3)):
-                self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
-            return "Spun with joy"
-    ```
+           Args:
+               spins: How many full turns to make (1-3).
+           """
+           for _ in range(2 * min(int(spins), 3)):
+               self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
+           return "Spun with joy"
+   ```
 
-    The agent reads `guidelines()` to decide when to use the skill, and the `execute()` signature and docstring to know how to call it.
-  </Step>
-  <Step title="Save. That's the whole deploy">
-    The robot watches `workspace/` and loads the skill a second or two after you save. No build, no restart.
-  </Step>
-  <Step title="Try it">
-    Open the skill menu in the web app and run `victory_spin`. The robot spins.
+2. Save. That's the whole deploy: the robot loads the skill a second or two later, with no build or restart.
+3. Open the skill menu in the web app and run `victory_spin`. The robot spins.
 
-    <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/victory-spin.mp4">
-      Running the victory_spin skill from the web app's skill menu.
-    </video>
-
-    Edit the file, save, and run it again: that's the whole loop.
-  </Step>
-</Steps>
+The agent reads `guidelines()` to decide when to use the skill, and the `execute()` signature and docstring to know how to call it. Edit the file, save, and run it again: that's the whole loop.
 
 ## 4. Give it to your agent
-
-Select **Cheerful Agent**, open the **Skills** tab, add `VictorySpin`, and click **Save**. Then tell the agent *"I just merged a big PR!"*. It decides on its own that good news calls for a victory spin.
 
 <video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/simulator/tutorial-add-skill.mp4">
   Adding VictorySpin to Cheerful Agent, then telling it good news and watching it spin.
 </video>
+
+1. Select **Cheerful Agent**, open the **Skills** tab, add `VictorySpin`, and click **Save**.
+2. Tell the agent *"I just merged a big PR!"*. It decides on its own that good news calls for a victory spin.
 
 You've built a robot app: a prompt, three skills, and one of them your own code.
 
