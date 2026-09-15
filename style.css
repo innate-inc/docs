@@ -511,7 +511,7 @@ body:has(.home-hero) #header {
   color: #130a77;
   background: #ffffff;
   box-shadow: 0 2px 6px rgba(17, 24, 39, 0.18);
-  transform: rotate(-12deg);
+  transform: rotate(12deg);
 }
 
 #content-area .platform-actions a.platform-link {
