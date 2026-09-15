@@ -1,25 +1,75 @@
 ---
-title: "Intro to MARS"
-description: "An open-source mobile robot with an arm, built for AI agents"
+title: "Introduction"
+description: "Open-source software for AI robots, and the robot that runs it"
 ---
 
 import CurrentVersions from '/snippets/current-versions.mdx';
 
 ![](/images/home-hero.png)
 
-MARS is a small mobile robot with an arm, cameras, and an onboard AI computer. It sees, talks, drives around your home, and manipulates objects. You program it by writing **agents** (a prompt plus a list of skills) and **skills** (Python code or trained policies). Everything that runs on it, [Innate OS](https://github.com/innate-inc/innate-os), is open source.
+Innate builds two things:
 
-## Pick your path
+| | |
+| --- | --- |
+| **Innate OS** | Open-source software that turns a prompt and a few Python classes into a robot that sees, talks, and acts. It runs on a robot or in a simulator on your laptop. |
+| **MARS** | Our small home robot with wheels, an arm, and cameras. It runs Innate OS. |
+
+## Programming a robot, in short
+
+You write two kinds of things. A **skill** is something the robot can do, like spinning in place. An **agent** is a prompt plus a list of skills: an AI model watches the camera, listens to you, and picks the right skill at the right moment.
+
+<CodeGroup>
+```innatepy victory_spin.py
+from innate import Mobility, Skill
+
+
+class VictorySpin(Skill):
+    mobility: Mobility
+
+    def guidelines(self) -> str:
+        return "Use to celebrate: the robot spins in place once."
+
+    def execute(self):
+        for _ in range(2):
+            self.mobility.rotate(3.14)  # two half turns
+        return "Spun with joy"
+```
+
+```innatepy cheerful.py
+from innate import Agent, SkillRef
+from custom_skills.victory_spin import VictorySpin
+
+
+class CheerfulAgent(Agent):
+    @property
+    def id(self) -> str:
+        return "cheerful"
+
+    @property
+    def display_name(self) -> str:
+        return "Cheerful"
+
+    def get_skills(self) -> list[SkillRef]:
+        return [VictorySpin]
+
+    def get_prompt(self) -> str:
+        return "You are an enthusiastic robot. Celebrate good news physically."
+```
+</CodeGroup>
+
+That's a working robot app. Tell it good news and it spins.
+
+## Start here
 
 <CardGroup cols={3}>
-  <Card title="I have a MARS" icon="robot" href="/get-started/mars-quick-start">
-    Power on, connect the app, drive, and talk to your robot.
+  <Card title="Try the simulator" icon="laptop" href="/simulator">
+    No robot needed. Run the full software on your laptop, or in your browser.
   </Card>
-  <Card title="No robot yet" icon="laptop" href="/simulator">
-    Run the full robot software in a simulator on your laptop.
+  <Card title="Set up your MARS" icon="robot" href="/get-started/mars-quick-start">
+    Power on, connect the app, and talk to your robot.
   </Card>
-  <Card title="I want to build" icon="code" href="/software/overview">
-    Learn how agents and skills work, then write your own.
+  <Card title="Build your first agent" icon="code" href="/software/your-first-agent">
+    Write a skill and an agent in five minutes.
   </Card>
 </CardGroup>
 
@@ -27,21 +77,19 @@ MARS is a small mobile robot with an arm, cameras, and an onboard AI computer. I
 
 <CardGroup cols={2}>
   <Card title="Examples" icon="play" href="/get-started/mars-example-use-cases">
-    Chess, tidying, patrolling: videos of what MARS can do.
+    Chess, tidying, patrolling: videos of real robots.
   </Card>
   <Card title="Train the arm" icon="brain" href="/training/overview">
     Teach a manipulation skill by demonstrating it.
   </Card>
-  <Card title="Hardware" icon="microchip" href="/robots/mars">
-    Sensors, arm, compute, and how to extend them.
+  <Card title="Source code" icon="github" href="https://github.com/innate-inc/innate-os">
+    Every line of Innate OS, open source.
   </Card>
-  <Card title="Troubleshooting" icon="life-ring" href="/robots/mars/troubleshooting">
-    Common problems and how to get help on Discord.
+  <Card title="Get help" icon="discord" href="https://discord.com/invite/KtkyT97kc7">
+    The team and other builders are on Discord.
   </Card>
 </CardGroup>
 
 ## Current versions
 
 <CurrentVersions />
-
-Questions? The team is on [Discord](https://discord.com/invite/KtkyT97kc7).

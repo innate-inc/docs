@@ -1,23 +1,17 @@
 ---
-title: "How It Works"
-description: "Agents, skills, inputs, and the loop that runs them on the robot"
+title: "How the Agent Decides"
+description: "What happens between your message and the robot's action"
 ---
 
-MARS acts on its own through **the Innate agent**, a loop that runs on the robot. It looks through the camera, asks a vision-language model what to do, and runs a skill. You shape it with three kinds of Python files.
+You don't need this page to build agents. Read it when you want to know why the robot did something.
 
-| You write | What it is | Guide |
-| --- | --- | --- |
-| **Agent** | A prompt and a list of skills. It sets who the robot is. | [Agents](/software/agents) |
-| **Skill** | Something the robot can do: Python code or a trained policy. | [Skills](/software/skills) |
-| **Input** | A data source the agent listens to, like the microphone. | [Inputs](/software/inputs) |
-
-Files go in `~/innate-os/workspace/` and reload the moment you save. Below that layer is standard ROS 2, which you only need for [low-level work](/software/ros2-core).
+The Innate agent is a loop that runs on the robot. Your [agent](/software/agents) gives it a prompt, skills, and inputs.
 
 <Callout icon="image" color="#7569FD">
   **Image to make: The agent loop.** Diagram of one turn: camera frame and new events (speech, skill feedback, inputs) go into the Innate agent, which sends them with the agent's prompt and skills to the model, then acts by running a skill, speaking, or waiting. Show the agent file feeding prompt, skills, and inputs into the loop. Replaces the old system diagram, which still says "B.A.S.I.C." and has "TKTK" labels.
 </Callout>
 
-## The loop
+## One turn at a time
 
 The agent works in turns, one at a time:
 
@@ -50,18 +44,3 @@ The loop uses Gemini (`gemini-3.6-flash` by default, set in [`config/settings.ya
 | **Innate hosted** | Nothing. Robots ship with an `INNATE_SERVICE_KEY`. Free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. |
 | **Your own key** | Set `GEMINI_API_KEY`. The robot calls Google directly. |
 | **None** | Leave both unset. You can still drive and run skills by hand. |
-
-## Memory
-
-While it drives, the robot keeps the views worth remembering, tied to places on the map. Ask *"Where did you last see my keys?"* and it searches them, answers, and can drive there. Skills can search it too with [spatial memory](/software/skills/code-defined-skills/spatial-memory).
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Try it in the simulator" icon="laptop" href="/simulator/building-with-the-simulator">
-    Write a skill and an agent in five minutes, no robot needed.
-  </Card>
-  <Card title="Set up a real robot" icon="terminal" href="/software/development-setup">
-    Open MARS in your editor over SSH.
-  </Card>
-</CardGroup>

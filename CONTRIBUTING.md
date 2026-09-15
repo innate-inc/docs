@@ -31,7 +31,7 @@ Readers skim. Every page should be as short as it can be while still getting the
 | Type | Shape | Example |
 | --- | --- | --- |
 | How-to | One-sentence goal, numbered steps, how to check it worked | [Simulator setup](simulator/setup.mdx) |
-| Concept | What it is, how it works (with a diagram), links onward | [How it works](software/overview.mdx) |
+| Concept | What it is, how it works (with a diagram), links onward | [Working with the simulator](simulator/working-with-the-simulator.mdx) |
 | Reference | One-line intro, a small example, then tables | [Movement API](software/skills/code-defined-skills/body-control-interfaces.mdx) |
 
 **Structure.**

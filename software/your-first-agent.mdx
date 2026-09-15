@@ -1,0 +1,121 @@
+---
+title: "Your First Agent and Skill"
+description: "Teach the robot a new trick, then let an AI agent decide when to use it"
+---
+
+You program a robot with two things:
+
+- A **skill** is something the robot can do. It's a Python class.
+- An **agent** is a prompt plus a list of skills. An AI model watches the camera, listens to you, and picks a skill when it fits.
+
+This page builds one of each in about five minutes.
+
+## Before you start
+
+<Tabs>
+  <Tab title="Simulator">
+    Start the simulator ([setup](/simulator/setup)) and open the `innate-os` folder in your editor. The simulator runs straight from that folder, so saving a file changes the running robot.
+  </Tab>
+  <Tab title="MARS">
+    Open `~/innate-os` on the robot in your editor over SSH ([Develop on MARS](/software/development-setup)).
+  </Tab>
+</Tabs>
+
+Your files go in `workspace/`. It's the same folder on a real robot and in the simulator, so anything you build moves between them unchanged.
+
+## Your first skill
+
+<Steps>
+  <Step title="Create the skill file">
+    Create `workspace/custom_skills/victory_spin.py`:
+
+    ```innatepy
+    from innate import Mobility, Skill, SkillReturn
+
+
+    class VictorySpin(Skill):
+        mobility: Mobility  # injected; guaranteed before execute() starts
+
+        def guidelines(self) -> str:
+            return "Use to celebrate: the robot spins in place once."
+
+        def execute(self, spins: int = 1) -> SkillReturn:
+            """Spin the robot in place to celebrate.
+
+            Args:
+                spins: How many full turns to make (1-3).
+            """
+            for _ in range(2 * min(int(spins), 3)):
+                self.mobility.rotate(3.14)  # half turn, blocking; two = one spin
+            return "Spun with joy"
+    ```
+
+    The agent reads your `execute()` signature and docstring to learn how to call the skill. Type hints and the docstring are the API contract.
+  </Step>
+  <Step title="Save. That's the whole deploy">
+    The robot watches `workspace/` and reloads skills a second or two after you save. No build, no restart.
+  </Step>
+  <Step title="Trigger it">
+    Open the web app, go to the skill menu, and run `victory_spin`. The robot spins:
+
+    <video autoPlay muted loop playsInline controls className="w-full rounded-xl" src="/videos/simulator/victory_spin.mp4">
+      Triggering the victory_spin skill from the web app's skill menu.
+    </video>
+
+    Edit the file, save, trigger again: that's the whole loop.
+  </Step>
+</Steps>
+
+## Hand it to an agent
+
+Skills get interesting when an agent decides to use them. Create `workspace/custom_agents/cheerful.py`:
+
+```innatepy
+from innate import Agent, SkillRef
+from custom_skills.victory_spin import VictorySpin
+
+
+class CheerfulAgent(Agent):
+    @property
+    def id(self) -> str:
+        return "cheerful"
+
+    @property
+    def display_name(self) -> str:
+        return "Cheerful"
+
+    def get_skills(self) -> list[SkillRef]:
+        return [VictorySpin]
+
+    def get_prompt(self) -> str:
+        return "You are an enthusiastic robot. Celebrate good news physically."
+```
+
+Listing the class is enough. Because the agent imports the skill, your editor catches a typo or a rename before the robot does.
+
+It reloads the same way. In the web app's agent picker, select **Cheerful** and start it. Tell it in chat that you just merged a big PR. It should decide on its own that this calls for `victory_spin`, and you can watch its reasoning in the AI thoughts panel.
+
+<video autoPlay muted loop playsInline controls className="w-full rounded-xl" src="/videos/simulator/cheerful_agent.mp4">
+  Starting the Cheerful agent and watching it trigger victory_spin from chat.
+</video>
+
+Chatting needs an AI backend: your own Gemini key or the Innate service key. In the simulator you choose it [during setup](/simulator/setup#choose-your-agent-setup).
+
+## When changes take effect
+
+| You edited | What to do |
+| --- | --- |
+| Skills or agents in `workspace/` | Nothing. They reload on save. |
+| Settings in `config/` | Run `innate restart`. In the simulator, run it inside `./innate-sim sh`. |
+| ROS code in `ros2_ws/src/` | Run `innate build`, then `innate restart`. |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/software/agents">
+    Microphone input, prompts that work, and the built-in agents.
+  </Card>
+  <Card title="Write a skill" icon="code" href="/software/skills/code-defined-skills">
+    Use the arm and cameras, return results, and chain skills together.
+  </Card>
+</CardGroup>

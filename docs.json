@@ -31,7 +31,6 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "get-started/mars-quick-start",
               "get-started/mars-example-use-cases"
             ]
           },
@@ -40,31 +39,19 @@
             "pages": [
               "simulator",
               "simulator/setup",
-              "simulator/building-with-the-simulator"
-            ]
-          },
-          {
-            "group": "MARS",
-            "pages": [
-              "robots/mars",
-              "robots/apps",
-              "robots/mars/control-and-connectivity",
-              "robots/mars/connecting-via-ssh",
-              "robots/mars/updates-and-maintenance",
-              "robots/mars/stereo-depth-calibration",
-              "robots/mars/extending-mars"
+              "simulator/working-with-the-simulator"
             ]
           },
           {
             "group": "Build Agents and Skills",
             "pages": [
-              "software/overview",
-              "software/development-setup",
+              "software/your-first-agent",
               "software/agents",
               "software/skills",
               "software/skills/code-defined-skills",
               "software/skills/policy-defined-skills",
               "software/inputs",
+              "software/agent-loop",
               {
                 "group": "Reference",
                 "pages": [
@@ -74,6 +61,20 @@
                 ]
               },
               "software/agents/chess-beta"
+            ]
+          },
+          {
+            "group": "MARS",
+            "pages": [
+              "get-started/mars-quick-start",
+              "robots/mars",
+              "robots/apps",
+              "robots/mars/control-and-connectivity",
+              "robots/mars/connecting-via-ssh",
+              "software/development-setup",
+              "robots/mars/updates-and-maintenance",
+              "robots/mars/stereo-depth-calibration",
+              "robots/mars/extending-mars"
             ]
           },
           {
@@ -183,15 +184,15 @@
     },
     {
       "source": "/software/basic",
-      "destination": "/software/overview"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/software/basic/connecting-to-basic",
-      "destination": "/software/overview"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/software/agent/connecting-to-the-agent",
-      "destination": "/software/overview"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/robots/mars/troubleshooting-and-faq",
@@ -275,7 +276,7 @@
     },
     {
       "source": "/software/agent",
-      "destination": "/software/overview"
+      "destination": "/software/agent-loop"
     },
     {
       "source": "/software/agents/definitions",
@@ -328,6 +329,14 @@
     {
       "source": "/software/ros2/actions",
       "destination": "/software/ros2/interfaces#actions"
+    },
+    {
+      "source": "/simulator/building-with-the-simulator",
+      "destination": "/software/your-first-agent"
+    },
+    {
+      "source": "/software/overview",
+      "destination": "/software/your-first-agent"
     }
   ]
 }
