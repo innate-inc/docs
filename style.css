@@ -228,12 +228,14 @@ pre,
   justify-content: center;
   width: 52px;
   height: 52px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: 12px;
-  background: rgba(64, 31, 251, 0.08);
+  background: #f5f5f6;
 }
 
 .dark #content-area .platform-icon {
-  background: rgba(117, 105, 253, 0.18);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 #content-area .platform-title {
