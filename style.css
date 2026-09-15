@@ -519,3 +519,14 @@ body:has(.home-hero) #header {
 #content-area .platform-actions a.platform-link {
   margin-top: 0;
 }
+
+/* Short looping clips inside the Simulator page feature cards */
+#content-area video.feature-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  margin-top: 14px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #111;
+}
