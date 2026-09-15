@@ -27,6 +27,14 @@ Challenges are scored missions. Open the web app's **Agent** page and pick one: 
 
 To write your own, add a file to `sim/challenges/`. The [simulator README](https://github.com/innate-inc/innate-os/blob/main/sim/README.md#challenges) shows the format.
 
+## Objects
+
+Open **Scene setup → Objects** in the 3D view to add a can, a ball, a cube, a crate, people, or a dog. Place each one **Near robot**, or choose a spot. Then ask the agent to use them, for example *"Put the can in the crate"*. It chains the shipped `pick_any_object` and `drop_in_box` skills.
+
+<Callout icon="video" color="#7569FD">
+  **Recording to make: `objects-pick-and-drop.mp4`.** Add a can near the robot and a crate a meter away, ask the agent to put the can in the crate, and watch it pick, drive, and drop.
+</Callout>
+
 ## Worlds
 
 The apartment is the default. Switch from **Scene setup → Environment** in the 3D view, or at launch:
