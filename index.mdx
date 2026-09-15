@@ -21,9 +21,8 @@ Innate builds two things:
 You write two kinds of things. A **skill** is something the robot can do, like spinning in place. An **agent** is a prompt plus a list of skills: an AI model watches the camera, listens to you, and picks the right skill at the right moment.
 
 <CodeGroup>
-```innatepy victory_spin.py
+```innatepy Skill
 from innate import Mobility, Skill
-
 
 class VictorySpin(Skill):
     mobility: Mobility
@@ -37,10 +36,9 @@ class VictorySpin(Skill):
         return "Spun with joy"
 ```
 
-```innatepy cheerful.py
+```innatepy Agent
 from innate import Agent, SkillRef
 from custom_skills.victory_spin import VictorySpin
-
 
 class CheerfulAgent(Agent):
     @property
