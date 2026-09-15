@@ -6,7 +6,7 @@ description: "Teach MARS a manipulation skill by demonstrating it"
 You show MARS a task with the leader arm a few dozen times. Innate's cloud GPUs train a policy from those demonstrations, and the robot downloads it as a skill. You don't need a GPU or any ML setup.
 
 <Callout icon="image" color="#7569FD">
-  **Image to make: Training pipeline.** Horizontal diagram with five steps and rough durations: Record episodes with the leader arm (about 30 min) → Upload (automatic) → Train in the cloud (1–3 h) → Download to the robot (automatic) → Run as a skill from the app or an agent. Replaces an ASCII diagram.
+  **Image to make: Training pipeline.** Horizontal diagram with five steps and rough durations: Record 30+ demonstrations with the leader arm → Upload (automatic) → Train in the cloud (1–3 h) → Download to the robot (automatic) → Run as a skill from the app or an agent. Replaces an ASCII diagram.
 </Callout>
 
 The model is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705). It looks at both cameras and the arm's joints, and outputs arm and base commands 25 times a second.

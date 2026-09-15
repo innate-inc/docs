@@ -521,12 +521,22 @@ body:has(.home-hero) #header {
 }
 
 /* Short looping clips inside the Simulator page feature cards */
+#content-area .card:has(.feature-video),
+#content-area .card:has(.feature-video) div:has(.feature-video) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
 #content-area video.feature-video {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 2;
-  margin-top: 14px;
+  margin-top: auto;
   border-radius: 10px;
   object-fit: cover;
-  background: #111;
+}
+
+#content-area .card:has(.feature-video) [data-component-part="card-content"] > :not(video) {
+  margin-bottom: 14px;
 }
