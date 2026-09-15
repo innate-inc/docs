@@ -9,12 +9,46 @@ import CurrentVersions from '/snippets/current-versions.mdx';
   <img src="/images/mars-face.png" alt="The head of MARS, with its two stereo cameras" style={{ width: "60%", maxWidth: "480px", display: "block" }} />
 </div>
 
-Innate builds two things:
+## Innate builds two things
 
-| | |
-| --- | --- |
-| **Innate OS** | Open-source software that turns a prompt and a few Python classes into a robot that sees, talks, and acts. It runs on a robot or in a simulator on your laptop. |
-| **MARS** | Our small home robot with wheels, an arm, and cameras. It runs Innate OS. |
+The software is open source and runs on MARS or in a simulator on your laptop.
+
+<div className="platform-grid">
+  <div className="platform-card">
+    <div className="platform-card-head">
+      <div className="platform-icon"><Icon icon="code" size={24} color="#401FFB" /></div>
+      <div>
+        <div className="platform-title">Innate OS</div>
+        <div className="platform-sub">The software that makes the robot act on its own.</div>
+      </div>
+    </div>
+    <div className="platform-body">You describe behavior as agents and skills in Python. Innate OS does the rest: the AI loop that decides what to do, navigation and mapping, the cameras, the arm, and speech. Save a file and the robot picks it up.</div>
+    <div className="platform-tags">
+      <span className="platform-tag">Python</span>
+      <span className="platform-tag">ROS 2</span>
+      <span className="platform-tag">Apache 2.0</span>
+      <span className="platform-tag">Simulator included</span>
+    </div>
+    <a className="platform-link" href="/software/your-first-agent">Build your first agent →</a>
+  </div>
+  <div className="platform-card">
+    <div className="platform-card-head">
+      <div className="platform-icon"><Icon icon="robot" size={24} color="#401FFB" /></div>
+      <div>
+        <div className="platform-title">MARS</div>
+        <div className="platform-sub">A small home robot that sees, talks, drives, and grabs.</div>
+      </div>
+    </div>
+    <div className="platform-body">A mobile base with an arm and gripper, a stereo depth camera, a wrist camera, LiDAR, a speaker, and a microphone. Everything runs onboard. Teach the arm new tasks by demonstrating them with the leader arm.</div>
+    <div className="platform-tags">
+      <span className="platform-tag">Jetson Orin Nano</span>
+      <span className="platform-tag">Stereo depth</span>
+      <span className="platform-tag">LiDAR</span>
+      <span className="platform-tag">Leader arm</span>
+    </div>
+    <a className="platform-link" href="/robots/mars">Learn about MARS →</a>
+  </div>
+</div>
 
 ## Programming a robot, in short
 
