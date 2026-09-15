@@ -470,3 +470,26 @@ body:has(.home-hero) #header {
 .dark #content-area img.platform-icon-img {
   filter: invert(1) hue-rotate(180deg);
 }
+
+#content-area .platform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: auto;
+}
+
+#content-area a.platform-button {
+  padding: 7px 16px;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: #401ffb;
+  border-bottom: none;
+  text-decoration: none;
+}
+
+#content-area .platform-actions a.platform-link {
+  margin-top: 0;
+}
