@@ -460,9 +460,9 @@ body:has(.home-hero) #header {
 
 #content-area .platform-icon img.platform-icon-img {
   display: block;
-  width: 44px !important;
+  width: 36px !important;
   max-width: none !important;
-  height: 44px !important;
+  height: 36px !important;
   margin: 0 !important;
   border-radius: 0;
 }
