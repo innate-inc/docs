@@ -64,8 +64,7 @@
                 ]
               },
               "software/inputs",
-              "software/agent-loop",
-              "software/agents/chess-beta"
+              "software/agent-loop"
             ]
           },
           {
@@ -296,10 +295,6 @@
       "destination": "/software/agents#write-a-good-prompt"
     },
     {
-      "source": "/software/agents/chessboard-calibration-beta",
-      "destination": "/software/agents/chess-beta#calibrate-the-board"
-    },
-    {
       "source": "/software/skills/manual-triggering",
       "destination": "/software/skills#run-a-skill-manually"
     },
@@ -342,6 +337,14 @@
     {
       "source": "/software/overview",
       "destination": "/software/your-first-agent"
+    },
+    {
+      "source": "/software/agents/chess-beta",
+      "destination": "/software/agents"
+    },
+    {
+      "source": "/software/agents/chessboard-calibration-beta",
+      "destination": "/software/agents"
     }
   ]
 }
