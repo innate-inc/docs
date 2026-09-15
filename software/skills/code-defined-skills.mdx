@@ -1,6 +1,6 @@
 ---
-title: "Write a Skill"
-description: "Python skills: declare what you need, write execute(), return a message"
+title: "Code Skills"
+description: "Write a skill in Python: declare what you need, write execute(), return a message"
 ---
 
 A code-defined skill is a Python class. The agent reads your `guidelines()` to decide when to call it, and your `execute()` signature to know how.
@@ -117,8 +117,6 @@ class TidyCorner(Skill):
 ```
 
 A failing sub-skill raises `SkillFailed`. Catch that, not bare `Exception`, or Stop won't work.
-
-To choose a skill at run time, use `self.skills.run("innate-os/turn_in_place", angle_degrees=90)`. It returns a failed `SkillOutput` instead of raising, so check `.ok`.
 
 ## Call external services
 

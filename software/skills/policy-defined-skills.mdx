@@ -34,7 +34,7 @@ def get_skills(self) -> list[SkillRef]:
 
 Inside another skill, declare it and call it with a timeout: `pick: PickSocks`, then `self.pick(timeout=60)`. See [Call other skills](/software/skills/code-defined-skills#call-other-skills).
 
-If the policy is still training and not on this robot yet, refer to it by ID with `PhysicalSkill("pick_socks")`.
+If the policy is still training and not on this robot yet, there is no class to import. Declare it by name instead: `pick = PhysicalSkill("pick_socks")`.
 
 ## Metadata file
 

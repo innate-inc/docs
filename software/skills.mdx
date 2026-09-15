@@ -1,5 +1,6 @@
 ---
 title: "Skills"
+sidebarTitle: "Overview"
 description: "What skills are, where they live, and how to run them"
 ---
 
@@ -13,8 +14,8 @@ A skill is one thing the robot can do: drive somewhere, pick up a sock, send an 
 Both types are called the same way, so agents and other skills don't need to know which kind they use.
 
 <CardGroup cols={2}>
-  <Card title="Write a skill" icon="code" href="/software/skills/code-defined-skills">
-    Python skills: the Skill class, results, cancellation, composition.
+  <Card title="Code skills" icon="code" href="/software/skills/code-defined-skills">
+    Write a skill in Python: the Skill class, results, cancellation, composition.
   </Card>
   <Card title="Policy-defined skills" icon="brain" href="/software/skills/policy-defined-skills">
     Trained policies and recorded replays.
@@ -23,13 +24,13 @@ Both types are called the same way, so agents and other skills don't need to kno
 
 ## Where skills live
 
-| Folder in `~/innate-os/workspace/` | Contents | Skill ID |
-| --- | --- | --- |
-| `custom_skills/` | **Your skills.** Gitignored, safe from updates. | `local/<name>` |
-| `innate_skills/` | Skills that ship with the OS | `innate-os/<name>` |
-| any other folder | A skill pack you dropped in | `<folder>/<name>` |
+| Folder in `~/innate-os/workspace/` | Contents |
+| --- | --- |
+| `custom_skills/` | **Your skills.** Gitignored, safe from updates. |
+| `innate_skills/` | Skills that ship with the OS |
+| any other folder | A skill pack you dropped in |
 
-Defining a `Skill` subclass in any `.py` file registers it. No config file needed. Everything reloads on save, and a file that fails to import shows up in the web app with its error.
+Defining a `Skill` subclass in any `.py` file registers it. No config file needed. To use a skill in an agent or another skill, import its class. The class name in snake_case is the name the apps show, so `VictorySpin` appears as `victory_spin`. Everything reloads on save, and a file that fails to import shows up in the web app with its error.
 
 A policy-defined skill is a folder with a `metadata.json` and a checkpoint, for example `custom_skills/pick_socks/`.
 
@@ -38,10 +39,6 @@ To install a skill pack stored elsewhere, symlink it into `workspace/`:
 ```bash
 ln -s /opt/team/skills ~/innate-os/workspace/team_skills
 ```
-
-## Skill IDs
-
-The class name in snake_case is the skill name, so `VictorySpin` becomes `victory_spin`. Its full ID adds the folder prefix from the table above, such as `local/victory_spin`. You mostly import the class instead, but IDs work anywhere a class does.
 
 ## Shipped skills
 
@@ -78,9 +75,10 @@ Running a skill by hand skips the agent. It's the fastest way to test one.
   </Tab>
   <Tab title="Terminal">
     ```bash
-    innate skill list                                  # what's loaded
-    innate skill type innate-os/turn_in_place          # its parameters
-    innate skill run innate-os/turn_in_place @angle_degrees=90
+    innate skill list                             # loaded skills and their IDs
+    innate skill run local/victory_spin @spins=2
     ```
+
+    The terminal uses skill IDs: `local/<name>` for your skills and `innate-os/<name>` for shipped ones.
   </Tab>
 </Tabs>

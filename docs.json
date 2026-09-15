@@ -47,19 +47,24 @@
             "pages": [
               "software/your-first-agent",
               "software/agents",
-              "software/skills",
-              "software/skills/code-defined-skills",
-              "software/skills/policy-defined-skills",
-              "software/inputs",
-              "software/agent-loop",
               {
-                "group": "Reference",
+                "group": "Skills",
                 "pages": [
-                  "software/skills/code-defined-skills/body-control-interfaces",
-                  "software/skills/code-defined-skills/robot-state",
-                  "software/skills/code-defined-skills/spatial-memory"
+                  "software/skills",
+                  "software/skills/code-defined-skills",
+                  "software/skills/policy-defined-skills",
+                  {
+                    "group": "Reference",
+                    "pages": [
+                      "software/skills/code-defined-skills/body-control-interfaces",
+                      "software/skills/code-defined-skills/robot-state",
+                      "software/skills/code-defined-skills/spatial-memory"
+                    ]
+                  }
                 ]
               },
+              "software/inputs",
+              "software/agent-loop",
               "software/agents/chess-beta"
             ]
           },

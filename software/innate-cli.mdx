@@ -30,6 +30,8 @@ Run `innate` on the robot over SSH. `in8` is a shorter alias. Running `innate` a
 | `innate skill type <id> [--json]` | Show a skill's parameters |
 | `innate skill run <id> [@key=value ...]` | Run a skill. `--timeout <sec>` limits the wait (default: no limit). |
 
+Skill IDs are `innate-os/<name>` for shipped skills and `local/<name>` for yours. `innate skill list` shows them.
+
 ```bash
 innate skill run local/victory_spin @spins=2
 ```
