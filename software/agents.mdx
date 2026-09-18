@@ -57,6 +57,12 @@ It loads within a second or two of saving. Import skills as classes, as above, s
 
 Every agent can already talk, wait, and stop a running skill. You don't list those.
 
+## Choose the model
+
+In the web app, open **Settings → Agent → Keys** to save your provider's key, then choose a model under **Settings → Agent → Model** or in the agent editor. OpenAI models use `OPENAI_API_KEY`; Gemini models use `GEMINI_API_KEY`. With an Innate service key, both can use Innate's proxy instead.
+
+The model setting applies to the robot's agent loop, including built-in agents. You do not need a different agent class for each provider. See [Use an OpenAI key](/simulator/setup#use-an-openai-key) for simulator setup and key precedence.
+
 ## Write a good prompt
 
 Skills decide what the robot *can* do. The prompt decides what it *does*. The model follows it literally, so be specific:
