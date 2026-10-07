@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "OS 0.7.1",
+        "version": "OS 0.8.0",
         "default": true,
         "groups": [
           {
@@ -88,6 +88,7 @@
               "training/data-collection",
               "training/train-act-policy",
               "training/deploy-trained-skill",
+              "training/lerobot",
               "training/dataset-format",
               "training/training-cli"
             ]

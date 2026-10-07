@@ -1,0 +1,180 @@
+---
+title: "Train with LeRobot"
+description: "Record, train, and run any LeRobot policy on MARS with the standard LeRobot commands"
+---
+
+MARS is a [LeRobot](https://github.com/huggingface/lerobot) robot: `--robot.type=mars`. Record LeRobotDataset v3 datasets, train ACT, Diffusion Policy, SmolVLA, π0 or any other LeRobot policy on your own GPU, and run it on the robot.
+
+LeRobot runs on your computer and talks to a bridge on the robot over the network. The bridge ships with Innate OS 0.8.0, is on by default, and does nothing until a client connects.
+
+| You need | |
+| --- | --- |
+| **Robot** | Innate OS 0.8.0 or newer |
+| **Computer** | macOS or Linux, on the same network as the robot, with [uv](https://docs.astral.sh/uv/getting-started/installation/) and git |
+| **For training** | An NVIDIA GPU or Apple Silicon. Recording and replay don't need one. |
+| **Optional** | A free [Hugging Face](https://huggingface.co/join) account, to upload datasets and policies |
+
+An example dataset recorded this way: [innate-inc/mars-pick-tv](https://huggingface.co/datasets/innate-inc/mars-pick-tv).
+
+## Set up
+
+<Steps>
+  <Step title="Check the bridge on the robot">
+    [Update](/robots/mars/updates-and-maintenance#update-innate-os) to 0.8.0 or newer. The manipulation server's log, in `innate view` or the web app's **Logging** page, should say:
+
+    ```text
+    LeRobot bridge listening on :5555 (actions) and :5556 (observations)
+    ```
+  </Step>
+  <Step title="Install on your computer">
+    ```bash
+    git clone https://github.com/innate-inc/innate-os.git
+    cd innate-os/lerobot
+    uv sync
+    ```
+
+    Run every command on this page from this folder.
+  </Step>
+  <Step title="Point it at your robot">
+    Set the robot's IP address once per terminal. Find it with `hostname -I` on the robot, or in the phone app under **Configuration → WiFi**.
+
+    ```bash
+    export MARS_HOST=192.168.1.42
+    ```
+  </Step>
+  <Step title="Check the connection">
+    ```bash
+    uv run lerobot-teleoperate --robot.type=mars --robot.external_commands=true \
+        --teleop.type=mars_passthrough --display_data=true
+    ```
+
+    A [Rerun](https://rerun.io/) window opens with both cameras and live joint plots. Drive the robot from the phone app or the web app and watch them move. Stop with Ctrl+C.
+  </Step>
+  <Step title="Log in to Hugging Face (optional)">
+    ```bash
+    uv run hf auth login      # needs a token with write permission
+    uv run hf auth whoami     # prints your account name
+    ```
+
+    That account name replaces `YOUR_HF_NAME` below. To stay offline, add `--dataset.push_to_hub=false` when you record.
+  </Step>
+</Steps>
+
+## Record a dataset
+
+Drive the robot the way you already do: the phone app, the web app's **Teleop** page, or the leader arm. LeRobot records what you command.
+
+```bash
+uv run lerobot-record \
+    --robot.type=mars --robot.external_commands=true --teleop.type=mars_passthrough \
+    --dataset.repo_id=YOUR_HF_NAME/mars-tidy-up --dataset.no_stamp=true \
+    --dataset.single_task="Put the ball in the box" \
+    --dataset.fps=30 --dataset.num_episodes=10 --dataset.private=true
+```
+
+| Key | Does |
+| --- | --- |
+| Right arrow | End this episode and start the next |
+| Left arrow | Discard this episode and record it again |
+| Escape | Stop and save |
+
+The dataset is saved under `~/.cache/huggingface/lerobot/YOUR_HF_NAME/mars-tidy-up` and uploaded to the Hub when the session ends. To add episodes later, run the same command with `--resume=true --dataset.root=$HOME/.cache/huggingface/lerobot/YOUR_HF_NAME/mars-tidy-up`.
+
+Fifty clean episodes of one task, with the object placed a little differently each time, make a good first dataset.
+
+## Replay, train, and run
+
+Leave teleop in the phone app and the web app first. While either one teleoperates, its commands win over LeRobot's.
+
+```bash
+# Replay episode 0 on the robot, to check the recording
+uv run lerobot-replay --robot.type=mars \
+    --dataset.repo_id=YOUR_HF_NAME/mars-tidy-up --dataset.episode=0
+
+# Train ACT on your computer (use --policy.device=mps on Apple Silicon)
+uv run lerobot-train \
+    --dataset.repo_id=YOUR_HF_NAME/mars-tidy-up \
+    --policy.type=act --policy.device=cuda \
+    --output_dir=outputs/train/act_mars --job_name=act_mars \
+    --steps=20000 --batch_size=8 --save_freq=5000 \
+    --policy.push_to_hub=false --wandb.enable=false
+
+# Run the trained policy on the robot for 60 seconds
+uv run lerobot-rollout --strategy.type=base \
+    --policy.path=outputs/train/act_mars/checkpoints/last/pretrained_model \
+    --policy.device=cuda \
+    --robot.type=mars --task="Put the ball in the box" --duration=60
+```
+
+- ACT is the best first model: it is small, trains quickly, and works with tens of episodes.
+- Other policies need their extra first, for example `uv sync --extra smolvla` and then `--policy.type=smolvla`. The extras are `diffusion`, `smolvla`, and `pi`.
+- Out of GPU memory: lower `--batch_size` and add `--policy.use_amp=true`.
+- The policy runs on your computer and streams actions to the robot. It doesn't know when the task is done, so `--duration` or Ctrl+C ends the run.
+
+## Record in the apps instead
+
+Datasets you [record in the web app or the phone app](/training/data-collection) convert to the same LeRobotDataset format, including ones recorded before 0.8.0. No terminal is involved, and the robot records the cameras on board at 30 fps, so this is usually the more robust choice on a real robot.
+
+To publish one, open the web app's **Datasets** page:
+
+1. Save a Hugging Face token with write permission under **Settings → Keys**.
+2. Press **Publish to Hugging Face**. The first time, the robot downloads the LeRobot environment, about 1.5 GB.
+3. Pick the account, a repository name, and whether a new dataset is private.
+
+Publishing again converts only the new episodes. Deleted episodes, and ones marked as failed, are left out. Then train and run as above.
+
+## Use the simulator
+
+Start the [simulator](/simulator/setup), then run any command on this page with `MARS_HOST=localhost`. Drive the simulated robot from its web app.
+
+The simulator renders the head camera at 10 fps and the wrist camera at 6 fps by default, so a 30 fps dataset repeats frames. To record at the real robot's rates (15 and 30 fps), restart it with `INNATE_SIM_HARDWARE_CAMERA_RATES=1 ./innate-sim up`. This needs a GPU on your computer.
+
+## Reference
+
+### Dataset features
+
+| Feature | dtype · shape | Contents |
+| --- | --- | --- |
+| `observation.state` | float32 · (6,) | `joint1.pos` … `joint6.pos` in rad. Joint 6 is the gripper. |
+| `observation.images.head` | video · (480, 640, 3) | Head camera, RGB |
+| `observation.images.wrist` | video · (480, 640, 3) | Wrist camera, RGB |
+| `action` | float32 · (8,) | Six joint targets, then `x.vel` (m/s) and `theta.vel` (rad/s) for the base |
+
+Everything runs at 30 fps.
+
+### Robot options
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `--robot.remote_ip` | `$MARS_HOST` (required) | Where the robot is |
+| `--robot.external_commands` | `false` | `true` while you teleoperate from the apps or the leader arm: LeRobot records your commands and sends none of its own |
+| `--robot.head_angle_deg` | from the dataset | Head tilt. New datasets use -20°; replay and rollout use the dataset's angle. |
+| `--robot.hold_head` | `true` | Hold the head at that angle for the whole session |
+
+### Safety
+
+| Behavior | Detail |
+| --- | --- |
+| Robot's own behaviors win | Commands are ignored while the robot runs a recorded or learned behavior. Don't run a LeRobot policy while a code skill or the agent moves the arm. |
+| Base only when asked | The base moves only for actions with `x.vel` and `theta.vel`. An arm-only policy leaves the base alone. |
+| Watchdog | The base stops if the client goes silent for half a second. |
+| Gripper limit | Gripper targets are held to -0.6 to 0.85 rad, so a policy can't trip the servo. |
+| Network access | The bridge has no login. In `manipulation_server.yaml`, under `lerobot_bridge:`, set `bind_address: "127.0.0.1"` to keep it on the robot, or `enabled: false` to turn it off. |
+
+<Warning>
+  Never `pip install lerobot` into the Jetson's system Python. It replaces the pinned numpy and breaks the camera pipeline. On the robot, use the `lerobot` folder's uv environment with `MARS_HOST=localhost`.
+</Warning>
+
+### Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `Set MARS_HOST to the robot's IP address first` | Run `export MARS_HOST=<robot IP>` in this terminal. |
+| `No 'obs' messages from the MARS bridge` | Use the robot's IP address, check you are on the same network, and look for the `LeRobot bridge listening` log line. |
+| `The MARS bridge sends no [...] frames` | That camera isn't running. Check the camera drivers in `innate view`. |
+| Log says `LeRobot bridge disabled: …` | The line names the reason. `innate update reinstall` installs a missing dependency. |
+| Replay or a policy moves the arm oddly and the base not at all | An app is still teleoperating. Leave teleop. |
+| `lerobot-train` asks for a `repo_id` | Add `--policy.push_to_hub=false`. |
+| `401` or `403` from the Hub | Log in with a token that has write permission, and check the dataset name is yours. |
+
+More detail, including how to publish from the command line and how to try policies from LeRobot's `main` branch, is in the [`lerobot` README](https://github.com/innate-inc/innate-os/blob/main/lerobot/README.md).

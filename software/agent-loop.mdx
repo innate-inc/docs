@@ -37,10 +37,13 @@ The web app's **Brain** page shows every turn: the frames it saw, what it decide
 
 ## Which model runs it
 
-The loop uses Gemini (`gemini-3.6-flash` by default, set in [`config/settings.yaml`](/software/configuration)). Choose how to reach it in `~/innate-os/.env`:
+The default is Gemini, `google:gemini-3.6-flash`. Pick another model as `vendor:name` with `llm_model` in [`config/settings.yaml`](/software/configuration), or `LLM_MODEL` in `~/innate-os/.env`. An agent can choose its own with its [`model`](/software/agents#write-an-agent) attribute.
 
-| Option | Setup |
-| --- | --- |
-| **Innate hosted** | Nothing. Robots ship with an `INNATE_SERVICE_KEY`. Free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. |
-| **Your own key** | Set `GEMINI_API_KEY`. The robot calls Google directly. |
-| **None** | Leave both unset. You can still drive and run skills by hand. |
+| Vendor | Example `llm_model` | How the robot reaches it |
+| --- | --- | --- |
+| Google | `google:gemini-3.6-flash` | The Innate service key, or your `GEMINI_API_KEY` |
+| OpenAI | `openai:gpt-5.4-mini` | The Innate service key, or your `OPENAI_API_KEY` |
+| Anthropic | `anthropic:claude-sonnet-5` | Your `ANTHROPIC_API_KEY` |
+| A server on your network (vLLM, Ollama, NVIDIA NIM) | `openai-chat:<model>` | Set `llm_base_url` to its `.../v1` root. Set `LLM_API_KEY` only if the server asks for one. |
+
+Robots ship with an `INNATE_SERVICE_KEY` in `~/innate-os/.env`. It's free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. Vendor keys go in the same file. With no key at all, you can still drive and run skills by hand.

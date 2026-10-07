@@ -43,6 +43,8 @@ It has no camera and its proportions differ from the robot's arm. Neither matter
 
 Stand behind the robot while teleoperating, so left and right match.
 
+When nothing is using the arm, it folds itself to rest about 5 seconds after boot and whenever its torque comes back on. Keep the space around it clear. To turn this off, set `auto_rest: false` under `mars_arm` in [`config/settings.yaml`](/software/configuration).
+
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/dr1TuHpc_94" title="Recording with the leader arm" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
 
 ## Navigation modes
@@ -56,3 +58,18 @@ Stand behind the robot while teleoperating, so left and right match.
 MARS starts mapping by itself the first time it connects. To make a new map, go to **Configuration → Mapping → Create New Map**, drive slowly through every room and doorway, then save. Keep the arm folded while mapping.
 
 For developers, the current mode is published on `/nav/current_mode`.
+
+### Localization
+
+In **Navigation** mode, MARS finds where it is on the map from one LiDAR scan when it starts, then keeps track of it as it drives. If the position on the map looks wrong, relocate it:
+
+| App | Automatic | By hand |
+| --- | --- | --- |
+| Web app map | **Relocate → Auto** | **Relocate → Manual**, then drag from where the robot is toward where it faces |
+| Phone app map | **Locate → Auto-locate** | **Locate → Set Pose**, then drag the same way |
+
+MARS also checks its position against what the LiDAR sees. If the two stop matching, for example because you picked it up and carried it, the robot reports **lost** and searches the map again as soon as it stands still. The web app's localization badge shows its verdict: **localized**, **low confidence**, or **lost**.
+
+### Keepout zones
+
+Keepout zones are areas MARS never drives into on its own, like a rug it gets stuck on. On the web app map, click **Keep Out** and paint the area. **Erase** removes part of a zone and **Clear** removes them all. Zones are saved with the map and don't change it.

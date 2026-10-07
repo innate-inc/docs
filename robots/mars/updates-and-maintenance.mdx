@@ -13,6 +13,8 @@ innate update apply    # install the latest stable version
 innate update status   # confirm the installed version
 ```
 
+To try a release candidate before it's stable, install it by name, for example `innate update --dev apply 0.8.0-rc2`. Release candidates are listed on [GitHub](https://github.com/innate-inc/innate-os/releases).
+
 Services restart during the update, so the robot is unresponsive for a moment. A new OS may also need a newer [app](/robots/apps). If the release notes mention depth changes, redo [stereo depth calibration](/robots/mars/stereo-depth-calibration).
 
 ## Charge the battery

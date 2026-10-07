@@ -54,6 +54,7 @@ It loads within a second or two of saving. Import skills as classes, as above, s
 | `get_inputs()` | No | [Input devices](/software/inputs) to open. Add `MicroInput` to hear speech. |
 | `uses_gaze()` | No | Return `True` to track faces with the head |
 | `display_icon` | No | Path to a 32×32 icon |
+| `model` | No | The model this agent thinks with, as `vendor:name`. See [Which model runs it](/software/agent-loop#which-model-runs-it). |
 
 Every agent can already talk, wait, and stop a running skill. You don't list those.
 
@@ -117,6 +118,8 @@ These ship in `workspace/innate_agents/`. Read them for working examples.
 | --- | --- |
 | `demo_agent` | The default. Chats, navigates, waves, picks things up, and follows your gaze. |
 | `basic_agent` | Navigation only, with an empty prompt. |
+| `intro_agent` | A friendly assistant that greets people, waves, and answers from spatial memory. |
+| `roast_agent` | A sassy insult comic that roasts whoever is in front of it, and still does the work. |
 | `j3so_directive` | A character that chats and navigates. |
 | `security_guard_agent` | Patrols and warns out loud when it sees someone. |
 
