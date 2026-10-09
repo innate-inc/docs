@@ -24,10 +24,6 @@ Both start from the same recordings: a dataset you record in the apps can also g
 
 Record a dataset and start a run from the app. Innate trains an ACT policy, and the robot downloads it automatically and runs it as a skill. You don't need a GPU or any ML setup.
 
-<Callout icon="image" color="#7569FD">
-  **Image to make: Training pipeline.** Horizontal diagram with five steps and rough durations: Record 30+ demonstrations with the leader arm → Upload (automatic) → Train in the cloud (1–3 h) → Download to the robot (automatic) → Run as a skill from the app or an agent. Replaces an ASCII diagram.
-</Callout>
-
 The policy looks at both cameras and the arm's joints, and outputs arm and base commands 25 times a second.
 
 <Steps>
