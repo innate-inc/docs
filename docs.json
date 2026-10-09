@@ -82,7 +82,7 @@
             ]
           },
           {
-            "group": "Train the Arm",
+            "group": "Train a Policy",
             "pages": [
               "training/overview",
               "training/data-collection",
