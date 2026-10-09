@@ -1,17 +1,34 @@
 ---
 title: "Training Overview"
-description: "Teach MARS a manipulation skill by demonstrating it"
+description: "Two ways to teach MARS a manipulation task from demonstrations"
 ---
 
-You show MARS a task with the leader arm a few dozen times. Innate's cloud GPUs train a policy from those demonstrations, and the robot downloads it as a skill. You don't need a GPU or any ML setup.
+You teach MARS a task by doing it yourself a few dozen times, with the leader arm or the phone app. A policy learns from those demonstrations. There are two ways to train it, and they end in different places:
+
+| | Innate cloud | LeRobot |
+| --- | --- | --- |
+| **Model** | [ACT](https://arxiv.org/abs/2304.13705) | Any LeRobot policy: ACT, Diffusion Policy, SmolVLA, π0, and more |
+| **Trains on** | Innate's GPUs, started from the apps | Your own NVIDIA GPU or Apple Silicon, from the terminal |
+| **You end with** | A **skill** on the robot | A policy checkpoint on your computer |
+| **Runs** | On the robot, without your computer | From your computer, streaming actions to the robot over the network |
+| **Agents and code can call it** | Yes, like any other [skill](/software/skills) | No. It isn't a skill, so agents and other skills can't use it. |
+| **Use it when** | You want a skill the robot can use on its own | You want to try other models, or do research |
+
+Both start from the same recordings: a dataset you record in the apps can also go to Hugging Face for LeRobot.
+
+<Tip>
+  For a motion that never changes, like a wave, record it once as a [replay skill](/software/skills/policy-defined-skills) instead of training.
+</Tip>
+
+## Train in the Innate cloud
+
+Record a dataset and start a run from the app. Innate trains an ACT policy, and the robot downloads it automatically and runs it as a skill. You don't need a GPU or any ML setup.
 
 <Callout icon="image" color="#7569FD">
   **Image to make: Training pipeline.** Horizontal diagram with five steps and rough durations: Record 30+ demonstrations with the leader arm → Upload (automatic) → Train in the cloud (1–3 h) → Download to the robot (automatic) → Run as a skill from the app or an agent. Replaces an ASCII diagram.
 </Callout>
 
-The model is [ACT (Action Chunking with Transformers)](https://arxiv.org/abs/2304.13705). It looks at both cameras and the arm's joints, and outputs arm and base commands 25 times a second.
-
-## Steps
+The policy looks at both cameras and the arm's joints, and outputs arm and base commands 25 times a second.
 
 <Steps>
   <Step title="Record a dataset">
@@ -34,8 +51,6 @@ Every step works in both the phone app and the web app:
 | Monitor | **Runs** tab | **Running now** card |
 | Download | **Completed** tab | Automatic |
 
-Prefer to train on your own GPU, or with a different model such as Diffusion Policy, SmolVLA, or π0? Your datasets publish to Hugging Face in the LeRobot format. See [Train with LeRobot](/training/lerobot).
+## Train with LeRobot
 
-<Tip>
-  For a motion that never changes, like a wave, record it once as a [replay skill](/software/skills/policy-defined-skills) instead of training.
-</Tip>
+[LeRobot](https://github.com/huggingface/lerobot) is Hugging Face's robot learning library. MARS works with its standard commands: you record or upload a dataset, train any of its policies on your own GPU, and run the policy with `lerobot-rollout` while your computer stays connected to the robot. [Train with LeRobot →](/training/lerobot)
