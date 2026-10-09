@@ -37,7 +37,7 @@ The web app's **Brain** page shows every turn: the frames it saw, what it decide
 
 ## Which model runs it
 
-The default is Gemini, `google:gemini-3.6-flash`. Pick another model as `vendor:name` with `llm_model` in [`config/settings.yaml`](/software/configuration), or `LLM_MODEL` in `~/innate-os/.env`. An agent can choose its own with its [`model`](/software/agents#write-an-agent) attribute.
+The default is Gemini, `google:gemini-3.6-flash`. To pick another, open the web app's **Settings → Agent → Model**. Choose a model from the list, or **Custom…** to type any `vendor:name`. The change applies without a restart. An agent can also [choose its own model](/software/agents#choose-the-model).
 
 | Vendor | Example `llm_model` | How the robot reaches it |
 | --- | --- | --- |
@@ -46,4 +46,6 @@ The default is Gemini, `google:gemini-3.6-flash`. Pick another model as `vendor:
 | Anthropic | `anthropic:claude-sonnet-5` | Your `ANTHROPIC_API_KEY` |
 | A server on your network (vLLM, Ollama, NVIDIA NIM) | `openai-chat:<model>` | Set `llm_base_url` to its `.../v1` root. Set `LLM_API_KEY` only if the server asks for one. |
 
-Robots ship with an `INNATE_SERVICE_KEY` in `~/innate-os/.env`. It's free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. Vendor keys go in the same file. With no key at all, you can still drive and run skills by hand.
+Add vendor keys in the web app under **Settings → Keys → Model providers**. A saved key is used from the next model switch or skill call, without a restart. Robots ship with an `INNATE_SERVICE_KEY`, which is free for 300 hours; ask on [Discord](https://discord.com/invite/KtkyT97kc7) for more. With no key at all, you can still drive and run skills by hand.
+
+Without the web app, set `llm_model` in [`config/settings.yaml`](/software/configuration) and the keys in `~/innate-os/.env`.

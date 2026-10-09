@@ -102,6 +102,17 @@ Skills decide what the robot *can* do. The prompt decides what it *does*. The mo
   </Accordion>
 </AccordionGroup>
 
+## Choose the model
+
+Every agent thinks with the robot's model, which you pick in the web app under **Settings → Agent → Model**. To give one agent a model of its own, set `model` on its class:
+
+```innatepy
+class Greeter(Agent):
+    model = "anthropic:claude-sonnet-5"
+```
+
+Starting the agent switches the robot to that model. Use any `vendor:name` from [Which model runs it](/software/agent-loop#which-model-runs-it), and add the vendor's key under **Settings → Keys**.
+
 ## Start an agent
 
 - **Web app:** open the **Agent** page, pick your agent, and press **Start**. **Reset** clears the conversation.

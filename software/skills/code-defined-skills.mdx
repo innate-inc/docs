@@ -50,6 +50,7 @@ class MySkill(Skill):
 | `Mobility`, `Manipulation`, `Head` | [Movement API](/software/skills/code-defined-skills/body-control-interfaces) |
 | Cameras, odometry, map, battery, LiDAR, arm state | [Robot state](/software/skills/code-defined-skills/robot-state) |
 | `SpatialMemory` | [Spatial memory](/software/skills/code-defined-skills/spatial-memory) |
+| `Llm` | [Ask a model](#ask-a-model) below |
 | Other skills | [Call other skills](#call-other-skills) below |
 
 ## Return a result
@@ -117,6 +118,34 @@ class TidyCorner(Skill):
 ```
 
 A failing sub-skill raises `SkillFailed`. Catch that, not bare `Exception`, or Stop won't work.
+
+## Ask a model
+
+Declare `llm: Llm` and ask it about a camera frame. You get the robot's model, with its keys already set up.
+
+```innatepy
+from innate import Llm, MainImage, Skill
+
+
+class IsDoorOpen(Skill):
+    image: MainImage
+    llm: Llm
+
+    def guidelines(self) -> str:
+        return "Use to check whether the door in front of the robot is open."
+
+    def execute(self):
+        answer = self.llm.ask(self.image, "Is the door in this image open? Answer only YES or NO.")
+        if answer is None:
+            self.fail("No model is reachable")
+        return "The door is open" if "YES" in answer.upper() else "The door is closed"
+```
+
+| | |
+| --- | --- |
+| `self.llm.ask(images, question)` | Sends one or two base64 JPEGs, like `MainImage` or `WristImage`, with your question. Returns the reply text, or `None` if the model can't be reached or all 3 tries fail. |
+| `llm: Llm = Llm("google:gemini-3.5-flash")` | Pin a model for this skill, whatever the robot is set to |
+| `Llm("google:gemini-3.5-flash", thinking="minimal")` | Also set how long it reasons. `minimal` is fastest for quick yes/no or box questions. |
 
 ## Call external services
 
