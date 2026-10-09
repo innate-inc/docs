@@ -104,14 +104,22 @@ Skills decide what the robot *can* do. The prompt decides what it *does*. The mo
 
 ## Choose the model
 
-Every agent thinks with the robot's model, which you pick in the web app under **Settings → Agent → Model**. To give one agent a model of its own, set `model` on its class:
+On the web app's **Agent** page, click the agent's name to open its panel, then pick a model from **Model**. The robot switches without a restart, and the next reply comes from the new model.
+
+<video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/software/change-model.mp4">
+  Switching the agent's model from Gemini 3.6 Flash to GPT-5.6 Sol on the web app's Agent page.
+</video>
+
+This is the robot's model, shared by every agent that doesn't pin its own. **Settings → Agent → Model** changes the same setting. A model whose vendor key is missing stays in the list and says so; add the key under **Settings → Keys**.
+
+To pin a model to one agent, set `model` on its class:
 
 ```innatepy
 class Greeter(Agent):
     model = "anthropic:claude-sonnet-5"
 ```
 
-Starting the agent switches the robot to that model. Use any `vendor:name` from [Which model runs it](/software/agent-loop#which-model-runs-it), and add the vendor's key under **Settings → Keys**.
+Starting the agent switches the robot to that model, and the **Model** picker shows it instead of offering a change. Vendors, example names, and the key each needs are in [Which model runs it](/software/agent-loop#which-model-runs-it).
 
 ## Start an agent
 
