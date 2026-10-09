@@ -110,12 +110,6 @@
             "pages": [
               "robots/mars/troubleshooting"
             ]
-          },
-          {
-            "group": "Hackathon",
-            "pages": [
-              "hackathon/robohacks"
-            ]
           }
         ]
       }
@@ -346,6 +340,10 @@
     {
       "source": "/software/agents/chessboard-calibration-beta",
       "destination": "/software/agents"
+    },
+    {
+      "source": "/hackathon/robohacks",
+      "destination": "/"
     }
   ]
 }
