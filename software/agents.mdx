@@ -54,6 +54,7 @@ It loads within a second or two of saving. Import skills as classes, as above, s
 | `get_inputs()` | No | [Input devices](/software/inputs) to open. Add `MicroInput` to hear speech. |
 | `uses_gaze()` | No | Return `True` to track faces with the head |
 | `display_icon` | No | Path to a 32×32 icon |
+| `model` | No | The model this agent thinks with, as `vendor:name`. See [Which model runs it](/software/agent-loop#which-model-runs-it). |
 
 Every agent can already talk, wait, and stop a running skill. You don't list those.
 
@@ -101,6 +102,25 @@ Skills decide what the robot *can* do. The prompt decides what it *does*. The mo
   </Accordion>
 </AccordionGroup>
 
+## Choose the model
+
+On the web app's **Agent** page, click the agent's name to open its panel, then pick a model from **Model**. The robot switches without a restart, and the next reply comes from the new model.
+
+<video autoPlay muted loop playsInline className="w-full rounded-xl" src="/videos/software/change-model.mp4">
+  Switching the agent's model from Gemini 3.6 Flash to GPT-5.6 Sol on the web app's Agent page.
+</video>
+
+This is the robot's model, shared by every agent that doesn't pin its own. **Settings → Agent → Model** changes the same setting. A model whose vendor key is missing stays in the list and says so; add the key under **Settings → Keys**.
+
+To pin a model to one agent, set `model` on its class:
+
+```innatepy
+class Greeter(Agent):
+    model = "anthropic:claude-sonnet-5"
+```
+
+Starting the agent switches the robot to that model, and the **Model** picker shows it instead of offering a change. Vendors, example names, and the key each needs are in [Which model runs it](/software/agent-loop#which-model-runs-it).
+
 ## Start an agent
 
 - **Web app:** open the **Agent** page, pick your agent, and press **Start**. **Reset** clears the conversation.
@@ -117,6 +137,8 @@ These ship in `workspace/innate_agents/`. Read them for working examples.
 | --- | --- |
 | `demo_agent` | The default. Chats, navigates, waves, picks things up, and follows your gaze. |
 | `basic_agent` | Navigation only, with an empty prompt. |
+| `intro_agent` | A friendly assistant that greets people, waves, and answers from spatial memory. |
+| `roast_agent` | A sassy insult comic that roasts whoever is in front of it, and still does the work. |
 | `j3so_directive` | A character that chats and navigates. |
 | `security_guard_agent` | Patrols and warns out loud when it sees someone. |
 

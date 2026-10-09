@@ -23,6 +23,7 @@ Use **topics** for streams, **services** for one-off requests, and **actions** f
 | `/leader/state` | `sensor_msgs/JointState` | Pub | Leader arm joints, while teleoperating |
 | `/joint_states` | `sensor_msgs/JointState` | Pub | All joints, for visualization |
 | `/nav/current_mode` | | Pub | `navigation`, `mapfree`, or `mapping` |
+| `/localization/status` | `std_msgs/String` | Pub | `localized`, `localized_low_confidence`, `lost`, `processing_map`, or `error`. Latched. |
 | `/brain/chat_out` | `std_msgs/String` | Pub | What the agent says |
 | `/brain/available_skills` | `std_msgs/String` | Pub | Loaded skills, as JSON |
 | `/brain/skill_status_update` | `std_msgs/String` | Pub | Status of the running skill |

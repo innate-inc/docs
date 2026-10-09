@@ -50,13 +50,19 @@ Don't edit these in place, because updates overwrite them. Copy one into `custom
 | `turn_in_place` | Turn by an angle in degrees |
 | `navigate_with_vision` | Drive from a plain-language instruction, like "go to the kitchen" |
 | `follow_aruco` | Follow an ArUco tag |
+| `approach` | Find a thing on the floor and drive until it sits in reach |
 | `pick_any_object` | Pick something up from a description, like "the white sock" |
+| `drop_in_box` | Drop a held object into a box, bin, or basket |
 | `open_gripper`, `close_gripper` | Release or grab |
+| `arm_move` | Move the gripper to a position (`mode="xyz"`) or set joint angles (`mode="joints"`) |
 | `arm_rest_position`, `arm_zero_position` | Fold the arm away, or send it home |
 | `arm_move_to_xyz`, `arm_circle_motion`, `arm_utils` | Direct arm moves, torque, and reboot |
 | `wave` | A recorded wave |
 | `search_memory` | Search [spatial memory](/software/skills/code-defined-skills/spatial-memory) |
 | `head_emotion` | Show an emotion with head motion |
+| `change_volume` | Set the speaker volume, 0 to 100 |
+
+The arm skills live in `innate_skills/arm/`, so import them from there: `from innate_skills.arm.open_gripper import OpenGripper`.
 
 ## Run a skill manually
 

@@ -1,9 +1,11 @@
 ---
 title: "Record a Dataset"
-description: "Record demonstrations with the leader arm for training"
+description: "Record demonstrations with the leader arm, train on them, and share them on Hugging Face"
 ---
 
 You teleoperate the robot through the task while it records both cameras and the arm's joints at 30 Hz. Each recording is an episode. You need a [leader arm](/robots/mars/control-and-connectivity#leader-arm).
+
+Train on your dataset, then [share it on Hugging Face](#share-on-hugging-face) so others can see what MARS can do, reuse your episodes, and train their own policies.
 
 ![The web app's Collect page](/images/main/robots/web-app/collect.jpg)
 
@@ -56,10 +58,31 @@ The policy copies exactly what you do, mistakes included.
 
 If the task involves driving, turn on base movement in the recorder. The episode then also records velocity commands and odometry.
 
-## Review and upload
+## Review and upload for training
 
 Replay your episodes and delete bad ones: on the web app's **Datasets** page, or the skill's **Record** tab in the phone app. New episodes show **preparing** while they encode.
 
-To upload, tap **Upload** in the phone app's **Record** tab and wait for the green sync badge. The web app uploads automatically when you start training. Only new episodes are sent.
+To upload for [cloud training](/training/train-act-policy), tap **Upload** in the phone app's **Record** tab and wait for the green sync badge. The web app uploads automatically when you start training. Only new episodes are sent.
 
-Next: [Train a policy](/training/train-act-policy).
+## Share on Hugging Face
+
+<img src="/images/main/training/hugging-face-logo.svg" alt="Hugging Face" className="block dark:hidden" style={{ width: "220px" }} />
+<img src="/images/main/training/hugging-face-logo-dark.svg" alt="Hugging Face" className="hidden dark:block" style={{ width: "220px" }} />
+
+Publish your dataset to the [Hugging Face Hub](https://huggingface.co/datasets) as a standard LeRobot dataset. Anyone can then browse your episodes in LeRobot's [dataset visualizer](https://huggingface.co/spaces/lerobot/visualize_dataset), and train on them with [LeRobot](/training/lerobot). For an example, see [innate-inc/mars-pick-tv](https://huggingface.co/datasets/innate-inc/mars-pick-tv).
+
+<Steps>
+  <Step title="Add your token">
+    Create a token with **write** permission at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). In the web app, save it under **Settings → Keys → Hugging Face**.
+  </Step>
+  <Step title="Publish">
+    On the **Datasets** page, open your dataset and press **Publish to Hugging Face**. The first time, the robot downloads the LeRobot environment, about 1.5 GB.
+  </Step>
+  <Step title="Name it">
+    Pick your account or an organization, and a repository name. **Private** is ticked by default: untick it to share the dataset with everyone. Only public datasets open in the visualizer.
+  </Step>
+</Steps>
+
+Publishing runs in the background, so you can close the dialog and reopen it to check progress. After you record more episodes, publish again: only the new ones are uploaded. Deleted episodes, and ones marked as failed, are left out of the next publish. Datasets you recorded before Innate OS 0.8.0 publish too.
+
+Next: [Train in the cloud](/training/train-act-policy), or [train with LeRobot](/training/lerobot).

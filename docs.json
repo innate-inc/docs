@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "OS 0.7.1",
+        "version": "OS 0.8.0",
         "default": true,
         "groups": [
           {
@@ -82,12 +82,13 @@
             ]
           },
           {
-            "group": "Train the Arm",
+            "group": "Train a Policy",
             "pages": [
               "training/overview",
               "training/data-collection",
               "training/train-act-policy",
               "training/deploy-trained-skill",
+              "training/lerobot",
               "training/dataset-format",
               "training/training-cli"
             ]
@@ -108,12 +109,6 @@
             "group": "Help",
             "pages": [
               "robots/mars/troubleshooting"
-            ]
-          },
-          {
-            "group": "Hackathon",
-            "pages": [
-              "hackathon/robohacks"
             ]
           }
         ]
@@ -345,6 +340,10 @@
     {
       "source": "/software/agents/chessboard-calibration-beta",
       "destination": "/software/agents"
+    },
+    {
+      "source": "/hackathon/robohacks",
+      "destination": "/"
     }
   ]
 }
