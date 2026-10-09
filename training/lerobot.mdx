@@ -201,13 +201,7 @@ Leave out `--private` to make it public. Public datasets also open in LeRobot's 
 
 You can [record in the web app or the phone app](/training/data-collection) and train with LeRobot. The robot records the cameras on board at 30 fps, so on a real robot this is usually more robust than recording over Wi-Fi. Datasets recorded before 0.8.0 work too.
 
-To upload one, open the web app's **Datasets** page:
-
-1. Save a Hugging Face token with write permission under **Settings → Keys**.
-2. Press **Publish to Hugging Face**. The first time, the robot downloads the LeRobot environment, about 1.5 GB.
-3. Pick the account, a repository name, and whether a new dataset is private.
-
-Then train and run from [step 4](#4-train-a-policy). Publishing again uploads only the new episodes, and leaves out deleted episodes and ones marked as failed.
+[Publish it to Hugging Face](/training/data-collection#share-on-hugging-face) from the web app's **Datasets** page, then train and run from [step 4](#4-train-a-policy).
 
 ## Use the simulator
 
