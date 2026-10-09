@@ -1,6 +1,6 @@
 ---
 title: "Driving and Teleoperation"
-description: "Drive MARS, control the arm with the leader arm, and pick a navigation mode"
+description: "Drive MARS, move the arm with the leader arm or your phone, and pick a navigation mode"
 ---
 
 import IosLeaderArmWarning from '/snippets/ios-leader-arm-warning.mdx';
@@ -46,6 +46,21 @@ Stand behind the robot while teleoperating, so left and right match.
 When nothing is using the arm, it folds itself to rest about 5 seconds after boot and whenever its torque comes back on. Keep the space around it clear. To turn this off, set `auto_rest: false` under `mars_arm` in [`config/settings.yaml`](/software/configuration).
 
 <iframe width="100%" height="420" src="https://www.youtube.com/embed/dr1TuHpc_94" title="Recording with the leader arm" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+
+## Phone teleop
+
+No leader arm at hand? Move the arm by moving your phone instead. In the phone app's **Manual Control**, hold the fingerprint pad on the **Hold to move the arm** bar, then move your phone: the gripper follows your hand. Slide your thumb right along the bar to close the gripper, and left to open it.
+
+<Frame><img src="/images/main/robots/mars/control-via-app-phone-teleop.jpg" width="300" alt="The phone app's Manual Control screen: camera views, the Hold to move the arm bar, the head slider, and the joystick" /></Frame>
+
+The arm follows your hand from where the phone was when you pressed. Let go and the arm stays put. The next hold starts from there, so you can move your hand back and carry on.
+
+| | |
+| --- | --- |
+| **Phones** | iPhone (ARKit), and Android phones that support ARCore. On Android the app offers to install Google Play Services for AR if it's missing. |
+| **Needs** | Controller app 1.5.0 or newer, and Innate OS 0.8.0 or newer |
+| **First hold** | If the arm is folded, it first moves to its zero pose (about 3 seconds, **Zeroing the arm…**), then follows. |
+| **Tracking** | The phone tracks itself with its back camera. Aim it at a room with things in it, not a blank wall. If the bar says **Phone tracking not working**, tap it for help. |
 
 ## Navigation modes
 
